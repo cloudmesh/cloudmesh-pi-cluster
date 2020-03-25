@@ -40,11 +40,11 @@ with open('README.md') as f:
 
 
 
-NAME = "cloudmesh-pi"
+NAME = "cloudmesh-pi-cluster"
 DESCRIPTION = "A command called pi and foo for the cloudmesh shell"
 AUTHOR = "Gregor von Laszewski"
 AUTHOR_EMAIL = "laszewski@gmail.com"
-URL = "https://github.com/cloudmesh/cloudmesh-pi"
+URL = "https://github.com/cloudmesh/cloudmesh-pi-cluster"
 
 
 setup(

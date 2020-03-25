@@ -5,6 +5,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import path_expand
 from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
+from cloudmesh.pi.board.led import LED
 
 class PiCommand(PluginCommand):
 
@@ -15,8 +16,7 @@ class PiCommand(PluginCommand):
         ::
 
           Usage:
-                pi --file=FILE
-                pi list
+                pi led (red|green) NAMES VALUE
 
           This command does some useful things.
 
@@ -27,11 +27,10 @@ class PiCommand(PluginCommand):
               -f      specify the file
 
         """
-        if arguments.FILE:
-            print("option a")
+        if arguments.led and arguments.red:
+            LED.set(1, arguments.VALUE)
+        elif arguments.led and arguments.green:
+            LED.set(0, arguments.VALUE)
 
-        elif arguments.list:
-            print("option b")
 
-        Console.error("This is just a sample")
         return ""
