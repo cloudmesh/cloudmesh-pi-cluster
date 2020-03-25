@@ -10,14 +10,17 @@ This README is managed in
 Set up cloudmesh on the master 
 
 ```bash
-$ sudo apt-get update
-$ sudo apt-get full-upgrade
-$ sudo apt-get install emacs
-$ ssh-keygen
-$ python3 -m venv ~/ENV3
-$ source ~/ENV3/bin/activate
-$ pip install pip -U 
-$ pip install cloudmesh-installer 
-$ cloudmesh-installer get pi
+sudo apt-get update
+sudo apt-get full-upgrade
+sudo apt-get install emacs
+ssh-keygen
+echo 'alias python="/usr/bin/python3"' > .bashrc
+source .bashrc
+python --version
+python -m venv ~/ENV3
+source ~/ENV3/bin/activate
+pip install pip -U 
+pip install cloudmesh-installer 
+cloudmesh-installer get pi
 ```
 

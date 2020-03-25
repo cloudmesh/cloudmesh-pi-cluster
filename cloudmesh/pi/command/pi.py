@@ -28,9 +28,12 @@ class PiCommand(PluginCommand):
 
         """
         if arguments.led and arguments.red:
-            LED.set(1, arguments.VALUE)
+            print ("red")
+            #LED.set(1, arguments.VALUE)
         elif arguments.led and arguments.green:
-            LED.set(0, arguments.VALUE)
+            print ("green")
+
+            #LED.set(0, arguments.VALUE)
 
 
         return ""
