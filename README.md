@@ -24,3 +24,11 @@ $ pip install cloudmesh-installer
 $ cloudmesh-installer get pi
 ```
 
+## Setting LEDS
+
+``` bash
+$ cms pi led green on
+$ cms pi led green off
+$ cms pi led red on
+$ cms pi led red off
+```
