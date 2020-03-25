@@ -1,6 +1,6 @@
 import os
 
-class Led:
+class LED:
 
     @staticmethod
     def set(led, status):
