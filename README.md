@@ -1,15 +1,23 @@
 # Documentation
 
-[![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi.svg?branch=master)](https://travis-ci.org/TankerHQ/cloudmesn-pi)
+This README is managed in 
 
-[![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi.svg)](https://pypi.org/project/cloudmesh-pi)
+* [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/README.md)
+* <https://github.com/cloudmesh/cloudmesh-pi-cluster>
 
-[![image](https://img.shields.io/pypi/v/cloudmesh-pi.svg)](https://pypi.org/project/cloudmesh-pi/)
+## Prerequisite
 
-[![image](https://img.shields.io/github/license/TankerHQ/python-cloudmesh-pi.svg)](https://github.com/TankerHQ/python-cloudmesh-pi/blob/master/LICENSE)
+Set up cloudmesh on the master 
 
+```bash
+$ sudo apt-get update
+$ sudo apt-get full-upgrade
+$ sudo apt-get install emacs
+$ ssh-keygen
+$ python3 -m venv ~/ENV3
+$ source ~/ENV3/bin/activate
+$ pip install pip -U 
+$ pip install cloudmesh-installer 
+$ cloudmesh-installer get pi
+```
 
-
-cloudmesh-pi-cluster
-
-TBD
