@@ -16,7 +16,7 @@ class PiCommand(PluginCommand):
         ::
 
           Usage:
-                pi led (red|green) NAMES VALUE
+                pi led (red|green) VALUE [NAMES]
 
           This command does some useful things.
 
@@ -28,9 +28,9 @@ class PiCommand(PluginCommand):
 
         """
         if arguments.led and arguments.red:
-            LED.set(1, arguments.VALUE)
+            LED.set(led=1, value=arguments.VALUE)
         elif arguments.led and arguments.green:
-            LED.set(0, arguments.VALUE)
+            LED.set(led=0, value=arguments.VALUE)
 
 
         return ""
