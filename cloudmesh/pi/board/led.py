@@ -48,5 +48,23 @@ class LED:
                           key="~/.ssh/id_rsa.pub",
                           processors=processors,
                           executor=os.system)
-        pprint(result)
         return result
+
+    @staticmethod
+    def list_remote(
+        hosts=None,
+        username=None,
+        processors=3):
+
+        command = f"cat /sys/class/leds/led0/brightness /sys/class/leds/led1/brightness"
+        results = Host.ssh(hosts=hosts,
+                          command=command,
+                          username=username,
+                          key="~/.ssh/id_rsa.pub",
+                          processors=processors,
+                          executor=os.system)
+        for result in results:
+            print (result)
+            result["green"],result["red"] = result["stdout"].split("\n",1)
+
+        return results
