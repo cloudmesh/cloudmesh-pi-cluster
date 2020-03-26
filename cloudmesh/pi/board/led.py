@@ -1,7 +1,8 @@
 import os
 from cloudmesh.common.Host import Host
 from pprint import pprint
-
+import time
+from cloudmesh.common.parameter import Parameter
 
 class LED:
 
@@ -49,6 +50,78 @@ class LED:
                           processors=processors,
                           executor=os.system)
         return result
+
+
+    @staticmethod
+    def blink_remote(
+        led=None,
+        hosts=None,
+        username=None,
+        rate=None,
+        processors=3):
+
+        if led not in [1, 0]:
+            raise ValueError("Led number is wrong")
+        rate = float(rate or 0.5)
+
+        for i in range(0,3):
+            state = 0
+
+            LED.set_remote(
+                led=led,
+                value="0",
+                hosts=hosts,
+                username=username,
+                processors=processors)
+
+            time.sleep(rate)
+
+            LED.set_remote(
+                led=led,
+                value="1",
+                hosts=hosts,
+                username=username,
+                processors=processors)
+
+            time.sleep(rate)
+
+        return None
+
+
+    @staticmethod
+    def sequence_remote(
+        led=None,
+        hosts=None,
+        username=None,
+        rate=None,
+        processors=3):
+
+        if led not in [1, 0]:
+            raise ValueError("Led number is wrong")
+        rate = float(rate or 0.5)
+
+        hosts = Parameter.expand(hosts)
+        for host in hosts:
+
+            LED.set_remote(
+                led=led,
+                value="0",
+                hosts=host,
+                username=username,
+                processors=processors)
+
+            time.sleep(rate)
+
+            LED.set_remote(
+                led=led,
+                value="1",
+                hosts=host,
+                username=username,
+                processors=processors)
+
+            time.sleep(rate)
+
+        return None
 
     @staticmethod
     def list_remote(

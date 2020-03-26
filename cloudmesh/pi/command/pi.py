@@ -21,6 +21,8 @@ class PiCommand(PluginCommand):
                 pi led (red|green) VALUE
                 pi led (red|green) VALUE NAMES [--user=USER]
                 pi led list NAMES [--user=USER]
+                pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
+                pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
 
           This command does some useful things.
 
@@ -52,6 +54,14 @@ class PiCommand(PluginCommand):
 
                     switches on the led of the given PIs
 
+                cms pi led red blink  "red,red[01-03]"
+
+                    switches on and off the led of the given PIs
+
+                cms pi led red sequence  "red,red[01-03]"
+
+                    goes in sequential order and switches on and off the led of
+                    the given PIs
 
 
 
@@ -84,7 +94,31 @@ class PiCommand(PluginCommand):
         elif arguments.green:
             number = 0
 
-        if arguments.list:
+
+        if arguments.sequence:
+
+            results = LED.sequence_remote(
+                led=number,
+                hosts=arguments.NAMES,
+                username=arguments.user,
+                rate=arguments.RATE,
+                processors=3)
+
+            _print_leds(results)
+
+
+        elif arguments.blink:
+
+            results = LED.blink_remote(
+                led=number,
+                hosts=arguments.NAMES,
+                username=arguments.user,
+                rate=arguments.RATE,
+                processors=3)
+
+            _print_leds(results)
+
+        elif arguments.list:
 
             results = LED.list_remote(
                 hosts=arguments.NAMES,
