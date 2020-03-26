@@ -8,6 +8,7 @@ from cloudmesh.common.debug import VERBOSE
 from cloudmesh.pi.board.led import LED
 from cloudmesh.shell.command import map_parameters
 
+
 class PiCommand(PluginCommand):
 
     # noinspection PyUnusedLocal
@@ -33,13 +34,21 @@ class PiCommand(PluginCommand):
         map_parameters(arguments,
                        'user')
 
+        if arguments.red:
+            number = 1
+        elif arguments.green:
+            number = 0
+
         if not arguments.NAMES:
-            if arguments.led and arguments.red:
-                LED.set(led=1, value=arguments.VALUE)
-            elif arguments.led and arguments.green:
-                LED.set(led=0, value=arguments.VALUE)
+            if arguments.led:
+                LED.set(led=number, value=arguments.VALUE)
         else:
-            LED.set_remote(arguments.NAMES,
-                           arguments.user)
+
+            LED.set_remote(
+                led=number,
+                value=arguments.VALUE,
+                hosts=arguments.NAMES,
+                username=arguments.user,
+                processors=3)
 
         return ""
