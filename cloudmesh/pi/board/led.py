@@ -1,4 +1,6 @@
 import os
+from cloudmesh.common.Host import Host
+
 
 class LED:
 
@@ -17,8 +19,21 @@ class LED:
             # then we do not have to switch it off
             command = f"echo 0 | sudo tee /sys/class/leds/led{led}/brightness >> /dev/null"
             os.system(command)
-            
+
         command = f"echo {state} | sudo tee /sys/class/leds/led{led}/brightness >> /dev/null"
 
         os.system(command)
-        
+
+    @staticmethod
+    def set_remote(hosts=None,
+                   username=None,
+                   processors=3):
+
+        command = "uname"
+        result = Host.ssh(hosts=hosts,
+                          command=command,
+                          username=username,
+                          key="~/.ssh/id_rsa.pub",
+                          processors=processors,
+                          executor=os.system)
+        return result
