@@ -29,6 +29,7 @@ class LED:
                    username=None,
                    processors=3):
 
+
         command = "uname"
         result = Host.ssh(hosts=hosts,
                           command=command,
@@ -36,4 +37,5 @@ class LED:
                           key="~/.ssh/id_rsa.pub",
                           processors=processors,
                           executor=os.system)
+        print (result)
         return result
