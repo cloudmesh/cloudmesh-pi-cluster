@@ -4,6 +4,7 @@ from pprint import pprint
 import time
 from cloudmesh.common.parameter import Parameter
 
+
 class LED:
 
     @staticmethod
@@ -51,7 +52,6 @@ class LED:
                           executor=os.system)
         return result
 
-
     @staticmethod
     def blink_remote(
         led=None,
@@ -64,7 +64,7 @@ class LED:
             raise ValueError("Led number is wrong")
         rate = float(rate or 0.5)
 
-        for i in range(0,3):
+        for i in range(0, 3):
             state = 0
 
             LED.set_remote(
@@ -87,7 +87,6 @@ class LED:
 
         return None
 
-
     @staticmethod
     def sequence_remote(
         led=None,
@@ -102,7 +101,6 @@ class LED:
 
         hosts = Parameter.expand(hosts)
         for host in hosts:
-
             LED.set_remote(
                 led=led,
                 value="0",
@@ -131,13 +129,13 @@ class LED:
 
         command = f"cat /sys/class/leds/led0/brightness /sys/class/leds/led1/brightness"
         results = Host.ssh(hosts=hosts,
-                          command=command,
-                          username=username,
-                          key="~/.ssh/id_rsa.pub",
-                          processors=processors,
-                          executor=os.system)
+                           command=command,
+                           username=username,
+                           key="~/.ssh/id_rsa.pub",
+                           processors=processors,
+                           executor=os.system)
         for result in results:
-            print (result)
-            result["green"],result["red"] = result["stdout"].split("\n",1)
+            print(result)
+            result["green"], result["red"] = result["stdout"].split("\n", 1)
 
         return results

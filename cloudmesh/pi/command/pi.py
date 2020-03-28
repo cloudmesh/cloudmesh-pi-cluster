@@ -6,8 +6,10 @@ from cloudmesh.common.util import path_expand
 from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.pi.board.led import LED
+from cloudmesh.pi.board.temperature import Temperature
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.Printer import Printer
+
 
 class PiCommand(PluginCommand):
 
@@ -23,6 +25,7 @@ class PiCommand(PluginCommand):
                 pi led list NAMES [--user=USER]
                 pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
                 pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
+                pi temp NAMES [--watch] [--user=USER] [--output=FORMAT]
 
           This command does some useful things.
 
@@ -63,12 +66,12 @@ class PiCommand(PluginCommand):
                     goes in sequential order and switches on and off the led of
                     the given PIs
 
-
-
         """
 
         map_parameters(arguments,
-                       'user')
+                       'output'
+                       'user',
+                       'watch')
 
         def _print(results):
             arguments.output = arguments.output or 'table'
@@ -88,14 +91,31 @@ class PiCommand(PluginCommand):
             else:
                 pprint(results)
 
-
         if arguments.red:
             number = 1
         elif arguments.green:
             number = 0
 
+        if arguments.temp and arguments.watch:
+            results = Temperature.watch(
+                hosts=arguments.NAMES,
+                username=arguments.user,
+                rate=arguments.RATE,
+                processors=3,
+                output=arguments.output
+            )
 
-        if arguments.sequence:
+        if arguments.temp:
+
+            results = Temperature.get(
+                hosts=arguments.NAMES,
+                username=arguments.user,
+                processors=3,
+            )
+
+            Temperature.Print(results, output=arguments.output)
+
+        elif arguments.sequence:
 
             results = LED.sequence_remote(
                 led=number,
@@ -105,7 +125,6 @@ class PiCommand(PluginCommand):
                 processors=3)
 
             _print_leds(results)
-
 
         elif arguments.blink:
 
@@ -125,12 +144,14 @@ class PiCommand(PluginCommand):
                 username=arguments.user,
                 processors=3)
 
-
             _print_leds(results)
 
         elif not arguments.NAMES and arguments.led:
-                LED.set(led=number, value=arguments.VALUE)
-        else:
+
+            LED.set(led=number, value=arguments.VALUE)
+
+        elif arguments.NAMES and arguments.led:
+
             results = LED.set_remote(
                 led=number,
                 value=arguments.VALUE,

@@ -62,6 +62,7 @@ from cloudmesh.common.console import Console
 
 import os
 
+
 class Installer:
 
     @staticmethod
@@ -82,15 +83,15 @@ class Installer:
     def reboot(self):
         os.system("shutdown -r now")
 
+
 class k3(Installer):
 
     def enable_containers(self, filename="/boot/cmdline.txt"):
-
         command = "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
         self.add_to_file(filename, command)
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
     # create an example
     filename = "/boot/cmdline.txt"
     os.system(f"cp {filename} tmp.txt")
