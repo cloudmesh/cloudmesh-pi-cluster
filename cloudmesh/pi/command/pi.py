@@ -69,12 +69,13 @@ class PiCommand(PluginCommand):
         """
 
         map_parameters(arguments,
-                       'output'
+                       'output',
                        'user',
                        'rate')
 
+        arguments.output = arguments.output or 'table'
+
         def _print(results):
-            arguments.output = arguments.output or 'table'
 
             if arguments.output == 'table':
                 print(Printer.write(results,
@@ -83,7 +84,6 @@ class PiCommand(PluginCommand):
                 pprint(results)
 
         def _print_leds(results):
-            arguments.output = arguments.output or 'table'
 
             if arguments.output == 'table':
                 print(Printer.write(results,
@@ -96,7 +96,13 @@ class PiCommand(PluginCommand):
         elif arguments.green:
             number = 0
 
-        if arguments.temp and arguments.rate:
+
+        if arguments.temp and arguments.rate and arguments.output=='graph':
+
+            Temperature.WatchGraph(arguments.NAMES)
+
+        elif arguments.temp and arguments.rate:
+
             results = Temperature.watch(
                 hosts=arguments.NAMES,
                 username=arguments.user,
@@ -105,7 +111,7 @@ class PiCommand(PluginCommand):
                 output=arguments.output
             )
 
-        if arguments.temp:
+        elif arguments.temp:
 
             results = Temperature.get(
                 hosts=arguments.NAMES,
@@ -113,7 +119,10 @@ class PiCommand(PluginCommand):
                 processors=3,
             )
 
-            Temperature.Print(results, output=arguments.output)
+            if arguments.output in ['bar','browser','sparkline', 'line']:
+                Temperature.Graph(results, output=arguments.output)
+            else:
+                Temperature.Print(results, output=arguments.output)
 
         elif arguments.sequence:
 

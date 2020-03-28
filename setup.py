@@ -28,7 +28,9 @@ def readfile(filename):
 # add minimum requirements here
 #
 requiers = """
-psutil
+pygal
+webbrowser
+matplotlib
 """.split("\n")
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
