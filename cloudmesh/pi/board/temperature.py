@@ -4,7 +4,7 @@ from pprint import pprint
 import time
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.Printer import Printer
-
+import sys
 
 class Temperature:
 
@@ -23,6 +23,7 @@ class Temperature:
     def get(
         hosts=None,
         username=None,
+        key="~/.ssh/id_rsa.pub",
         processors=3):
 
         hosts = Parameter.expand(hosts)
@@ -46,24 +47,34 @@ class Temperature:
     def watch(
         hosts=None,
         username=None,
-        rate=None,
+        key="~/.ssh/id_rsa.pub",
+        rate=3.0,
         processors=3,
-        printer=None):
+        output=None):
 
         command = "cat /sys/class/thermal/thermal_zone0/temp; /opt/vc/bin/vcgencmd measure_temp"
 
-        printer = printer or pprint
+        output = output or 'table'
 
-        while True:
+        try:
 
-            result = Temperature.get(
-                hosts=hosts,
-                username=username,
-                key="~/.ssh/id_rsa.pub",
-                processors=3)
+            while True:
 
-            printer(result)
-            if rate:
-                time.sleep(rate)
-            else:
-                break
+                result = Temperature.get(
+                    hosts=hosts,
+                    username=username,
+                    key="~/.ssh/id_rsa.pub",
+                    processors=3)
+
+                os.system('clear')
+                Temperature.Print(result, output=output)
+                print()
+                print("Press CTRL-C to end")
+                if rate:
+                    time.sleep(rate)
+                else:
+                    break
+        except KeyboardInterrupt:
+            print()
+            print("Terminating, please wait ...")
+            print()

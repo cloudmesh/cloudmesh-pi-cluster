@@ -25,7 +25,7 @@ class PiCommand(PluginCommand):
                 pi led list NAMES [--user=USER]
                 pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
                 pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
-                pi temp NAMES [--watch] [--user=USER] [--output=FORMAT]
+                pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
 
           This command does some useful things.
 
@@ -71,7 +71,7 @@ class PiCommand(PluginCommand):
         map_parameters(arguments,
                        'output'
                        'user',
-                       'watch')
+                       'rate')
 
         def _print(results):
             arguments.output = arguments.output or 'table'
@@ -96,11 +96,11 @@ class PiCommand(PluginCommand):
         elif arguments.green:
             number = 0
 
-        if arguments.temp and arguments.watch:
+        if arguments.temp and arguments.rate:
             results = Temperature.watch(
                 hosts=arguments.NAMES,
                 username=arguments.user,
-                rate=arguments.RATE,
+                rate=float(arguments.rate),
                 processors=3,
                 output=arguments.output
             )
