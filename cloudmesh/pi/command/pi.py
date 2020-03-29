@@ -21,6 +21,7 @@ class PiCommand(PluginCommand):
         ::
 
           Usage:
+                pi led reset [NAMES]
                 pi led (red|green) VALUE
                 pi led (red|green) VALUE NAMES [--user=USER]
                 pi led list NAMES [--user=USER]
@@ -78,127 +79,19 @@ class PiCommand(PluginCommand):
 
         arguments.output = arguments.output or 'table'
 
-        def _print(results):
+        if arguments.free:
 
-            if arguments.output == 'table':
-                print(Printer.write(results,
-                                    order=['host', 'success', 'stdout']))
-            else:
-                pprint(results)
-
-        def _print_leds(results):
-
-            if arguments.output == 'table':
-                print(Printer.write(results,
-                                    order=['host', 'green', 'red']))
-            else:
-                pprint(results)
-
-        if arguments.red:
-            number = 1
-        elif arguments.green:
-            number = 0
-
-
-        if arguments.free and arguments.rate and arguments.output=='graph':
-
-            Free.WatchGraph(arguments.NAMES)
-
-        elif arguments.free and arguments.rate:
-
-            results = Free.watch(
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                rate=float(arguments.rate),
-                processors=3,
-                output=arguments.output
-            )
-
-        elif arguments.free:
-
-            results = Free.get(
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                processors=3,
-            )
-
-            if arguments.output in ['bar','browser','sparkline', 'line']:
-                Temperature.Graph(results, output=arguments.output)
-            else:
-                Free.Print(results, output=arguments.output)
-
-
-        elif arguments.free and arguments.rate and arguments.output=='graph':
-
-            Temperature.WatchGraph(arguments.NAMES)
-
-        elif arguments.temp and arguments.rate:
-
-            results = Temperature.watch(
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                rate=float(arguments.rate),
-                processors=3,
-                output=arguments.output
-            )
+            free = Free()
+            free.execute(arguments)
 
         elif arguments.temp:
 
-            results = Temperature.get(
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                processors=3,
-            )
+            temp = Temperature()
+            temp.execute(arguments)
 
-            if arguments.output in ['bar','browser','sparkline', 'line']:
-                Temperature.Graph(results, output=arguments.output)
-            else:
-                Temperature.Print(results, output=arguments.output)
+        elif arguments.led:
 
-        elif arguments.sequence:
-
-            results = LED.sequence_remote(
-                led=number,
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                rate=arguments.RATE,
-                processors=3)
-
-            _print_leds(results)
-
-        elif arguments.blink:
-
-            results = LED.blink_remote(
-                led=number,
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                rate=arguments.RATE,
-                processors=3)
-
-            _print_leds(results)
-
-        elif arguments.list:
-
-            results = LED.list_remote(
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                processors=3)
-
-            _print_leds(results)
-
-        elif not arguments.NAMES and arguments.led:
-
-            LED.set(led=number, value=arguments.VALUE)
-
-        elif arguments.NAMES and arguments.led:
-
-            results = LED.set_remote(
-                led=number,
-                value=arguments.VALUE,
-                hosts=arguments.NAMES,
-                username=arguments.user,
-                processors=3)
-
-            _print(results)
+            led = LED()
+            led.execute(arguments)
 
         return ""
