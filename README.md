@@ -55,7 +55,7 @@ cms pi temp "red,red[01-03]"
 To watch the temperature continiously in the termoinal, use a repeat rate.  
 To end the  program press CTRL-C
 
-```
+```bash
 cms pi temp "red,red[01-03]" --rate=1.0
 ```
 
@@ -63,14 +63,14 @@ cms pi temp "red,red[01-03]" --rate=1.0
 
 ### Sparkline
 
-```
+```bash
 cms pi temp "red,red[01-03]"  --output=sparkline
 ▄▆█▃
 ```
 
 ### Bar
 
-```
+```bash
 cms pi temp "red,red[01-03]"  --output=bar
 ```
 
@@ -78,7 +78,7 @@ cms pi temp "red,red[01-03]"  --output=bar
 
 ### Line
 
-```
+```bash
 cms pi temp "red,red[01-03]"  --output=line
 ```
 
@@ -87,7 +87,7 @@ cms pi temp "red,red[01-03]"  --output=line
 
 ### Browser
 
-```
+```bash
 cms pi temp "red,red[01-03]"  --output=browser
 ```
 
@@ -97,8 +97,31 @@ cms pi temp "red,red[01-03]"  --output=browser
 
 A live animation is available with
 
-```
+```bash
 cms pi temp "red,red[01-03]" --rate=1 --output=live
 ```
 
 ![Display as bars](images/live.png)
+
+## Memory
+
+```bash
+cms pi free "red,red[01-03]" --rate=1
+```
+
+```
++-------+-----------+----------+----------+------------+-----------+-----------+------------+-----------+-----------+
+| host  | mem.total | mem.used | mem.free | mem.shared | mem.cache | mem.avail | swap.total | swap.used | swap.free |
++-------+-----------+----------+----------+------------+-----------+-----------+------------+-----------+-----------+
+| red   | 4.1 GB    | 109.5 MB | 3.8 GB   | 42.4 MB    | 188.2 MB  | 3.8 GB    | 104.9 MB   | 0 Bytes   | 104.9 MB  |
+| red01 | 4.1 GB    | 99.8 MB  | 3.8 GB   | 34.0 MB    | 177.1 MB  | 3.8 GB    | 104.9 MB   | 0 Bytes   | 104.9 MB  |
+| red02 | 4.1 GB    | 108.8 MB | 3.8 GB   | 34.0 MB    | 176.1 MB  | 3.8 GB    | 104.9 MB   | 0 Bytes   | 104.9 MB  |
+| red03 | 4.1 GB    | 100.5 MB | 3.8 GB   | 34.0 MB    | 176.4 MB  | 3.8 GB    | 104.9 MB   | 0 Bytes   | 104.9 MB  |
++-------+-----------+----------+----------+------------+-----------+-----------+------------+-----------+-----------+
+```
+
+This can also be invoked repeatedly with
+
+```
+cms pi free "red,red[01-03]" --rate=1.0
+```

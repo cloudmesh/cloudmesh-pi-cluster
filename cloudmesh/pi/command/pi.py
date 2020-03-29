@@ -7,6 +7,7 @@ from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.pi.board.led import LED
 from cloudmesh.pi.board.temperature import Temperature
+from cloudmesh.pi.board.free import Free
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.Printer import Printer
 
@@ -26,6 +27,8 @@ class PiCommand(PluginCommand):
                 pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
                 pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
                 pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+                pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+
 
           This command does some useful things.
 
@@ -97,7 +100,35 @@ class PiCommand(PluginCommand):
             number = 0
 
 
-        if arguments.temp and arguments.rate and arguments.output=='graph':
+        if arguments.free and arguments.rate and arguments.output=='graph':
+
+            Free.WatchGraph(arguments.NAMES)
+
+        elif arguments.free and arguments.rate:
+
+            results = Free.watch(
+                hosts=arguments.NAMES,
+                username=arguments.user,
+                rate=float(arguments.rate),
+                processors=3,
+                output=arguments.output
+            )
+
+        elif arguments.free:
+
+            results = Free.get(
+                hosts=arguments.NAMES,
+                username=arguments.user,
+                processors=3,
+            )
+
+            if arguments.output in ['bar','browser','sparkline', 'line']:
+                Temperature.Graph(results, output=arguments.output)
+            else:
+                Free.Print(results, output=arguments.output)
+
+
+        elif arguments.free and arguments.rate and arguments.output=='graph':
 
             Temperature.WatchGraph(arguments.NAMES)
 
