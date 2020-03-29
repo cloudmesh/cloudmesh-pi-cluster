@@ -62,6 +62,9 @@ from cloudmesh.common.console import Console
 
 import os
 
+#
+# this is just a draft
+#
 
 class Installer:
 
