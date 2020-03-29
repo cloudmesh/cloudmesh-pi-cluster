@@ -16,11 +16,14 @@ import matplotlib.patches as mpatches
 import humanize
 from cloudmesh.common.Printer import Printer
 
+
 class Monitor:
 
-    order = None
-    value_min = sys.float_info.max
-    value_max = sys.float_info.min
+    def __init__(self):
+        self.order = None
+        self.value_min = sys.float_info.max
+        self.value_max = sys.float_info.min
+        self.title = "Monitor"
 
     def execute(self, arguments):
 
@@ -51,7 +54,7 @@ class Monitor:
             else:
                 self.Print(results, output=arguments.output)
 
-    def updat(self, entry):
+    def update(self, entry, table=None):
         return entry
 
     def Print(self, results, output=None):
@@ -59,17 +62,19 @@ class Monitor:
         output = output or 'table'
 
         if output == 'table':
+            for result in results:
+                result = self.update(result, table=True)
             print(Printer.write(results, self.order))
         else:
             pprint(results)
 
     def get(self,
-        hosts=None,
-        username=None,
-        key="~/.ssh/id_rsa.pub",
-        processors=3,
-        update=None,
-    ):
+            hosts=None,
+            username=None,
+            key="~/.ssh/id_rsa.pub",
+            processors=3,
+            update=None,
+            ):
 
         if type(hosts) != list:
             hosts = Parameter.expand(hosts)
@@ -87,13 +92,13 @@ class Monitor:
         return results
 
     def watch(self,
-        hosts=None,
-        username=None,
-        key="~/.ssh/id_rsa.pub",
-        rate=3.0,
-        processors=3,
-        output=None,
-    ):
+              hosts=None,
+              username=None,
+              key="~/.ssh/id_rsa.pub",
+              rate=3.0,
+              processors=3,
+              output=None,
+              ):
 
         output = output or 'table'
 
@@ -122,36 +127,36 @@ class Monitor:
             print()
 
     def WatchGraph(self,
-        hosts=None,
-        username=None,
-        key="~/.ssh/id_rsa.pub",
-        rate=3.0,
-        processors=3,
-        output=None):
+                   hosts=None,
+                   username=None,
+                   key="~/.ssh/id_rsa.pub",
+                   rate=3.0,
+                   processors=3,
+                   output=None):
 
         if type(hosts) != list:
             hosts = list(Parameter.expand(hosts))
 
-        plt.style.use('seaborn')
-
-        fig, axs = plt.subplots(len(hosts))
-
-        fig.suptitle('Pi Cluster Temperature')
-
-        i = 0
-        for host in hosts:
-            axs[i].set_title(host, loc='left')
-            i += 1
-
         series = {}
         for host in hosts:
             series[host] = {'x': []}
-            for attribute in self.attributes:
+            for attribute in self.display:
                 series[host][attribute] = []
 
         index = count()
 
         output = output or 'table'
+
+        plt.style.use('seaborn')
+
+        fig, axs = plt.subplots(len(hosts))
+
+        fig.suptitle(f'Pi Cluster {self.title}')
+
+        i = 0
+        for host in hosts:
+            axs[i].set_title(host, loc='right')
+            i += 1
 
         def animate(i):
 
@@ -169,25 +174,25 @@ class Monitor:
             for result in results:
                 host = result['host']
 
-                for attribute in self.attributes:
+                for attribute in self.display:
                     value = result[attribute]
                     self.value_min = min(value, self.value_min)
                     self.value_max = max(value, self.value_max)
 
                 series[host]['x'].append(i)
-                for attribute in self.attributes:
+                for attribute in self.display:
                     series[host][attribute].append(result[attribute])
 
                 axs[host_no].set_ylim([self.value_min,
                                        self.value_max])
-                for attribute in self.attributes:
+                for attribute in self.display:
                     axs[host_no].plot(series[host]['x'],
                                       series[host][attribute],
                                       color=self.color[attribute],
                                       label=attribute)
 
                 patches = []
-                for attribute in self.attributes:
+                for attribute in self.display:
                     patch = mpatches.Patch(color=self.color[attribute],
                                            label=attribute)
                     patches.append(patch)
@@ -211,7 +216,6 @@ class Monitor:
             print()
             print("Terminating, please wait ...")
             print()
-
 
     """
     @staticmethod

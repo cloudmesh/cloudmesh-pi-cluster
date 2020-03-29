@@ -125,3 +125,43 @@ This can also be invoked repeatedly with
 ```
 cms pi free "red,red[01-03]" --rate=1.0
 ```
+
+## Load Average
+
+```
+
+cms pi load "red,red[01-03]" --rate=1 --output=graph
+```
+
+```
+cms pi load "red,red[01-03]" --rate=1 --output=graph
+
++-------+-------+-------+------+--------------+------------+
+| host  | 1     | 5     | 10   | proc.running | proc.total |
++-------+-------+-------+------+--------------+------------+
+| red   | 10.01 | 10.04 | 9.58 | 1            | 142        |
+| red01 | 0.01  | 0.02  | 0.0  | 1            | 125        |
+| red02 | 0.03  | 0.04  | 0.01 | 1            | 128        |
+| red03 | 0.09  | 0.08  | 0.02 | 1            | 125        |
++-------+-------+-------+------+--------------+------------+
+```
+NOTES
+
+ mpstat -P ALL
+ nmon
+
+## Stress test
+
+* <https://manpages.ubuntu.com/manpages/artful/man1/stress-ng.1.html#examples>
+
+
+```
+sudo apt-get install -y stress-ng
+```
+
+Memory test
+
+```
+stress-ng --vm 8 --vm-bytes 80% -t 1h
+```
+

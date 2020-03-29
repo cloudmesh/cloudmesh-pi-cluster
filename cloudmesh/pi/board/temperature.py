@@ -17,22 +17,23 @@ from cloudmesh.pi.board.monitor import Monitor
 
 
 class Temperature(Monitor):
-
     temp_min = 150.0
     temp_max = 0.0
 
     def __init__(self):
-        self.order = order=['host', 'cpu', 'gpu', 'date']
-        self.command = "cat"\
-                       " /sys/class/thermal/thermal_zone0/temp;"\
+        self.title = "Temperature"
+        self.order = order = ['host', 'cpu', 'gpu', 'date']
+        self.command = "cat" \
+                       " /sys/class/thermal/thermal_zone0/temp;" \
                        " /opt/vc/bin/vcgencmd measure_temp"
-        self.attributes = ['cpu', 'gpu']
-        self.color = {'cpu': 'C0',
-                  'gpu': 'C2'}
+        self.display = ['cpu', 'gpu']
+        self.color = {
+            'cpu': 'C0',
+            'gpu': 'C2'}
         self.value_min = 150
-        self.value_max =0
+        self.value_max = 0
 
-    def update(self, entry):
+    def update(self, entry, table=None):
         cpu, gpu = entry["stdout"].splitlines()
         entry["gpu"] = float(gpu.split("=", 1)[1][:-2])
         entry["cpu"] = float(cpu) / 1000.0

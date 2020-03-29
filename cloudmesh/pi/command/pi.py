@@ -8,6 +8,8 @@ from cloudmesh.common.debug import VERBOSE
 from cloudmesh.pi.board.led import LED
 from cloudmesh.pi.board.temperature import Temperature
 from cloudmesh.pi.board.free import Free
+from cloudmesh.pi.board.load import Load
+
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.Printer import Printer
 
@@ -29,6 +31,7 @@ class PiCommand(PluginCommand):
                 pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
                 pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
                 pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+                pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
 
 
           This command does some useful things.
@@ -89,9 +92,15 @@ class PiCommand(PluginCommand):
             temp = Temperature()
             temp.execute(arguments)
 
+        elif arguments.load:
+
+            load = Load()
+            load.execute(arguments)
+
         elif arguments.led:
 
             led = LED()
             led.execute(arguments)
+
 
         return ""

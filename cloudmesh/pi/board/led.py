@@ -24,6 +24,8 @@ LED. It's active-low, so you need to set the pin low to turn the LED on, and
 high to turn it off.
 
 """
+
+
 class LED:
     """
     Implements:
@@ -122,7 +124,6 @@ class LED:
 
             self.Print(arguments, results)
 
-
     @staticmethod
     def get_state(self, value):
         state = value
@@ -141,7 +142,6 @@ class LED:
 
         command = f"echo mmc0 >/sys/class/leds/led0/trigger"
         os.system(command)
-
 
     @staticmethod
     def reset_remote(
@@ -165,12 +165,16 @@ class LED:
         state = LED.get_state(value)
 
         if led == 0:
-            # switch it first off, technically we should disable the trigger first
+            # switch it first off, technically we should disable the trigger
+            # first
             # then we do not have to switch it off
-            command = f"echo 0 | sudo tee /sys/class/leds/led{led}/brightness >> /dev/null"
+            command = f"echo 0 | " \
+                      "sudo tee /sys/class/leds/led{led}/brightness " \
+                      ">> /dev/null"
             os.system(command)
 
-        command = f"echo {state} | sudo tee /sys/class/leds/led{led}/brightness >> /dev/null"
+        command = f"echo {state} | " \
+                  "sudo tee /sys/class/leds/led{led}/brightness >> /dev/null"
 
         os.system(command)
 
@@ -187,7 +191,9 @@ class LED:
 
         state = LED.get_state(value)
 
-        command = f"echo {state} | sudo tee /sys/class/leds/led{led}/brightness >> /dev/null"
+        command = f"echo {state} |" \
+                  " sudo tee /sys/class/leds/led{led}/brightness" \
+                  " >> /dev/null"
         result = Host.ssh(hosts=hosts,
                           command=command,
                           username=username,
@@ -271,7 +277,9 @@ class LED:
         username=None,
         processors=3):
 
-        command = f"cat /sys/class/leds/led0/brightness /sys/class/leds/led1/brightness"
+        command = f"cat" \
+                  " /sys/class/leds/led0/brightness" \
+                  " /sys/class/leds/led1/brightness"
         results = Host.ssh(hosts=hosts,
                            command=command,
                            username=username,
