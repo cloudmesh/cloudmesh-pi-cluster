@@ -3,6 +3,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 import os
+from cloudmesh.cluster.Installer import Installer
 
 # see also: https://github.com/cloudmesh-community/sp20-516-246/tree/master/pi_spark
 
@@ -25,19 +26,41 @@ class Spark:
 
 class Spark:
 
-    def setup(self):
-        #Setup the master with the Spark applications
-        master_code_setup(self)
-        #Update the master's ~/.bashrc file
-        update_bashrc(self)
-        #Update the master's spark-env.sh file
-        update_spark-env(self)
-        #Copy Spark files to workers
-        copy_spark_to_worker(self)
-        #Run setup on workers
-        setup_spark_workers(self)
+    def __init__(self, master=None, workers=None):
+        """
 
-    def update_bashrc(self):
+        :param master:
+        :param workers:
+        """
+        self.master = master
+        self.workers = workers
+
+    def setup(self):
+        """
+
+        :return:
+        """
+        raise NotImplementedError
+        # Setup the master with the Spark applications
+        # master_code_setup(self)
+
+        # Update the master's ~/.bashrc file
+        # update_bashrc(self)
+
+        # Update the master's spark-env.sh file
+        # update_spark-env(self)
+
+        # Copy Spark files to workers
+        #copy_spark_to_worker(self)
+
+        # Run setup on workers
+        # setup_spark_workers(self)
+
+    def update_bashrc(self, host):
+        """
+
+        :return:
+        """
         script = textwrap.dedent("""
         
             # ################################################
@@ -57,6 +80,7 @@ class Spark:
             # ################################################
             
         """)
+        Installer.add_script("~/.bashrc", script)
 
     def spark_setup(self):
         banner("Spark setup")
@@ -80,7 +104,8 @@ class Spark:
             #JAVA_HOME
             export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
         """)
-        self.run(script)
+        # Q: IS THSI ADDED OR OVERWRITE?
+        Installer.add_script(filename,script)
 
     def spark_setup_master(self):
         script = textwrap.dedent("""
@@ -93,7 +118,7 @@ class Spark:
         """)
         self.run(script)
 
-    def copy_files_to_workerss(self, user="pi", workers=None):
+    def copy_files_to_workers(self, user="pi", workers=None):
         for worker in workers:
             #
             # this shoul use our parallel ssh for now we d osequentially to se eif it works
@@ -173,14 +198,3 @@ class Spark:
         os.system("eval $(ssh-agent)")
         os.system("ssh-add")
 
-    def spark-env(self):
-        script = textwrap.dedent("""
-        #JAVA_HOME
-        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
-        """)
-
-    def copy_spark_to_worker(self):
-        raise NotImplementedError
-
-    def setup_spark_workers(self):
-        raise NotImplementedError
