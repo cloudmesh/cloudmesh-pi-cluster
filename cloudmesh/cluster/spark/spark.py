@@ -1,4 +1,6 @@
 import textwrap
+from cloudmesh.common.Printer import Printer
+from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
@@ -6,6 +8,7 @@ import os
 from cloudmesh.cluster.Installer import Installer
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.Host import Host
+from pprint import pprint
 
 # see also: https://github.com/cloudmesh-community/sp20-516-246/tree/master/pi_spark
 
@@ -43,7 +46,18 @@ class Spark:
 
         elif arguments.check:
 
-            self.check(master=self.master)
+            hosts = []
+            if arguments.master:
+                hosts.append(arguments.master)
+            if arguments.workers:
+                hosts = hosts + Parameter.expand(arguments.workers)
+
+            if hosts is None:
+                Console.error("You need to specify at least one master or worker")
+                return ""
+
+            pprint(hosts)
+            self.check(hosts=hosts)
 
 
     def __init__(self, master=None, workers=None):
@@ -57,17 +71,22 @@ class Spark:
 
     def run(self, script=None, hosts=None, username=None, processors=4):
 
-        if hosts != list:
+        results = []
+
+        if type(hosts) != list:
             hosts = Parameter.expand(hosts)
 
         hostname = os.uname()[1]
-        for command in script:
-            if command.startswith("#"):
-                print (command)
+        for command in script.splitlines():
+            print (hosts, "->", command)
+            if command.startswith("#") or command.strip() == "":
+                pass
+                # print (command)
             elif len(hosts) == 1 and hosts[0] == hostname:
                 os.system(command)
             elif len(hosts) == 1 and hosts[0] != hostname:
-                os.system(f"ssh {command}")
+                host = hosts[0]
+                os.system(f"ssh {host} {command}")
             else:
                 result = Host.ssh(hosts=hosts,
                                   command=command,
@@ -75,17 +94,28 @@ class Spark:
                                   key="~/.ssh/id_rsa.pub",
                                   processors=processors,
                                   executor=os.system)
+                results.append(result)
+        return results
 
-    def check(self, hosts):
+    def check(self, hosts=None):
         banner("Spark setup")
         script = textwrap.dedent("""
              # ################################################
-             # TEST SETUP
+             # BEGIN TEST SETUP
              #
+             
              hostname
-             uname -a 
+             uname -a
+             ls 
+             
+             # 
+             # END TEST SETUP
+             # ################################################
          """)
-        self.run(script=script, host=hosts)
+        results = self.run(script=script, hosts=hosts)
+        pprint(results)
+        for result in results:
+            print(Printer.write(result, order=['host', 'stdout']))
 
     def setup(self):
         """
@@ -150,7 +180,7 @@ class Spark:
             sudo wget http://apache.osuosl.org/spark/spark-2.3.4/spark-2.3.4-bin-hadoop2.7.tgz -O sparkout2-3-4.tgz
             sudo tar -xzf sparkout2-3-4.tgz
         """)
-        self.run(script=script, host=hosts)
+        self.run(script=script, hosts=hosts)
 
     #
     # Bug: this is not yet done on the hosts.
@@ -185,7 +215,7 @@ class Spark:
             scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz {user}@{worker}:
             scp -r ~/spark-setup-worker.sh {user}@{worker}:
         """)
-        self.run(script=script, host=workers)
+        self.run(script=script, hosts=workers)
 
     def setup_worker(self, workers=None):
         script = textwrap.dedent("""
@@ -210,7 +240,7 @@ class Spark:
             cd /usr/local/spark/spark
             sudo tar -xvzf sparkout.2-3-4.tgz
         """)
-        self.run(script=script, host=workers)
+        self.run(script=script, hosts=workers)
 
     def create_slaves_file_in_master(self, workers=None):
         """
@@ -233,21 +263,21 @@ class Spark:
             $SPARK_HOME/sbin/start-master.sh
             $SPARK_HOME/sbin/start-slaves.sh
         """)
-        self.run(script=script, host=master)
+        self.run(script=script, hosts=master)
 
     def test(self, master=None):
         script = textwrap.dedent("""
             cd /usr/local/spark/spark/bin 
             $ run-example SparkPi 4 10
         """)
-        self.run(script=script, host=master)
+        self.run(script=script, hosts=master)
 
     def stop(self, master=None):
         script = textwrap.dedent("""
             $SPARK_HOME/sbin/stop-master.sh
             $SPARK_HOME/sbin/stop-slaves.sh
         """)
-        self.run(script=script, host=master)
+        self.run(script=script, hosts=master)
 
     def ssh_add(self):
         # test if this works from within python

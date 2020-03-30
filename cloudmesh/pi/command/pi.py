@@ -32,11 +32,11 @@ class PiCommand(PluginCommand):
                 pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
                 pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
                 pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-                pi spark setup --master=MASTER --workers=WORKER
-                pi spark start --master=MASTER --workers=WORKER
-                pi spark stop --master=MASTER --workers=WORKER
-                pi spark test --master=MASTER --workers=WORKER
-                pi spark check [--master=MASTER] [--workers=WORKER]
+                pi spark setup --master=MASTER --workers=WORKERS
+                pi spark start --master=MASTER --workers=WORKERS
+                pi spark stop --master=MASTER --workers=WORKERS
+                pi spark test --master=MASTER --workers=WORKERS
+                pi spark check [--master=MASTER] [--workers=WORKERS]
 
           This command does some useful things.
 
@@ -80,6 +80,8 @@ class PiCommand(PluginCommand):
         """
 
         map_parameters(arguments,
+                       'master',
+                       'workers',
                        'output',
                        'user',
                        'rate')
