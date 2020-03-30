@@ -1,6 +1,6 @@
 # Setting up a Pi Spark Cluster
 
-TODO: THis is not yet working and under development
+TODO: This is not yet working and under development
 
 The list of spark related commands are:
 
