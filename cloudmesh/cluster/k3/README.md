@@ -1,4 +1,4 @@
-# k3 
+# Setting up a Pi Kubernetes Cluster
 
 Source: <https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/>
 
