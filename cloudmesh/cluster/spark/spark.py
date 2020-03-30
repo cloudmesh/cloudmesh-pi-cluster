@@ -48,6 +48,7 @@ class Spark:
              # ################################################
              # TEST SETUP
              #
+             hostname
              uname -a 
          """)
         self.run(script=script, host=hosts)
