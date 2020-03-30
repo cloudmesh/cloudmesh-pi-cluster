@@ -160,7 +160,9 @@ A Bar graph is created with
 cms pi temp "red,red[01-03]"  --output=bar
 ```
 
-![Display as bars](images/bar.png){: width="200px"}
+![Display as bars](images/bar.png){: width="400"}
+
+<img src="images/bar.png" alt="Display as bars" title="Display as bars" width="400"/>
 
 #### Line
 
