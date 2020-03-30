@@ -30,7 +30,6 @@ def readfile(filename):
 #
 requiers = """
 pygal
-webbrowser
 matplotlib
 humanize
 seaborn
