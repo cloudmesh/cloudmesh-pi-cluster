@@ -9,7 +9,7 @@ from cloudmesh.pi.board.led import LED
 from cloudmesh.pi.board.temperature import Temperature
 from cloudmesh.pi.board.free import Free
 from cloudmesh.pi.board.load import Load
-
+from cloudmesh.cluster.Installer import Script
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.Printer import Printer
 
@@ -37,6 +37,9 @@ class PiCommand(PluginCommand):
                 pi spark stop --master=MASTER --workers=WORKERS
                 pi spark test --master=MASTER --workers=WORKERS
                 pi spark check [--master=MASTER] [--workers=WORKERS]
+                pi script list SERVICE [--details]
+                pi script list SERVICE NAMES
+                pi script list
 
           This command does some useful things.
 
@@ -113,5 +116,10 @@ class PiCommand(PluginCommand):
             from cloudmesh.cluster.spark.spark import Spark
             spark = Spark()
             spark.execute(arguments)
+
+        elif arguments.script:
+
+            script = Script()
+            script.execute(arguments)
 
         return ""

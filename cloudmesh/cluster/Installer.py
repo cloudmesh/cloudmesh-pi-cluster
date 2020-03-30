@@ -1,12 +1,54 @@
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
+from cloudmesh.common.debug import VERBOSE
 import textwrap
+from pydoc import locate
+from pprint import pprint
+from cloudmesh.common.console import Console
+
+class Script(dict):
+
+    def __init__(self, *args, **kwargs):
+        self.update(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self,
+                         key,
+                         textwrap.dedent(value))
+
+    def __getitem__(self, key):
+        value = dict.__getitem__(self, key)
+        return value
+
+    def execute(self, arguments):
+
+        if arguments.list and arguments.SERVICE and arguments.NAMES:
+
+            print (arguments.NAMES)
+
+        if arguments.list and arguments.SERVICE:
+
+            mod = arguments.SERVICE
+            cls = mod.capitalize()
+            imp = f'cloudmesh.cluster.{mod}.{mod}.{cls}'
+            Service = locate(imp)
+            service = Service()
+
+            print()
+            print(f"Scripts for {mod}")
+            print()
+            for script in service.script:
+                print ("    *", script)
+            print()
+
+        elif arguments.list:
+            print ("list")
 
 class Installer:
 
+
     @staticmethod
     def comment(label, allign=None):
-        script
         if allign =='top':
             script = textwrap.dedent("""
 
