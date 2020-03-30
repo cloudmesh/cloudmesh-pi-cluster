@@ -160,7 +160,9 @@ A Bar graph is created with
 cms pi temp "red,red[01-03]"  --output=bar
 ```
 
+<!--
 ![Display as bars](images/bar.png){: width="400"}
+-->
 
 <img src="images/bar.png" alt="Display as bars" title="Display as bars" width="400"/>
 
@@ -172,7 +174,11 @@ A line graph is created with
 cms pi temp "red,red[01-03]"  --output=line
 ```
 
+<!--
 ![Display as bars](images/line.png)
+-->
+
+<img src="images/line.png" alt="Display as line" title="Display as line" width="400"/>
 
 
 #### Browser
@@ -183,7 +189,12 @@ The output can also be looked at in a browser
 cms pi temp "red,red[01-03]"  --output=browser
 ```
 
+<!--
 ![Display as bars](images/browser.png)
+-->
+
+<img src="images/browser.png" alt="Display in browser" title="Display in browser" width="400"/>
+
 
 
 #### Live animation
@@ -194,7 +205,11 @@ A live animation is available with
 cms pi temp "red,red[01-03]" --rate=1 --output=live
 ```
 
-![Display as bars](images/live.png)
+<!--
+![Display lie](images/live.png)
+-->
+
+<img src="images/live.png" alt="Display live" title="Display live" width="400"/>
 
 ## Memory
 
