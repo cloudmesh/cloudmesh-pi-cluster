@@ -12,6 +12,15 @@ from cloudmesh.common.Host import Host
 
 class Spark:
 
+    def __init__(self, master=None, workers=None):
+        """
+
+        :param master:
+        :param workers:
+        """
+        self.master = master
+        self.workers = workers
+
     def run(self, script=None, hosts=None, username=None, processors=4):
 
         if hosts != list:
@@ -32,23 +41,6 @@ class Spark:
                                   key="~/.ssh/id_rsa.pub",
                                   processors=processors,
                                   executor=os.system)
-
-    def install(self):
-        raise NotImplementedError
-
-    def upate_bashrc(self):
-        banner("Update bashrc")
-
-class Spark:
-
-    def __init__(self, master=None, workers=None):
-        """
-
-        :param master:
-        :param workers:
-        """
-        self.master = master
-        self.workers = workers
 
     def setup(self):
         """
