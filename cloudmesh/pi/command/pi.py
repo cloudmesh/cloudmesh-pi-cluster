@@ -83,6 +83,7 @@ class PiCommand(PluginCommand):
         """
 
         map_parameters(arguments,
+                       'details',
                        'master',
                        'workers',
                        'output',

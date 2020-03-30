@@ -1,10 +1,14 @@
 from cloudmesh.common.util import readfile
+from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.debug import VERBOSE
 import textwrap
 from pydoc import locate
 from pprint import pprint
 from cloudmesh.common.console import Console
+import cloudmesh.cluster
+import os
+import glob
 
 class Script(dict):
 
@@ -22,27 +26,53 @@ class Script(dict):
 
     def execute(self, arguments):
 
+        def Service():
+            mod = arguments.SERVICE
+            cls = mod.capitalize()
+            imp = f'cloudmesh.cluster.{mod}.{mod}.{cls}'
+            _Service = locate(imp)
+            service = _Service()
+            return service
+
         if arguments.list and arguments.SERVICE and arguments.NAMES:
 
             print (arguments.NAMES)
 
         if arguments.list and arguments.SERVICE:
 
-            mod = arguments.SERVICE
-            cls = mod.capitalize()
-            imp = f'cloudmesh.cluster.{mod}.{mod}.{cls}'
-            Service = locate(imp)
+            VERBOSE(arguments)
+
             service = Service()
 
             print()
-            print(f"Scripts for {mod}")
+            print(f"Scripts for {arguments.SERVICE}")
             print()
-            for script in service.script:
-                print ("    *", script)
-            print()
+            if not arguments.details:
+                for script in service.script:
+                    print ("    *", script)
+                print()
+            else:
+                for name in service.script:
+                    banner (name)
+                    print(service.script[name].strip())
+                print()
+                print ("details")
 
         elif arguments.list:
-            print ("list")
+
+            print()
+            print(f"Deployment Services")
+            print()
+
+            directory =  os.path.dirname(cloudmesh.cluster.__file__)
+            entries = glob.glob(f"{directory}/*")
+            for entry in entries:
+                if os.path.isdir(entry):
+                    entry = os.path.basename(entry)
+                    if not entry.startswith("_"):
+                        print ("   *", entry)
+
+            print()
 
 class Installer:
 
