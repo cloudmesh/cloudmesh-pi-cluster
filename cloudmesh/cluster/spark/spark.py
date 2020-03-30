@@ -4,19 +4,34 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 import os
 from cloudmesh.cluster.Installer import Installer
+from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.Host import Host
 
 # see also: https://github.com/cloudmesh-community/sp20-516-246/tree/master/pi_spark
 
 
 class Spark:
 
-    def run(self, script):
-        for line in script:
-            if line.startswith("#"):
-                print (line)
-            else:
-                os.system(line)
+    def run(self, script=None, hosts=None, username=None, processors=4):
 
+        if hosts != list:
+            hosts = Parameter.expand(hosts)
+
+        hostname = os.uname()[1]
+        for command in script:
+            if command.startswith("#"):
+                print (command)
+            elif len(hosts) == 1 and hosts[0] == hostname:
+                os.system(command)
+            elif len(hosts) == 1 and hosts[0] != hostname:
+                os.system(f"ssh {command}")
+            else:
+                result = Host.ssh(hosts=hosts,
+                                  command=command,
+                                  username=username,
+                                  key="~/.ssh/id_rsa.pub",
+                                  processors=processors,
+                                  executor=os.system)
 
     def install(self):
         raise NotImplementedError
@@ -56,7 +71,11 @@ class Spark:
         # Run setup on workers
         # setup_spark_workers(self)
 
-    def update_bashrc(self, host):
+    #
+    # Bug: this is not yet done on the hosts.
+    # why not create it locally and scp ....
+    #
+    def update_bashrc(self):
         """
 
         :return:
@@ -82,7 +101,7 @@ class Spark:
         """)
         Installer.add_script("~/.bashrc", script)
 
-    def spark_setup(self):
+    def spark_setup(self, hosts):
         banner("Spark setup")
         script = textwrap.dedent("""
             # ################################################
@@ -94,8 +113,12 @@ class Spark:
             sudo wget http://apache.osuosl.org/spark/spark-2.3.4/spark-2.3.4-bin-hadoop2.7.tgz -O sparkout2-3-4.tgz
             sudo tar -xzf sparkout2-3-4.tgz
         """)
-        self.run(script)
+        self.run(script=script, host=hosts)
 
+    #
+    # Bug: this is not yet done on the hosts.
+    # why not create it locally and scp ....
+    #
     def spark_env(self, filename="/usr/local/spark/spark/conf/spark-env.sh"):
         #
         # should hthis also not be in bashrc?
@@ -105,9 +128,9 @@ class Spark:
             export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
         """)
         # Q: IS THSI ADDED OR OVERWRITE?
-        Installer.add_script(filename,script)
+        Installer.add_script(filename, script)
 
-    def spark_setup_master(self):
+    def spark_setup_master(self, master=None):
         script = textwrap.dedent("""
             cd /usr/share/scala-2.11
             sudo tar -cvzf scalaout2-11.tar.gz *
@@ -116,22 +139,18 @@ class Spark:
             cd /usr/local/spark/spark
             sudo tar -cvzf sparkout.2-3-4.tgz *
         """)
-        self.run(script)
+        self.run(script=script, host=master)
 
     def copy_files_to_workers(self, user="pi", workers=None):
-        for worker in workers:
-            #
-            # this shoul use our parallel ssh for now we d osequentially to se eif it works
-            #
-            script = textwrap.dedent(f"""
-                scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:
-                scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:
-                scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz {user}@{worker}:
-                scp -r ~/spark-setup-worker.sh {user}@{worker}:
-            """)
-            self.run(script)
+        script = textwrap.dedent("""
+            scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:
+            scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:
+            scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz {user}@{worker}:
+            scp -r ~/spark-setup-worker.sh {user}@{worker}:
+        """)
+        self.run(script=script, host=workers)
 
-    def setup_worker(self):
+    def setup_worker(self, workers=None):
         script = textwrap.dedent("""
             cd /usr/lib
             sudo mkdir jvm
@@ -154,14 +173,14 @@ class Spark:
             cd /usr/local/spark/spark
             sudo tar -xvzf sparkout.2-3-4.tgz
         """)
-        self.run(script)
+        self.run(script=script, host=workers)
 
-    def create_slaves_file_in_master(self, workers):
+    def create_slaves_file_in_master(self, workers=None):
         """
         Within the Master's spark directory and conf folder is a slaves file
         indicating the slaves
 
-        :param workerss:
+        :param workers:
         :return:
         """
         filename = "/usr/local/spark/spark/conf/slaves"
@@ -172,26 +191,26 @@ class Spark:
             content += worker +"\n"
         writefile(filename)
 
-    def start(self):
+    def start(self, master=None):
         script = textwrap.dedent("""
             $SPARK_HOME/sbin/start-master.sh
             $SPARK_HOME/sbin/start-slaves.sh
         """)
-        self.run(script)
+        self.run(script=script, host=master)
 
-    def test(self):
+    def test(self, master=None):
         script = textwrap.dedent("""
             cd /usr/local/spark/spark/bin 
             $ run-example SparkPi 4 10
         """)
-        self.run(script)
+        self.run(script=script, host=master)
 
-    def stop(self):
+    def stop(self, master=None):
         script = textwrap.dedent("""
             $SPARK_HOME/sbin/stop-master.sh
             $SPARK_HOME/sbin/stop-slaves.sh
         """)
-        self.run(script)
+        self.run(script=script, host=master)
 
     def ssh_add(self):
         # test if this works from within python
