@@ -111,6 +111,8 @@ class Spark:
 
     def scripts(self):
 
+        version = "2.3.4"
+
         self.script["spark.check"] = """
             hostname
             uname -a
@@ -125,8 +127,8 @@ class Spark:
             sudo apt-get install openjdk-8-jre
             sudo apt-get install scala
             cd /usr/local/spark
-            sudo wget http://apache.osuosl.org/spark/spark-2.3.4/spark-2.3.4-bin-hadoop2.7.tgz -O sparkout2-3-4.tgz
-            sudo tar -xzf sparkout2-3-4.tgz
+            sudo wget http://apache.osuosl.org/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout-{version}.tgz
+            sudo tar -xzf sparkout-{version}.tgz
         """
 
         self.script["spark.master.setup"] = """
@@ -135,13 +137,13 @@ class Spark:
             cd /usr/lib/jvm/java-8-openjdk-armhf
             sudo tar -cvzf javaout8.tgz *
             cd /usr/local/spark/spark
-            sudo tar -cvzf sparkout.2-3-4.tgz *
+            sudo tar -cvzf sparkout-{version}.tgz *
         """
 
         self.script["spark.master.copy"] = """
             scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:
             scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:
-            scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz {user}@{worker}:
+            scp -r /usr/local/spark/spark/sparkout-{version}.tgz {user}@{worker}:
             scp -r ~/spark-setup-worker.sh {user}@{worker}:
         """
 
@@ -163,16 +165,16 @@ class Spark:
             cd /usr/local/spark
             sudo mkdir spark
             cd /usr/local/spark/spark
-            sudo mv ~/sparkout.2-3-4.tgz /usr/local/spark/spark/
+            sudo mv ~/sparkout-{version}.tgz /usr/local/spark/spark/
             cd /usr/local/spark/spark
-            sudo tar -xvzf sparkout.2-3-4.tgz
+            sudo tar -xvzf sparkout-{version}.tgz
         """
 
         self.script[f"spark.master.copy"] = """
-            scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:
-            scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:
-            scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz {user}@{worker}:
-            scp -r ~/spark-setup-worker.sh {user}@{worker}:
+            scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:.
+            scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:.
+            scp -r /usr/local/spark/spark/sparkout-{version}.tgz {user}@{worker}:.
+            scp -r ~/spark-setup-worker.sh {user}@{worker}:.
         """
 
         return self.script
@@ -181,11 +183,27 @@ class Spark:
         banner(name)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    def setup(self):
+    def setup(self, arguments):
         """
 
         :return:
         """
+
+        #
+        # SETUP MASTER
+        #
+
+        if self.master:
+            self.run_script(name="spark.setup", hosts=self.master)
+            self.run_script(name="spark.master.setup", hosts=self.master)
+
+        #
+        # SETUP WORKER
+        #
+        if self.workers:
+            self.run_script(name="spark.master.copy", hosts=self.workers)
+            self.run_script(name="spark.worker.setup", hosts=self.workers)
+
         raise NotImplementedError
         # Setup the master with the Spark applications
         # master_code_setup(self)
