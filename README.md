@@ -5,24 +5,93 @@ This README is managed in
 * [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/README.md)
 * <https://github.com/cloudmesh/cloudmesh-pi-cluster>
 
-## Prerequisite
 
-Set up cloudmesh on the master 
+## About
+
+This document describes how to set up a variety of cluster platforms on
+a number of raspberry PI's. We used Pi3B+ and Pi4 with 32 GB SD cards.
+You will idially wnat to have a minimum of 3 Pi's.
+
+
+## Instalation
+
+### Creating the SD Cards
+
+We have chosen not to use network booting, but boot from teh SD Crads.
+For this we will use our special `burn` program to burn the Pi's. This
+allows you to immediately start with an OS that has all the needed
+information on it. However we need one master py that we simply
+configure with the pi imager.
+
+TODO: point to the documentation
+
+TODO: Briefly describe how we burn the master and set it up
+
+TODO: Then describe briefly how we burn
+
+
+### Prerequisite
+
+Once you have set up the master and have network access, you must
+conduct the following steps
+
+First we update the system and install python3 in ~/ENV3 with the
+command, activate it, and generate an ssh key
 
 ```bash
-$ sudo apt-get update
-$ sudo apt-get full-upgrade
-$ sudo apt-get install emacs
-$ ssh-keygen
-$ echo 'alias python="/usr/bin/python3"' >> ~/.bashrc
-$ source .bashrc
-$ python --version
-$ python -m venv ~/ENV3
-$ source ~/ENV3/bin/activate
-$ pip install pip -U 
-$ pip install cloudmesh-installer 
-$ cloudmesh-installer get pi
+curl -Ls http://cloudmesh.github.io/get/pi | sh
+source ~/ENV3/bin/activate
+ssh-keygen
 ```
+
+These steps have  only to be done once on your master Pi.
+
+
+### User install
+
+The instalation for cloudmesh on the Pi cluster package is simple:
+
+```bash
+pip install cloudmesh-pi-cluster
+```
+
+### Developer install
+
+In case you like to contribute to the code, we provide a conveniennt
+mechanism for you to download all source code repositories from Git. YOu
+will find in the directory wheere you downloaded the code all source
+code. The reason we recommend that you do this in a directory cm is that
+it is the same for all developers and that all the source code is
+located in one directory.
+
+```bash
+mkdir ~/cm
+cd cm
+cloudmesh-installer get pi
+```
+
+## Using the Cluster commands
+
+### Getting Help
+
+To get a list of commands related to the cloudmesh cluster simply use
+
+```
+cms help
+```
+
+To just list the cluster command manual page use
+
+```
+cms help pi
+```
+
+to just show the usage use
+
+```
+cms pi
+```
+
 
 ## Setting LEDS
 
