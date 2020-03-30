@@ -1,5 +1,10 @@
 # Setting up a Pi Spark Cluster
 
+We assume you have installed cloudmesh as discussed in the
+
+* [Pi Cloudmesh Instalation Guide](/README.md#installation)
+
+
 TODO: This is not yet working and under development
 
 The list of spark related commands are:
