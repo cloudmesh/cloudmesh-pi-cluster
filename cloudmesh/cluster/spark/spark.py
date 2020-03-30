@@ -42,6 +42,16 @@ class Spark:
                                   processors=processors,
                                   executor=os.system)
 
+    def test_setup(self, hosts):
+        banner("Spark setup")
+        script = textwrap.dedent("""
+             # ################################################
+             # TEST SETUP
+             #
+             uname -a 
+         """)
+        self.run(script=script, host=hosts)
+
     def setup(self):
         """
 
