@@ -21,8 +21,6 @@ class Monitor:
 
     def __init__(self):
         self.order = None
-        self.value_min = sys.float_info.max
-        self.value_max = sys.float_info.min
         self.title = "Monitor"
 
     def execute(self, arguments):
@@ -149,14 +147,12 @@ class Monitor:
 
         plt.style.use('seaborn')
 
-        fig, axs = plt.subplots(len(hosts))
+        fig, axs = plt.subplots(len(hosts),
+                                1,
+                                sharex=True,
+                                sharey=True)
 
         fig.suptitle(f'Pi Cluster {self.title}')
-
-        i = 0
-        for host in hosts:
-            axs[i].set_title(host, loc='right')
-            i += 1
 
         def animate(i):
 
@@ -169,35 +165,39 @@ class Monitor:
             plt.cla()
 
             host_no = 0
+
             i = next(index)
 
             for result in results:
                 host = result['host']
 
-                for attribute in self.display:
-                    value = result[attribute]
-                    self.value_min = min(value, self.value_min)
-                    self.value_max = max(value, self.value_max)
-
                 series[host]['x'].append(i)
                 for attribute in self.display:
                     series[host][attribute].append(result[attribute])
 
-                axs[host_no].set_ylim([self.value_min,
-                                       self.value_max])
                 for attribute in self.display:
-                    axs[host_no].plot(series[host]['x'],
+                    if len(hosts) == 1:
+                        axs.plot(series[host]['x'],
                                       series[host][attribute],
                                       color=self.color[attribute],
                                       label=attribute)
 
+                    else:
+                        axs[host_no].plot(series[host]['x'],
+                                      series[host][attribute],
+                                      color=self.color[attribute],
+                                      label=attribute)
                 patches = []
                 for attribute in self.display:
                     patch = mpatches.Patch(color=self.color[attribute],
                                            label=attribute)
                     patches.append(patch)
-
-                axs[host_no].legend(handles=patches)
+                if len(hosts) == 1:
+                    axs.legend(handles=patches)
+                    axs.set_title(host, loc='right')
+                else:
+                    axs[host_no].legend(handles=patches)
+                    axs[host_no].set_title(host, loc='right')
 
                 host_no += 1
 

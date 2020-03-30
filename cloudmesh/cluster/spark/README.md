@@ -18,7 +18,6 @@ cms pi spark check [--master=MASTER] [--workers=WORKERS]
 cms pi script list spark [--details]
 ```
 
-
 ## Usage
 
 Let us assume we like to create a cluster with 3 workers and a master.

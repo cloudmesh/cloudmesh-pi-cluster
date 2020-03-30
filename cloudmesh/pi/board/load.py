@@ -31,10 +31,8 @@ class Load(Monitor):
         self.color = {
             '1': 'C0',
             '5': 'C2',
-            '10': 'C2',
+            '10': 'C7',
         }
-        self.value_max = 0.0
-        self.value_min = 100.0
 
 
     def update(self, entry, table=None):

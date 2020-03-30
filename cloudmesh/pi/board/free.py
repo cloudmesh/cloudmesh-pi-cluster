@@ -32,8 +32,6 @@ class Free(Monitor):
         self.color = {
             'mem.used': 'C0',
             'swap.used': 'C2'}
-        self.value_max = 0
-        self.value_min = 4095750144
 
     def update(self, entry, table=None):
         if not table:

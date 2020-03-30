@@ -17,8 +17,6 @@ from cloudmesh.pi.board.monitor import Monitor
 
 
 class Temperature(Monitor):
-    temp_min = 150.0
-    temp_max = 0.0
 
     def __init__(self):
         self.title = "Temperature"
@@ -30,8 +28,6 @@ class Temperature(Monitor):
         self.color = {
             'cpu': 'C0',
             'gpu': 'C2'}
-        self.value_min = 150
-        self.value_max = 0
 
     def update(self, entry, table=None):
         cpu, gpu = entry["stdout"].splitlines()
