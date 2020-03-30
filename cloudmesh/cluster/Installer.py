@@ -1,7 +1,35 @@
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
+import textwrap
 
 class Installer:
+
+    @staticmethod
+    def comment(label, allign=None):
+        script
+        if allign =='top':
+            script = textwrap.dedent("""
+
+                # ################################################
+                # {label} BEGIN
+                #
+                """)
+        elif allign == 'bottom':
+            script = textwrap.dedent("""
+                #
+                # {label} END
+                # ################################################
+                """)
+        else:
+            script = textwrap.dedent("""
+
+                # ################################################
+                # {label} 
+                # ################################################
+                """)
+
+        return script
+
 
     @staticmethod
     def add_line(script, line):
