@@ -77,14 +77,18 @@ class Spark:
         """)
         self.run(script)
 
-    def copy_files_to_workerss(self, workers):
-        script = textwrap.dedent("""
-            scp -r $SCALA_HOME/scalaout2-11.tar.gz pi@yellow-002:
-            scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz pi@yellow-002:
-            scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz pi@yellow-002:
-            scp -r ~/spark-setup-worker.sh pi@yellow-002:
-        """)
-        self.run(script)
+    def copy_files_to_workerss(self, user="pi", workers=None):
+        for worker in workers:
+            #
+            # this shoul use our parallel ssh for now we d osequentially to se eif it works
+            #
+            script = textwrap.dedent(f"""
+                scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:
+                scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:
+                scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz {user}@{worker}:
+                scp -r ~/spark-setup-worker.sh {user}@{worker}:
+            """)
+            self.run(script)
 
     def setup_worker(self):
         script = textwrap.dedent("""
