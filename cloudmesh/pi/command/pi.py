@@ -32,7 +32,10 @@ class PiCommand(PluginCommand):
                 pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
                 pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
                 pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-
+                pi spark setup --master=MASTER --workers=WORKER
+                pi spark start --master=MASTER --workers=WORKER
+                pi spark stop --master=MASTER --workers=WORKER
+                pi spark test --master=MASTER --workers=WORKER
 
           This command does some useful things.
 
@@ -102,5 +105,10 @@ class PiCommand(PluginCommand):
             led = LED()
             led.execute(arguments)
 
+        elif arguments.spark:
+
+            from cloudmesh.cluster.spark.spark import Spark
+            spark = Spark()
+            spark.execute(arguments)
 
         return ""

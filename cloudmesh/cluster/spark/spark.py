@@ -12,6 +12,38 @@ from cloudmesh.common.Host import Host
 
 class Spark:
 
+    def execute(self, arguments):
+        """
+        pi spark setup --master=MASTER --workers=WORKER
+        pi spark start --master=MASTER --workers=WORKER
+        pi spark stop --master=MASTER --workers=WORKER
+        pi spark test --master=MASTER --workers=WORKER
+
+        :param arguments:
+        :return:
+        """
+        self.master = arguments.master
+        self.workers = Parameter.expand(arguments.workers)
+
+        if arguments.setup:
+
+            raise NotImplementedError
+
+        elif arguments.start:
+
+            self.start(master=self.master)
+
+        elif arguments.stop:
+
+            self.stop(master=self.master)
+
+        elif arguments.test:
+
+            self.start(master=self.master)
+
+
+
+
     def __init__(self, master=None, workers=None):
         """
 
