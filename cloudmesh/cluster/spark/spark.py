@@ -22,6 +22,22 @@ class Spark:
 
     def upate_bashrc(self):
         banner("Update bashrc")
+
+class Spark:
+
+    def setup(self):
+        #Setup the master with the Spark applications
+        master_code_setup(self)
+        #Update the master's ~/.bashrc file
+        update_bashrc(self)
+        #Update the master's spark-env.sh file
+        update_spark-env(self)
+        #Copy Spark files to workers
+        copy_spark_to_worker(self)
+        #Run setup on workers
+        setup_spark_workers(self)
+
+    def update_bashrc(self):
         script = textwrap.dedent("""
         
             # ################################################
@@ -156,3 +172,15 @@ class Spark:
         # test if this works from within python
         os.system("eval $(ssh-agent)")
         os.system("ssh-add")
+
+    def spark-env(self):
+        script = textwrap.dedent("""
+        #JAVA_HOME
+        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
+        """)
+
+    def copy_spark_to_worker(self):
+        raise NotImplementedError
+
+    def setup_spark_workers(self):
+        raise NotImplementedError
