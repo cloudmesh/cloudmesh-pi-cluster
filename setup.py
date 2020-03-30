@@ -32,8 +32,9 @@ requiers = """
 pygal
 matplotlib
 humanize
-seaborn
 """.split("\n")
+
+# seaborn
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
 
