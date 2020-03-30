@@ -36,6 +36,7 @@ class PiCommand(PluginCommand):
                 pi spark start --master=MASTER --workers=WORKER
                 pi spark stop --master=MASTER --workers=WORKER
                 pi spark test --master=MASTER --workers=WORKER
+                pi spark check --master=MASTER --workers=WORKER
 
           This command does some useful things.
 

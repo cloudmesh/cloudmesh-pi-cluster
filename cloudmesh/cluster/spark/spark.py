@@ -39,9 +39,11 @@ class Spark:
 
         elif arguments.test:
 
-            self.start(master=self.master)
+            self.test(master=self.master)
 
+        elif arguments.check:
 
+            self.check(master=self.master)
 
 
     def __init__(self, master=None, workers=None):
@@ -74,7 +76,7 @@ class Spark:
                                   processors=processors,
                                   executor=os.system)
 
-    def test_setup(self, hosts):
+    def check(self, hosts):
         banner("Spark setup")
         script = textwrap.dedent("""
              # ################################################
