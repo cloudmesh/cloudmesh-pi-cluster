@@ -1,19 +1,3 @@
-import os
-from cloudmesh.common.Host import Host
-from pprint import pprint
-import time
-from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.Printer import Printer
-import sys
-import pygal
-import webbrowser
-from pygal.style import DefaultStyle
-from itertools import count
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import humanize
 from cloudmesh.pi.board.monitor import Monitor
 
 

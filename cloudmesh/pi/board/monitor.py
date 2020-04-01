@@ -1,20 +1,14 @@
 import os
-from cloudmesh.common.Host import Host
-from pprint import pprint
 import time
-from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.Printer import Printer
-import sys
-import pygal
-import webbrowser
-from pygal.style import DefaultStyle
 from itertools import count
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import matplotlib.pyplot as plt
+from pprint import pprint
+
 import matplotlib.patches as mpatches
-import humanize
-from cloudmesh.common.Printer import Printer
+import matplotlib.pyplot as plt
+from cloudmesh.common.Host import Host
+from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.parameter import Parameter
+from matplotlib.animation import FuncAnimation
 
 
 class Monitor:
@@ -62,7 +56,7 @@ class Monitor:
         if output == 'table':
             for result in results:
                 result = self.update(result, table=True)
-            print(Printer.write(results, self.order))
+            print(Printer.write(results, order=self.order))
         else:
             pprint(results)
 

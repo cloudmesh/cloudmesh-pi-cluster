@@ -1,17 +1,13 @@
 from __future__ import print_function
-from cloudmesh.shell.command import command
-from cloudmesh.shell.command import PluginCommand
-from cloudmesh.common.console import Console
-from cloudmesh.common.util import path_expand
-from pprint import pprint
-from cloudmesh.common.debug import VERBOSE
-from cloudmesh.pi.board.led import LED
-from cloudmesh.pi.board.temperature import Temperature
-from cloudmesh.pi.board.free import Free
-from cloudmesh.pi.board.load import Load
+
 from cloudmesh.cluster.Installer import Script
+from cloudmesh.pi.board.free import Free
+from cloudmesh.pi.board.led import LED
+from cloudmesh.pi.board.load import Load
+from cloudmesh.pi.board.temperature import Temperature
+from cloudmesh.shell.command import PluginCommand
+from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.common.Printer import Printer
 
 
 class PiCommand(PluginCommand):

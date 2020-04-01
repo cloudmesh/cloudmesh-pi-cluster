@@ -1,9 +1,10 @@
 import os
-from cloudmesh.common.Host import Host
-from pprint import pprint
 import time
+from pprint import pprint
+
+from cloudmesh.common.Host import Host
+from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.Printer import Printer
 
 """
 
@@ -24,6 +25,7 @@ LED. It's active-low, so you need to set the pin low to turn the LED on, and
 high to turn it off.
 
 """
+
 
 
 class LED:

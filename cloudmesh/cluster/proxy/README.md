@@ -4,6 +4,9 @@ Quetsion: why add xyz
 
     xyz ...
 
+* unbound - dns server - on pi
+* squid - on pi
+
 Trying to follow this tutorial on configuring a subnet hosted by the
 master pi.
 
@@ -49,7 +52,8 @@ I assume you will use /etc/hosts for your local names, but you could
 also set up a local zone in unbound if you prefer. I do not show this
 now however.
 
-** Issue Here. /etc/dhcp/dhcpd.conf does not exist **
+Quetsion: ** Issue Here. /etc/dhcp/dhcpd.conf does not exist on teh PI **
+
 You will need to configure your dhcpd server (dhcpd.conf), something
 like:
 

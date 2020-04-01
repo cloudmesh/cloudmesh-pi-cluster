@@ -1,15 +1,14 @@
-import textwrap
-from cloudmesh.common.Printer import Printer
-from cloudmesh.common.console import Console
-from cloudmesh.common.util import banner
-from cloudmesh.common.util import readfile
-from cloudmesh.common.util import writefile
 import os
+import textwrap
+from pprint import pprint
+
 from cloudmesh.cluster.Installer import Installer
 from cloudmesh.cluster.Installer import Script
-from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.Host import Host
-from pprint import pprint
+from cloudmesh.common.Printer import Printer
+from cloudmesh.common.console import Console
+from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.util import banner
 
 
 # see also: https://github.com/cloudmesh-community/sp20-516-246/tree/master/pi_spark

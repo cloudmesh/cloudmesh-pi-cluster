@@ -1,14 +1,14 @@
-from cloudmesh.common.util import readfile
-from cloudmesh.common.util import banner
-from cloudmesh.common.util import writefile
-from cloudmesh.common.debug import VERBOSE
+import glob
+import os
 import textwrap
 from pydoc import locate
-from pprint import pprint
-from cloudmesh.common.console import Console
+
 import cloudmesh.cluster
-import os
-import glob
+from cloudmesh.common.debug import VERBOSE
+from cloudmesh.common.util import banner
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile
+
 
 class Script(dict):
 

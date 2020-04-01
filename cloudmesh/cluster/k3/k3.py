@@ -56,11 +56,12 @@
 # So lets get that example started:
 #
 
+import os
+
+from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
-from cloudmesh.common.console import Console
 
-import os
 
 #
 # this is just a draft
