@@ -63,7 +63,7 @@ The interfaces file for red001 is as follows:
 ```
 auto eth0
 iface eth0 inet static
-   address 169.254.10.10/1
+   address 169.254.10.10/16
 ```
 
 At this point, the master has access to red001 via the private interface through eth0.
