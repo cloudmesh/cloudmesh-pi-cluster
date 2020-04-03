@@ -38,7 +38,7 @@ iptables-restore < /etc/iptables.ipv4.nat
 
 The master is now ready to direct traffic from eth0 to eth1
 
-# Step 4. Configure network interface on worker
+## Step 4. Configure network interface on worker
 If `cm-pi-burn` was used for the workers, then `/etc/network/interfaces` should have a configuration similar to the following:
 ```
 auto eth0
