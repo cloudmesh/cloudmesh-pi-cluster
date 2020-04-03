@@ -1,13 +1,13 @@
 
 # Here I am documenting a fresh run including configuring burning master and utilizing cm-pi-burn 
 
-# Step 1. Burn pi 4 master
+## Step 1. Burn pi 4 master
 This is trivial. Plenty of guides exist in the cloudmesh repo and the internet
 
-# Step 2. Burn worker(s) with cm-pi-burn
+## Step 2. Burn worker(s) with cm-pi-burn
 Again, trivial.
 
-# Step 3. Configure iptables on master
+## Step 3. Configure iptables on master
 Enable IPv4 forwarding
 Edit /etc/sysctl.conf and uncomment this line:
 ```
@@ -60,7 +60,7 @@ We added two options:
 * `dns-nameservers`
 The `gateway` option should be the IP address of the master on eth0. `dns-nameservers` is the field for nameservers to utilize. In this example, we just use google's primary and secondary DNS.
 
-# Step 5. Test connection
+## Step 5. Test connection
 If the above steps have been executed properly, then we should be able to ping for data from any website. We can do some tests...
 
 We can ping `google.com`
