@@ -76,6 +76,7 @@ class LED:
                 rate=arguments.RATE,
                 processors=3)
 
+
             self.Print_leds(arguments, results)
 
         elif arguments.blink:
@@ -111,9 +112,9 @@ class LED:
 
             self.Print(arguments, results)
 
-        elif not arguments.NAMES and arguments.led:
+        # elif not arguments.NAMES and arguments.led:
 
-            LED.set(led=arguments.number, value=arguments.VALUE)
+        #    LED.set(led=arguments.number, value=arguments.VALUE)
 
         elif arguments.NAMES and arguments.led:
 
@@ -127,7 +128,7 @@ class LED:
             self.Print(arguments, results)
 
     @staticmethod
-    def get_state(self, value):
+    def get_state(value):
         state = value
         if type(value) == str:
             if value.lower() in ["1", "on", "true", "+"]:
@@ -161,6 +162,9 @@ class LED:
 
     @staticmethod
     def set(led=None, value=1):
+
+        print ("L", led, value)
+
         if led not in [1, 0]:
             raise ValueError("Led number is wrong")
 
@@ -194,8 +198,9 @@ class LED:
         state = LED.get_state(value)
 
         command = f"echo {state} |" \
-                  " sudo tee /sys/class/leds/led{led}/brightness" \
-                  " >> /dev/null"
+                  f" sudo tee /sys/class/leds/led{led}/brightness" \
+                  f" >> /dev/null"
+        print ("command", command)
         result = Host.ssh(hosts=hosts,
                           command=command,
                           username=username,
