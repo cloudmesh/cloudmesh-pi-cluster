@@ -77,7 +77,11 @@ PING google.com (...): 56 data bytes
 ```
 or any other website to verify connection. 
 
-
-
+## Sources
+[iptables rules](https://serverfault.com/questions/431593/iptables-forwarding-between-two-interface)
+[wireless acces point](https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md)
+[deleting a route from the kernel](https://serverfault.com/questions/181094/how-do-i-delete-a-route-from-linux-routing-table)
+[deleting iptables rules](https://www.digitalocean.com/community/tutorials/how-to-list-and-delete-iptables-firewall-rules)
+[manually add gateways](https://www.raspberrypi.org/forums/viewtopic.php?t=90469)
 
 
