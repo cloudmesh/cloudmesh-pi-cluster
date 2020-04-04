@@ -19,23 +19,23 @@ class PiCommand(PluginCommand):
         ::
 
           Usage:
-                pi led reset [NAMES]
-                pi led (red|green) VALUE
-                pi led (red|green) VALUE NAMES [--user=USER]
-                pi led list NAMES [--user=USER]
-                pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
-                pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
-                pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-                pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-                pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-                pi spark setup --master=MASTER --workers=WORKERS
-                pi spark start --master=MASTER --workers=WORKERS
-                pi spark stop --master=MASTER --workers=WORKERS
-                pi spark test --master=MASTER --workers=WORKERS
-                pi spark check [--master=MASTER] [--workers=WORKERS]
-                pi script list SERVICE [--details]
-                pi script list SERVICE NAMES
-                pi script list
+            pi led reset [NAMES]
+            pi led (red|green) VALUE
+            pi led (red|green) VALUE NAMES [--user=USER]
+            pi led list NAMES [--user=USER]
+            pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
+            pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
+            pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+            pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+            pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+            pi spark setup --master=MASTER --workers=WORKERS
+            pi spark start --master=MASTER --workers=WORKERS
+            pi spark stop --master=MASTER --workers=WORKERS
+            pi spark test --master=MASTER --workers=WORKERS
+            pi spark check [--master=MASTER] [--workers=WORKERS]
+            pi script list SERVICE [--details]
+            pi script list SERVICE NAMES
+            pi script list
 
           This command does some useful things.
 
