@@ -10,14 +10,13 @@ class Load(Monitor):
             '1', '5', '10',
             'proc.running', 'proc.total'
         ]
-        self.command = " cat /proc/loadavg"
+        self.command = "cat /proc/loadavg"
         self.display = ['1', '5', '10']
         self.color = {
             '1': 'C0',
             '5': 'C2',
             '10': 'C7',
         }
-
 
     def update(self, entry, table=None):
         entry['1'], \

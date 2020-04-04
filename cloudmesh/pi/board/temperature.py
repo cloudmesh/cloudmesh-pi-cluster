@@ -6,16 +6,21 @@ class Temperature(Monitor):
     def __init__(self):
         self.title = "Temperature"
         self.order = order = ['host', 'cpu', 'gpu', 'date']
-        self.command = "cat" \
-                       " /sys/class/thermal/thermal_zone0/temp;" \
-                       " /opt/vc/bin/vcgencmd measure_temp"
+        self.command = 'cat' \
+                       '/sys/class/thermal/thermal_zone0/temp;' \
+                       ' /opt/vc/bin/vcgencmd measure_temp | sed "s/[^0-9.]//g'
         self.display = ['cpu', 'gpu']
         self.color = {
             'cpu': 'C0',
             'gpu': 'C2'}
 
     def update(self, entry, table=None):
-        cpu, gpu = entry["stdout"].splitlines()
-        entry["gpu"] = float(gpu.split("=", 1)[1][:-2])
-        entry["cpu"] = float(cpu) / 1000.0
+        try:
+            cpu, gpu = entry["stdout"].splitlines()
+            entry["gpu"] = float(gpu)
+            entry["cpu"] = float(cpu) / 1000.0
+        except:
+            entry["gpu"] = 0.0
+            entry["cpu"] = 0.0
         return entry
+
