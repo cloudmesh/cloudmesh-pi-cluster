@@ -10,7 +10,7 @@ class BridgeCommand(PluginCommand):
 
     # noinspection PyUnusedLocal
     @command
-    def do_pi(self, args, arguments):
+    def do_bridge(self, args, arguments):
         """
         ::
 
@@ -34,7 +34,7 @@ class BridgeCommand(PluginCommand):
                                      You can also specify wlan0 if you wnat
                                      to bridge through WIFI on the master
                                      eth0 requires a USB to WIFI adapter
-              --rate                 The rate in seconds for repeating the test
+              --rate=RATE            The rate in seconds for repeating the test
                                      If ommitted its done just once.
 
           Description:
