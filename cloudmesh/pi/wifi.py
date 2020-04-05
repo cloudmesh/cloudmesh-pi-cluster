@@ -2,6 +2,7 @@ import subprocess
 import textwrap
 
 from cloudmesh.common.console import Console
+from cloudmesh.common.util import writefile
 
 
 class Wifi:
@@ -20,14 +21,21 @@ class Wifi:
     """)
 
     @staticmethod
-    def set(ssid, password):
+    def set(ssid, password, dryrun=False):
         if ssid is None or password is None:
             Console.error("SSID or password not set")
-        config = Wifi.template.format(**locals()).replace("BEGIN", "{").replace(
-            "END", "}")
-        # writefile(Wifi.location, config)
-        print(Wifi.location)
-        print(config)
+        if dryrun:
+            password = "********"
+        config = Wifi.template.format(**locals()) \
+            .replace("BEGIN", "{").replace("END", "}")
+        if dryrun:
+            print(Wifi.location)
+            print(config)
+        else:
+            try:
+                writefile(Wifi.location, config)
+            except FileNotFoundError as e:
+                Console.error(f"The file does not exist: {Wifi.location}")
 
     @staticmethod
     def is_root():

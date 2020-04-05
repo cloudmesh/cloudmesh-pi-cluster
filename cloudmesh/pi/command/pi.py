@@ -40,7 +40,7 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
-            pi wifi SSID [PASSWORD]
+            pi wifi SSID [PASSWORD] [--dryrun]
 
           This command does some useful things.
 
@@ -136,6 +136,7 @@ class PiCommand(PluginCommand):
                 arguments.PASSWORD = getpass(
                     f"Wifi Password for {arguments.SSID}: ")
 
-            wifi.set(arguments.SSID, arguments.PASSWORD)
+            wifi.set(arguments.SSID, arguments.PASSWORD,
+                     dryrun=arguments["--dryrun"])
 
         return ""
