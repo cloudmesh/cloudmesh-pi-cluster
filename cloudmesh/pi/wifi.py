@@ -13,11 +13,11 @@ class Wifi:
         update_config=1
         country=US
         
-        network=BEGIN
+        network={{
                 ssid="{ssid}"
                 psk="{password}"
                 key_mgmt=WPA-PSK
-        END
+        }}
     """)
 
     @staticmethod
