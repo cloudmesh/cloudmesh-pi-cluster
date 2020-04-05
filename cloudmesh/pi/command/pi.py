@@ -1,10 +1,14 @@
 from __future__ import print_function
 
+from getpass import getpass
+
 from cloudmesh.cluster.Installer import Script
+from cloudmesh.common.console import Console
 from cloudmesh.pi.board.free import Free
 from cloudmesh.pi.board.led import LED
 from cloudmesh.pi.board.load import Load
 from cloudmesh.pi.board.temperature import Temperature
+from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
@@ -36,6 +40,7 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
+            pi wifi SSID [PASSWORD]
 
           This command does some useful things.
 
@@ -118,5 +123,19 @@ class PiCommand(PluginCommand):
 
             script = Script()
             script.execute(arguments)
+
+        elif arguments.wifi:
+
+            wifi = Wifi()
+
+            if not wifi.is_root():
+                Console.error("You are not running in sudo")
+                return ""
+
+            if arguments.PASSWORD is None:
+                arguments.PASSWORD = getpass(
+                    f"Wifi Password for {arguments.SSID}: ")
+
+            wifi.set(arguments.SSID, arguments.PASSWORD)
 
         return ""
