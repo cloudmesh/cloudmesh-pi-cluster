@@ -70,7 +70,7 @@ class BridgeCommand(PluginCommand):
 
           Design Changes:
             We still may need the master to be part of other commands in case
-            for example the check is different for master and worker.
+            for example the check is different for master and worker
 
         """
 
