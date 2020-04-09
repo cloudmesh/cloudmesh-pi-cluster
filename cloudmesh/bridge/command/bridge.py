@@ -9,8 +9,6 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.bridge.Bridge import Bridge
-from cloudmesh.bridge.utils import os_is_pi
-
 
 class BridgeCommand(PluginCommand):
 
@@ -82,10 +80,6 @@ class BridgeCommand(PluginCommand):
 
         map_parameters(arguments,
                        'interface')
-
-        if not os_is_pi():
-            Console.error("You should only run this program on a raspberry pi!")
-            sys.exit(1)
 
         if arguments.set or arguments.create or arguments.restart:
             if ',' not in arguments.NAMES:

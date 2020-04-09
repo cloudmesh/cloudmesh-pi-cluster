@@ -36,16 +36,3 @@ def sudo_writefile(filename, content, append=False):
 
     return result[1]
 
-def os_is_windows():
-    return platform.system() == "Windows"
-
-def os_is_linux():
-    return platform.system() == "Linux" and "raspberry" not in platform.uname()
-
-def os_is_mac():
-    return platform.system() == "Darwin"
-
-def os_is_pi():
-    return "raspberry" in platform.uname()
-
-
