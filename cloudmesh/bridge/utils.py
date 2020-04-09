@@ -1,7 +1,9 @@
 from cloudmesh.common.console import Console
+from cloudmesh.common.util import writefile
 import os
 import subprocess
 import platform
+
 
 # These functions should be moved to cloudmesh.common.utils
 def sudo_readfile(filename, split=True, trim=False):

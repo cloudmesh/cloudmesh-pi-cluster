@@ -48,7 +48,7 @@ class Bridge:
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
 
-        if master is None or workers is None or ext_interface == 'wlan0':
+        if master is None or ext_interface == 'wlan0':
             raise NotImplementedError
 
         StopWatch.start('Enable iPv4 forwarding')
@@ -56,10 +56,10 @@ class Bridge:
         StopWatch.stop('Enable iPv4 forwarding')
         StopWatch.status('Enable iPv4 forwarding', True)
 
-        StopWatch.start('Configure iptables')
+        StopWatch.start('iptables configuration')
         cls._set_iptables()
-        StopWatch.stop('Configure iptables')
-        StopWatch.status('Configure iptables', True)
+        StopWatch.stop('iptables configuration')
+        StopWatch.status('iptables configuration', True)
 
         Console.info("Finished configuration of master")
 
@@ -113,6 +113,8 @@ class Bridge:
         else:
             # First turn on ipv4 forwarding
             sudo_writefile('/proc/sys/net/ipv4/ip_forward', '1')
+            # Or this
+            # cls.system('sudo sysctl -w net.ipv4.ip_forward=1')
 
             # Save for next boot
             old_conf = sudo_readfile('/etc/sysctl.conf')
@@ -125,8 +127,10 @@ class Bridge:
                 except ValueError:
                     Console.warning("Could not find iPv4 setting. Perhaps /etc/sysctl.conf has been changed from default. Process continues by adding iPv4 setting")
                     old_conf.append('net.ipv4.ip_forward=1')
+                except:
+                    Console.error("Could not set iPv4 forwarding. Unknown error occurred")
                 finally:
-                    sudo_writefile('/etc/sysctl.conf', old_conf)
+                    sudo_writefile('/etc/sysctl.conf', '\n'.join(old_conf))
             else:
                 Console.info("iPv4 forwarding already set. Skipping iPv4 setup")
 
@@ -138,16 +142,20 @@ class Bridge:
 
         :return:
         """
+        cmd1 = f"sudo iptables -A FORWARD -i {cls.priv_interface} -o {cls.ext_interface} -j ACCEPT"
+        cmd2 = f"sudo iptables -A FORWARD -i {cls.ext_interface} -o {cls.priv_interface} -m state --state ESTABLISHED,RELATED -j ACCEPT"
+        cmd3 = f"sudo iptables -t nat -A POSTROUTING -o {cls.ext_interface} -j MASQUERADE"
+
         if cls.dryrun:
             Console.info("DRYRUN: Setting iptables")
-            print(f"DRYRUN: sudo iptables -A FORWARD -i {cls.priv_interface} -o {cls.ext_interface} -j ACCEPT")
-            print(f"DRYRUN: sudo iptables -A FORWARD -i {cls.ext_interface} -o {cls.priv_interface} -m state --state ESTABLISHED,RELATED -j ACCEPT")
-            print(f"DRYRUN: sudo iptables -t nat -A POSTROUTING -o {cls.ext_interface} -j MASQUERADE")
+            print(f"DRYRUN: {cmd1}")
+            print(f"DRYRUN: {cmd2}")
+            print(f"DRYRUN: {cmd3}")
 
         else:
-            cls._system(f"sudo iptables -A FORWARD -i {cls.priv_interface} -o {cls.ext_interface} -j ACCEPT")
-            cls._system(f"sudo iptables -A FORWARD -i {cls.ext_interface} -o {cls.priv_interface} -m state --state ESTABLISHED,RELATED -j ACCEPT")
-            cls._system(f"sudo iptables -t nat -A POSTROUTING -o {cls.ext_interface} -j MASQUERADE")
+            cls._system(cmd1)
+            cls._system(cmd2)
+            cls._system(cmd3)
 
             # Save rules
             cls._system('sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"')
@@ -166,12 +174,12 @@ class Bridge:
             if restore_command not in old_conf:
                 old_conf.append(restore_command)
                 old_conf[-1], old_conf[-2] = old_conf[-2], old_conf[-1] # Places 'exit 0' below our restore_command
-                sudo_writefile('/etc/rc.local', old_conf)
+                sudo_writefile('/etc/rc.local', '\n'.join(old_conf) + '\n')
 
 
 
 
 
 # Tests
-Bridge.create(master='red', workers=['red001', 'red002', 'red003'], priv_interface='eth0', ext_interface='eth1', dryrun=True)
-StopWatch.benchmark(sysinfo=False, csv=False, tag='DryRun')
+Bridge.create(master='red', priv_interface='eth0', ext_interface='eth1', dryrun=False)
+StopWatch.benchmark(sysinfo=False, csv=False, tag='MasterConfig')
