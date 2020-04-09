@@ -1,18 +1,13 @@
 import sys
-import platform
-import os
 import subprocess
 import textwrap
 # Functions in utils should be moved to cloudmesh.common
 from utils import *
 
-from cloudmesh.common.Printer import Printer
-# from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile, readfile
-from cloudmesh.common.util import yn_choice
 
 #
 # These methods are not parallel but just work in one processor
@@ -34,7 +29,6 @@ class Bridge:
     def create(cls, master=None, workers=None, priv_interface='eth0', ext_interface='eth1', dryrun=False):
         """
         if worker(s) is missing the master is set up only
-        if master is missing only the worker is set up
 
         :param master: expected to be a single string
         :param workers:
@@ -74,6 +68,8 @@ class Bridge:
         Console.info("Finished configuration of master")
 
         if workers is None:
+            Console.warning("No workers to configure")
+            Console.ok("Process completed for master only")
             return
 
         # Worker configuration
