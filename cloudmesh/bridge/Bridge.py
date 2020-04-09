@@ -67,6 +67,8 @@ class Bridge:
             return
 
         Console.info("Starting configuration for workers")
+        Console.error("Not implemented")
+        sys.exit(1)
             
     # Set a worker to use the master
     @classmethod
@@ -111,14 +113,13 @@ class Bridge:
         if cls.dryrun:
             Console.info("DRYRUN: Turning on iPv4")
         else:
+            new_line='net.ipv4.ip_forward=1'
+
             # First turn on ipv4 forwarding
-            sudo_writefile('/proc/sys/net/ipv4/ip_forward', '1')
-            # Or this
-            # cls.system('sudo sysctl -w net.ipv4.ip_forward=1')
+            cls._system(f'sudo sysctl -w {new_line}')
 
             # Save for next boot
             old_conf = sudo_readfile('/etc/sysctl.conf')
-            new_line='net.ipv4.ip_forward=1'
 
             if new_line not in old_conf:
                 # The default sysctl has the new_line commented out. Try to uncomment it
@@ -176,6 +177,10 @@ class Bridge:
                 old_conf[-1], old_conf[-2] = old_conf[-2], old_conf[-1] # Places 'exit 0' below our restore_command
                 sudo_writefile('/etc/rc.local', '\n'.join(old_conf) + '\n')
 
+            else:
+                Console.warning(f"iptables restoration already in rc.local")
+
+            
 
 
 
