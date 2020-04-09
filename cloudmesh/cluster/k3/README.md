@@ -59,6 +59,7 @@ ssh [WORKER-IP]
 curl -sfL http://get.k3s.io | K3S_URL=https://[MASTER IP]:6443  \
 K3S_TOKEN=[JOIN-TOKEN FROM STEP 1] sh -
 ```
+CURRENT BUG: When running the above command, it will set a password for your Raspberry Pi (which does not display in the command output either) 
 
 ### View Cluster
 You can view your cluster setup with master and work status with the command:
