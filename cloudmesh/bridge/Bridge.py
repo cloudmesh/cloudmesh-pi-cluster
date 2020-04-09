@@ -49,8 +49,9 @@ class Bridge:
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
 
-        if master is None or ext_interface == 'wlan0':
-            raise NotImplementedError
+        if master is None:
+            Console.error("No master provided")
+            sys.exit(1)
 
         # Master configuration
         StopWatch.start('Master Configuration')
@@ -302,6 +303,6 @@ class Bridge:
 
 
 # Tests
-# Bridge.create(master='red', workers=['red001'], priv_interface='eth0', ext_interface='eth1', dryrun=False)
-# Bridge.restart(master='red', workers=['red001'])
-# StopWatch.benchmark(sysinfo=False, csv=False, tag='Testing')
+Bridge.create(master='red', workers=['red001'], priv_interface='eth0', ext_interface='wlan0', dryrun=False)
+Bridge.restart(master='red', workers=['red001'])
+StopWatch.benchmark(sysinfo=False, csv=False, tag='Testing')
