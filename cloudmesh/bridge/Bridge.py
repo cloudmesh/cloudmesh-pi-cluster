@@ -2,7 +2,7 @@ import sys
 import subprocess
 import textwrap
 # Functions in utils should be moved to cloudmesh.common
-from utils import *
+from cloudmesh.bridge.utils import *
 
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.console import Console
@@ -104,20 +104,24 @@ class Bridge:
 
     @classmethod
     def restart(cls, master=None, workers=None, user='pi'):
-        banner(textwrap.dedent("""
-
-        Restart networking service on master and workers...
-
-        """), color='CYAN')
-
         if master is not None:
-            cls._system('sudo service networking restart')
+            banner("Restart networking service on master...", color='CYAN')
+            status = cls._system('sudo service networking restart', exitcode=True)
+            if status != 0:
+                Console.error('Did not restart {master} networking service correctly')
+                sys.exit(1)
+
+            Console.ok("Restarted networking service on master")
 
         if workers is not None:
+            banner("Restart networking service on workers...", color='CYAN')
             for worker in workers:
-                cls._system(f'ssh {user}@{worker} sudo service networking restart')
+                status = cls._system(f'ssh {user}@{worker} sudo service networking restart', exitcode=True)
+                if status != 0:
+                    Console.error(f'Did not restart {worker} networking service correctly')
+                    sys.exit(1)
 
-        Console.ok('Restarted networking services')
+            Console.ok("Restarted networking service on workers")
 
     # Begin private methods for Bridge
     @classmethod
@@ -299,6 +303,6 @@ class Bridge:
 
 
 # Tests
-Bridge.create(master='red', workers=['red001'], priv_interface='eth0', ext_interface='wlan0', dryrun=False)
-Bridge.restart(master='red', workers=['red001'])
-StopWatch.benchmark(sysinfo=False, csv=False, tag='Testing')
+# Bridge.create(master='red', workers=['red001'], priv_interface='eth0', ext_interface='wlan0', dryrun=False)
+# Bridge.restart(master='red', workers=['red001'])
+# StopWatch.benchmark(sysinfo=False, csv=False, tag='Testing')

@@ -1,9 +1,14 @@
 from __future__ import print_function
+import sys
 
 from cloudmesh.common.util import banner
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
+from cloudmesh.common.console import Console
+from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.bridge.Bridge import Bridge
 
 
 class BridgeCommand(PluginCommand):
@@ -17,7 +22,7 @@ class BridgeCommand(PluginCommand):
           Usage:
             bridge create NAMES [--interface=INTERFACE]
             bridge set NAMES [--interface=INTERFACE]
-            bridge restart NAMES
+            bridge restart NAMES 
             bridge test NAMES [--rate=RATE]
             bridge list NAMES
             bridge check NAMES [--configuration] [--connection]
@@ -44,7 +49,7 @@ class BridgeCommand(PluginCommand):
 
             bridge create NAMES [--interface=INTERFACE]
                 creates the bridge
-                The set command does not restart the network.
+                The create command does not restart the network.
 
             bridge set NAMES [--interface=INTERFACE]
                 sets the bridge if it is already created.
@@ -77,9 +82,34 @@ class BridgeCommand(PluginCommand):
         map_parameters(arguments,
                        'interface')
 
-        if arguments.set or arguments.create:
-            master = arguments.NAMES[0]
-            workers = arguments.NAMES[1:]
+        if arguments.set or arguments.create or arguments.restart:
+            if ',' not in arguments.NAMES:
+            # Handles either just master or just workers
+                if arguments.create:
+                    Console.warning("Creating bridge without workers. Only master will be configured")
+                    master = arguments.NAMES
+                    workers = None
+
+                elif arguments.restart:
+                    # Check whether the hostname(s) passed in is the master (this machine) or workers (remote machine)
+                    try:
+                        with open('/etc/hostname', 'r') as f:
+                            thishost = f.read().strip()
+                    except:
+                        Console.error('Could not read /etc/hostname')
+                        sys.exit(1)
+
+                    if arguments.NAMES == thishost:
+                        master = arguments.NAMES
+                        workers = None
+                    else:
+                        workers = Parameter.expand(arguments.NAMES)
+                        master = None
+
+            else:
+                master, workers = arguments.NAMES.split(',')
+                workers = Parameter.expand(workers)
+            
         else:
             hosts = arguments.NAMES
 
@@ -88,16 +118,20 @@ class BridgeCommand(PluginCommand):
             banner("set")
 
         elif arguments.create:
-
-            banner("create")
+            StopWatch.start('Bridge Creation')
+            Bridge.create(master=master, workers=workers, priv_interface='eth0', ext_interface=arguments.interface)
+            StopWatch.stop('Bridge Creation')
+            StopWatch.status('Bridge Creation', True)
 
         elif arguments.test:
 
             banner("test")
 
         elif arguments.restart:
-
-            banner("restart")
+            StopWatch.start('Network Service Restart')
+            Bridge.restart(master=master, workers=workers)
+            StopWatch.stop('Network Service Restart')
+            StopWatch.status('Network Service Restart', True)
 
         elif arguments.list:
 
@@ -107,4 +141,7 @@ class BridgeCommand(PluginCommand):
 
             banner("check")
 
+        StopWatch.stop('command')
+        StopWatch.status('command', True)
+        StopWatch.benchmark(sysinfo=False, csv=False)
         return ""
