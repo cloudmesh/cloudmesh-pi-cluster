@@ -26,7 +26,7 @@ if "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" not in /boot/cmdl
 see cloudmesh.k3.k3.enable_containers():
 
 ## NOTE
-This current implementation currently requires Wifi settings set up on your worker as you need to download K3S from the internet.
+This current implementation currently requires Wifi settings set up on your worker as you need to download K3S from the internet on worker setup.
 
 ## Setup
 ### Master
@@ -64,4 +64,9 @@ K3S_TOKEN=[JOIN-TOKEN FROM STEP 1] sh -
 You can view your cluster setup with master and work status with the command:
 ```
 sudo kubectl get node
+
+NAME       STATUS   ROLES    AGE    VERSION
+purple     Ready    master   2d1h   v1.17.4+k3s1
+purple01   Ready    <none>   22m    v1.17.4+k3s1
+
 ```
