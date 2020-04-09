@@ -60,3 +60,8 @@ curl -sfL http://get.k3s.io | K3S_URL=https://[MASTER IP]:6443  \
 K3S_TOKEN=[JOIN-TOKEN FROM STEP 1] sh -
 ```
 
+### View Cluster
+You can view your cluster setup with master and work status with the command:
+```
+sudo kubectl get node
+```
