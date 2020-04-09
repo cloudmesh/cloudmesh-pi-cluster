@@ -27,11 +27,11 @@ To see changes take effect, simply restart your interfaces as follows:
 
 To test connections, utilize ssh to connect to you workers. There are several tests you can run to verify a connection. A simple way is:
 ```
-(ENV3) pi@red:$ sudo apt-get update
+pi@red001:$ sudo apt-get update
 ```
 or
 ```
-(ENV3) pi@red:$ ping google.com
+pi@red001:$ ping google.com
 ```
 (hint: use ctrl+c to stop ping command)
 
