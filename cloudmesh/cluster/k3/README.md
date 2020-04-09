@@ -25,4 +25,15 @@ if "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" not in /boot/cmdl
    
 
 see cloudmesh.k3.k3.enable_containers():
+
+## Setup
+### Master
+First install Kubernetes (K3S) on the master: 
+```curl -sfL https://get.k3s.io | sh -```
+
+You can check the status of K3S by using: 
+```sudo systemctl status k3s```
+
+### Worker 
+(Note: 'cms pi' command not implemented yet, currently just command line implementation for each worker)
         
