@@ -268,8 +268,9 @@ class Bridge:
                 cls._system('mkdir -p ~/.cloudmesh/tmp')
                 tmp = f'~/.cloudmesh/tmp/{worker}-interfaces.tmp'
 
+                ignore_setting = '-o "StrictHostKeyChecking no"'
                 StopWatch.start(f'Talking to {user}@{worker}')
-                exit_code = cls._system(f'scp {user}@{worker}:/etc/network/interfaces {tmp}', exitcode=True)
+                exit_code = cls._system(f'scp {ignore_setting} {user}@{worker}:/etc/network/interfaces {tmp}', exitcode=True)
                 StopWatch.stop(f'Talking to {user}@{worker}')
                 StopWatch.status(f'Talking to {user}@{worker}', exit_code == 0)
 
@@ -297,9 +298,10 @@ class Bridge:
                 # New config file now written on local machine. Move to worker in tmp directory
                 remote_cmd1 = 'mkdir -p ~/.cloudmesh/tmp'
                 remote_path = '~/.cloudmesh/tmp/interface.tmp'
-                cls._system(f'scp {tmp} {user}@{worker}:{remote_path}')
+                cls._system(f'ssh {ignore_setting} {user}@{worker} {remote_cmd1}')
+                cls._system(f'scp {ignore_setting} {tmp} {user}@{worker}:{remote_path}')
                 remote_cmd2 = 'sudo cp ~/.cloudmesh/tmp/interface.tmp /etc/network/interfaces'
-                cls._system(f'ssh {user}@{worker} {remote_cmd2}')
+                cls._system(f'ssh {ignore_setting} {user}@{worker} {remote_cmd2}')
 
 
 # Tests
