@@ -2,8 +2,7 @@ from __future__ import print_function
 import sys
 
 from cloudmesh.common.util import banner
-from cloudmesh.shell.command import PluginCommand
-from cloudmesh.shell.command import command
+from cloudmesh.shell.command import PluginCommand from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
@@ -121,6 +120,13 @@ class BridgeCommand(PluginCommand):
             Bridge.create(master=master, workers=workers, priv_interface='eth0', ext_interface=arguments.interface)
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
+            banner(textwrap.dedent(f"""
+            You have now configured a bridge between your worker(s) and master. To see the effects, you must restart your network interfaces.
+            To do so, simply call
+
+            cms bridge restart {arguments.NAMES}
+
+            """), color='CYAN')
 
         elif arguments.test:
 

@@ -81,13 +81,6 @@ class Bridge:
         StopWatch.status('Configuration of workers', True)
 
         Console.ok("Process completed")
-        banner(textwrap.dedent("""
-        You have now configured a bridge between your worker(s) and master. To see the effects, you must restart your network interfaces.
-        To do so, simply call
-
-        cms bridge restart
-
-        """), color='CYAN')
 
     # Set a worker to use the master
     @classmethod
