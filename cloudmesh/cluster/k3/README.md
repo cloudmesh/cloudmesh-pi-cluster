@@ -19,9 +19,10 @@ We can wrap the join commands in our parallel ssh command to make things faster 
 
 ## Enable Containers
 
-if "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" not in /boot/cmdline.txt
-   cat  cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory >>  /boot/cmdline.txt
-   
+If ```cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory``` is not in /boot/cmdline.txt, please add it to the file using the following command: 
+```
+cat  cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory >>  /boot/cmdline.txt
+```
 
 see cloudmesh.k3.k3.enable_containers():
 
@@ -55,7 +56,7 @@ ssh [WORKER-IP]
 
 4. On your worker, run the following command filling in the necessary parameters:
 ```
-curl -sfL http://get.k3s.io | K3S_URL=https://[MASTER IP]:6443  \
+curl -sfL http://get.k3s.io | K3S_URL=[NAME OF MASTER]:6443  \
 K3S_TOKEN=[JOIN-TOKEN FROM STEP 1] sh -
 ```
 CURRENT BUG: When running the above command, it will set a password for your Raspberry Pi (which does not display in the command output either) 
