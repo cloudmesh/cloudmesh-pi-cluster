@@ -10,6 +10,7 @@ For reference, we will use the following setup:
 * Master Pi is running the most up-to-date raspbian
 * Master Pi has installed the necessary cloudmesh pi programs and burned three workers utilizing cm-pi-burn. See [cloudmesh-pi-burn](https://github.com/cloudmesh/cloudmesh_pi_burn) for details.
 * 3 worker Pis burned with hostnames `red001, red002, red003` with ipaddresses `169.254.10.1, 169.254.10.2, 169.254.10.3` respectively.
+* It is assumed that all hostnames of the workers are known under /etc/hosts of the master
 
 ---
 We can configure our network bridge as follows:
