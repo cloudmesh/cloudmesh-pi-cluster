@@ -5,27 +5,6 @@
 # need information from the master and workers to complete, so we put it in the
 # commandline otions also. If the install is ommitted, the install is conducted
 # on all nodes.
-#
-# We also want to add the feature of a step wise install
-#
-# cms pi k3 install --master=red --worker[01-03] --install=red02
-#                   --step=enable_containers
-#
-# How do weget there?
-#
-# Let us look at teh seemingly simple description to add a line to a file.
-#
-# This can be comletely automated and we provide here a simple start (not yet
-# Please remember that cloudmesh has a parallel execution framework for using
-# ssh on remote machines
-#
-# cloudmesh.host.Host.ssh
-#
-# please learn about it as we in the second step can use this to run things in
-# parallel on multiple hosts
-#
-# So lets get that example started:
-#
 
 import os
 import subprocess
@@ -61,16 +40,19 @@ class k3(Installer):
     def execute(self, arguments):
         """
         pi k3 install --master=MASTER --workers=WORKERS
-
+        pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
+        pi k3 delete --workers=WORKERS
+        pi k3 test --master=MASTER --workers=WORKERS
+        pi k3 view
         :param arguments:
         :return:
         """
-        self.master = arguments.master
-        self.workers = Parameter.expand(arguments.workers)
 
-        hosts = []
+        master = None
         if arguments.master:
             master = arguments.master
+
+        hosts = None
         if arguments.workers:
             hosts = Parameter.expand(arguments.workers)
 
@@ -78,32 +60,44 @@ class k3(Installer):
         if arguments.step:
             step = arguments.step
 
-        if hosts is None:
-            Console.error("You need to specify at least one worker")
-            return ""
+        #if hosts is None:
+        #    Console.error("You need to specify at least one worker")
+        #    return ""
 
-        if master is None:
-            Console.error("You need to specify a master")
-            return ""
+        #if master is None:
+        #    Console.error("You need to specify a master")
+        #    return ""
 
         if arguments.install:
             self.install(master, hosts, step)
 
+        if arguments.uninstall:
+            self.uninstall(master, hosts)
+
+        if arguments.delete:
+            self.delete(hosts)
+
+        if arguments.test:
+            self.test(master, hosts)
+
+        if arguments.view:
+            self.view()
 
     def enable_containers(self, filename="/boot/cmdline.txt"):
         line = "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
         warning = "You already have containers enabled"
         self.add_to_file(self, filename, line, warning)
 
-    # cms pi k3 install --master=red --worker[01-03]
-    #TODO - Add --install param
+    #TODO - Add --install param (as in only install on the worker I specify)
     def install(self, master=None, hosts=None, step=None):
         # Setup containers on master
-        #TODO - Setup containers on workers too? 
+        #TODO - Setup containers on workers too 
         if step is 'enable_containers':
             self.enable_containers()
 
         # Install K3S on the master
+        #TODO - Currently workers cant join because of CA Cert issue.
+        # Can it be fixed here if I set server --tls-san or --bind-address params?
         os.system("curl -sfL https://get.k3s.io | sh -")
 
         # Get join token from master
@@ -114,7 +108,32 @@ class k3(Installer):
         # Setup workers and join to cluster
         command = "curl -sfL http://get.k3s.io | K3S_URL=https://{0}:6443 K3S_TOKEN={1} sh -".format(master, token[0].decode('utf-8'))
         install = Host.ssh(hosts=hosts, command=command, executor=os.system)
-        print(install)
+        #print(install)
 
         # Print created cluster
-        os.system("sudo kubectl get node")
+        os.system("sudo kubectl get nodes")
+
+    def uninstall(self, master=None, hosts=None):
+        #Uninstall master
+        if master is not None:
+            os.system("/usr/local/bin/k3s-uninstall.sh")
+
+        #Uninstall workers
+        if hosts is not None:
+            command = "/usr/local/bin/k3s-agent-uninstall.sh"
+            uninstall = Host.ssh(hosts=hosts, command=command, executor=os.system)
+            print(uninstall)
+
+    def delete(self, hosts=None):
+        print("Delete not yet implemented")
+        #TODO - delete node from master's cluster
+        # I believe the command is "kubectl delete [NODE NAME]
+
+    def test(self, master=None, hosts=None):
+        print("Test not yet implemented")
+        #TODO - Check for software that is installed or can be installed to run a test
+        # on the cluster 
+
+    def view(self):
+       os.system("sudo kubectl get node -o wide")
+       #TODO - What other information about the chuster can I present

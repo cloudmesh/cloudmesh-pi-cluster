@@ -38,6 +38,10 @@ class PiCommand(PluginCommand):
             pi spark test --master=MASTER --workers=WORKERS
             pi spark check [--master=MASTER] [--workers=WORKERS]
             pi k3 install --master=MASTER --workers=WORKERS
+            pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
+            pi k3 delete --workers=WORKERS
+            pi k3 test --master=MASTER --workers=WORKERS
+            pi k3 view
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
