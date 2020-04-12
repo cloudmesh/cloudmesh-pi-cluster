@@ -1,26 +1,3 @@
-#
-# Lesson: develop portable installers
-#
-# Here we explain how to start developping portable installers.
-#
-# Ofetn we find on the internet installers that require a great deal of doing
-# things by hand. However if we have to set this up multiple times we have to do
-# a lot of work and it is not sustainable.
-#
-# We could use tools such as ansible, chef or others DevOps tools, but often
-# thsi si not needed and we still need to have programs that integrate int them
-#
-# So let us develop such a littel helper application and use the install of k3d
-# as an example. Your  tasks is it to complete the example and develop a fully
-# functionng k3 installer.
-#
-# We envision a single commandline such as
-#
-# cms pi k3 install --master=red --worker[01-03]
-#
-# THis command should maintain its status and be callable multiple times to skip
-# installs we als add a flgg such as
-#
 # cms pi k3 install --master=red --worker[01-03] --install=red02
 #
 # Meaning overall we like to have a clusetr with master and workers, but in this
@@ -39,12 +16,6 @@
 # Let us look at teh seemingly simple description to add a line to a file.
 #
 # This can be comletely automated and we provide here a simple start (not yet
-# tested or verified) of this
-#
-# As you can see we did not just blindly implement the single task, but we
-# detected that adding aline culd be useful to other projects, so we create a
-# generalized helper function that we coudl reuse in other projects.
-#
 # Please remember that cloudmesh has a parallel execution framework for using
 # ssh on remote machines
 #
@@ -57,15 +28,13 @@
 #
 
 import os
+import subprocess
 
+from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
-
-
-#
-# this is just a draft
-#
+from cloudmesh.common.Host import Host
 
 class Installer:
 
@@ -89,16 +58,63 @@ class Installer:
 
 
 class k3(Installer):
+    def execute(self, arguments):
+        """
+        pi k3 install --master=MASTER --workers=WORKERS
+
+        :param arguments:
+        :return:
+        """
+        self.master = arguments.master
+        self.workers = Parameter.expand(arguments.workers)
+
+        hosts = []
+        if arguments.master:
+            master = arguments.master
+        if arguments.workers:
+            hosts = Parameter.expand(arguments.workers)
+
+        step = None
+        if arguments.step:
+            step = arguments.step
+
+        if hosts is None:
+            Console.error("You need to specify at least one worker")
+            return ""
+
+        if master is None:
+            Console.error("You need to specify a master")
+            return ""
+
+        if arguments.install:
+            self.install(master, hosts, step)
+
 
     def enable_containers(self, filename="/boot/cmdline.txt"):
-        command = "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
-        self.add_to_file(filename, command)
+        line = "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
+        warning = "You already have containers enabled"
+        self.add_to_file(self, filename, line, warning)
 
+    # cms pi k3 install --master=red --worker[01-03]
+    #TODO - Add --install param
+    def install(self, master=None, hosts=None, step=None):
+        # Setup containers on master
+        #TODO - Setup containers on workers too? 
+        if step is 'enable_containers':
+            self.enable_containers()
 
-if __name__ == "__main__":
-    # create an example
-    filename = "/boot/cmdline.txt"
-    os.system(f"cp {filename} tmp.txt")
-    k3.enable_containers(filename=filename)
-    os.system(f"cat {filename}")
-    # k3.reboot()
+        # Install K3S on the master
+        os.system("curl -sfL https://get.k3s.io | sh -")
+
+        # Get join token from master
+        task = subprocess.Popen(["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"], stdout=subprocess.PIPE)
+        for line in task.stdout:
+            token = line.split()
+
+        # Setup workers and join to cluster
+        command = "curl -sfL http://get.k3s.io | K3S_URL=https://{0}:6443 K3S_TOKEN={1} sh -".format(master, token[0].decode('utf-8'))
+        install = Host.ssh(hosts=hosts, command=command, executor=os.system)
+        print(install)
+
+        # Print created cluster
+        os.system("sudo kubectl get node")
