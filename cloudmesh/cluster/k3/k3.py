@@ -39,7 +39,7 @@ class Installer:
 class k3(Installer):
     def execute(self, arguments):
         """
-        pi k3 install --master=MASTER --workers=WORKERS
+        pi k3 install --master=MASTER --workers=WORKERS [--step=COMMAND]
         pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
         pi k3 delete --workers=WORKERS
         pi k3 test --master=MASTER --workers=WORKERS
@@ -57,8 +57,8 @@ class k3(Installer):
             hosts = Parameter.expand(arguments.workers)
 
         step = None
-        if arguments.step:
-            step = arguments.step
+        if arguments['--step']:
+            step = arguments['--step']
 
         #if hosts is None:
         #    Console.error("You need to specify at least one worker")
@@ -83,17 +83,38 @@ class k3(Installer):
         if arguments.view:
             self.view()
 
-    def enable_containers(self, filename="/boot/cmdline.txt"):
+    def enable_containers(self, filename="/boot/cmdline.txt", hosts=None):
         line = "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
-        warning = "You already have containers enabled"
+        warning = "Your master already has containers enabled"
         self.add_to_file(self, filename, line, warning)
+
+        if hosts is not None:
+            # Create tmp file on master with enable_containers line
+            source = "~/container_tmp.txt"
+            command = 'echo "{0}" >> {1}'.format(line, source)
+            os.system(command)
+
+            # Scp tmp file to each worker (TODO - Couldn't find Host.scp?)
+            for host in hosts:
+                command = "scp {0} pi@{1}:~/".format(source, host)
+                os.system(command)
+
+            # Check if workers already have line and if not, append to /boot/cmdline.txt
+            tmp_cmdline = "~/cmdline.txt"
+            command = "if grep -q '{0}' '/boot/cmdline.txt'; then rm {2}; else cp /boot/cmdline.txt {1}; cat {2} >> {1}; sudo cp {1} {3}; rm {1} {2}; fi".format(line, tmp_cmdline, source, filename)
+            Host.ssh(hosts=hosts, command=command, executor=os.system)
+
+            # Delete tmp file on master
+            command = "rm {0}".format(source)
+            os.system(command)
 
     #TODO - Add --install param (as in only install on the worker I specify)
     def install(self, master=None, hosts=None, step=None):
         # Setup containers on master
-        #TODO - Setup containers on workers too 
-        if step is 'enable_containers':
-            self.enable_containers()
+        if step is not None:
+            #TODO - Add other steps eventually
+            if step in 'enable_containers':
+                self.enable_containers(hosts=hosts)
 
         # Install K3S on the master
         #TODO - Currently workers cant join because of CA Cert issue.
@@ -108,7 +129,7 @@ class k3(Installer):
         # Setup workers and join to cluster
         command = "curl -sfL http://get.k3s.io | K3S_URL=https://{0}:6443 K3S_TOKEN={1} sh -".format(master, token[0].decode('utf-8'))
         install = Host.ssh(hosts=hosts, command=command, executor=os.system)
-        #print(install)
+        print(install)
 
         # Print created cluster
         os.system("sudo kubectl get nodes")
@@ -132,7 +153,7 @@ class k3(Installer):
     def test(self, master=None, hosts=None):
         print("Test not yet implemented")
         #TODO - Check for software that is installed or can be installed to run a test
-        # on the cluster 
+        # on the cluster
 
     def view(self):
        os.system("sudo kubectl get node -o wide")
