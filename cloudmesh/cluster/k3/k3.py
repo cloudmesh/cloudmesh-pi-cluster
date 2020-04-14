@@ -15,10 +15,11 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.Host import Host
 
+
 class Installer:
 
     @staticmethod
-    def add_to_file(self, filename, line, warning=None):
+    def add_to_file(filename, line, warning=None):
         """
         adds a line to  a file if it is not already in it
 
@@ -37,6 +38,11 @@ class Installer:
 
 
 class k3(Installer):
+
+
+    def __init__(self):
+        self.port = 6443
+
     def execute(self, arguments):
         """
         pi k3 install --master=MASTER --workers=WORKERS [--step=COMMAND]
@@ -60,11 +66,11 @@ class k3(Installer):
         if arguments['--step']:
             step = arguments['--step']
 
-        #if hosts is None:
+        # if hosts is None:
         #    Console.error("You need to specify at least one worker")
         #    return ""
 
-        #if master is None:
+        # if master is None:
         #    Console.error("You need to specify a master")
         #    return ""
 
@@ -101,33 +107,46 @@ class k3(Installer):
 
             # Check if workers already have line and if not, append to /boot/cmdline.txt
             tmp_cmdline = "~/cmdline.txt"
-            command = "if grep -q '{0}' '/boot/cmdline.txt'; then rm {2}; else cp /boot/cmdline.txt {1}; cat {2} >> {1}; sudo cp {1} {3}; rm {1} {2}; fi".format(line, tmp_cmdline, source, filename)
+            command = \
+                f"if grep -q '{line}' '/boot/cmdline.txt';" \ 
+                f"then "\
+                f"  rm {source}; "\ 
+                f"else cp /boot/cmdline.txt {tmp_cmdline}; "\ 
+                f"  cat {source} >> {tmp_cmdline}; "\
+                f"  sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};"\ 
+                f"fi"
             Host.ssh(hosts=hosts, command=command, executor=os.system)
 
             # Delete tmp file on master
             command = "rm {0}".format(source)
             os.system(command)
 
-    #TODO - Add --install param (as in only install on the worker I specify)
+    # TODO - Add --install param (as in only install on the worker I specify)
     def install(self, master=None, hosts=None, step=None):
         # Setup containers on master
         if step is not None:
-            #TODO - Add other steps eventually
+            # TODO - Add other steps eventually
             if step in 'enable_containers':
                 self.enable_containers(hosts=hosts)
 
         # Install K3S on the master
-        #TODO - Currently workers cant join because of CA Cert issue.
+        # TODO - Currently workers cant join because of CA Cert issue.
         # Can it be fixed here if I set server --tls-san or --bind-address params?
         os.system("curl -sfL https://get.k3s.io | sh -")
+        #would Shell.live work? e.g. we can redirect stdin and stdout and check for errir?
 
         # Get join token from master
-        task = subprocess.Popen(["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"], stdout=subprocess.PIPE)
+        task = subprocess.Popen(
+            ["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"],
+            stdout=subprocess.PIPE)
         for line in task.stdout:
             token = line.split()
 
         # Setup workers and join to cluster
-        command = "curl -sfL http://get.k3s.io | K3S_URL=https://{0}:6443 K3S_TOKEN={1} sh -".format(master, token[0].decode('utf-8'))
+        #
+        # make port a
+        command = "curl -sfL http://get.k3s.io | K3S_URL=https://{0}:{self.port} K3S_TOKEN={1} sh -".format(
+            master, token[0].decode('utf-8'))
         install = Host.ssh(hosts=hosts, command=command, executor=os.system)
         print(install)
 
@@ -135,26 +154,27 @@ class k3(Installer):
         os.system("sudo kubectl get nodes")
 
     def uninstall(self, master=None, hosts=None):
-        #Uninstall master
+        # Uninstall master
         if master is not None:
             os.system("/usr/local/bin/k3s-uninstall.sh")
 
-        #Uninstall workers
+        # Uninstall workers
         if hosts is not None:
             command = "/usr/local/bin/k3s-agent-uninstall.sh"
-            uninstall = Host.ssh(hosts=hosts, command=command, executor=os.system)
+            uninstall = Host.ssh(hosts=hosts, command=command,
+                                 executor=os.system)
             print(uninstall)
 
     def delete(self, hosts=None):
         print("Delete not yet implemented")
-        #TODO - delete node from master's cluster
+        # TODO - delete node from master's cluster
         # I believe the command is "kubectl delete [NODE NAME]
 
     def test(self, master=None, hosts=None):
         print("Test not yet implemented")
-        #TODO - Check for software that is installed or can be installed to run a test
+        # TODO - Check for software that is installed or can be installed to run a test
         # on the cluster
 
     def view(self):
-       os.system("sudo kubectl get node -o wide")
-       #TODO - What other information about the chuster can I present
+        os.system("sudo kubectl get node -o wide")
+        # TODO - What other information about the chuster can I present

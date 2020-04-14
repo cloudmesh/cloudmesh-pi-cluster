@@ -37,10 +37,10 @@ class PiCommand(PluginCommand):
             pi spark stop --master=MASTER --workers=WORKERS
             pi spark test --master=MASTER --workers=WORKERS
             pi spark check [--master=MASTER] [--workers=WORKERS]
-            pi k3 install --master=MASTER --workers=WORKERS [--step=COMMAND]
+            pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
             pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
-            pi k3 delete --workers=WORKERS
-            pi k3 test --master=MASTER --workers=WORKERS
+            pi k3 delete [--master=MASTER] [--workers=WORKERS]
+            pi k3 test [--master=MASTER] [--workers=WORKERS]
             pi k3 view
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
@@ -126,7 +126,7 @@ class PiCommand(PluginCommand):
 
         elif arguments.k3:
             from cloudmesh.cluster.k3.k3 import k3
-            k3 = k3()
+            k3 = K3()
             k3.execute(arguments)
 
         elif arguments.script:

@@ -1,25 +1,24 @@
-## Install
+# Install
 
 **Note**: The install command currently works by setting up Kubernetes
 *on your master and workers, but is having issues adding the worker
 *nodes to the master cluster. Fix coming soon.
 
 ```
-pi k3 install --master=MASTER --workers=WORKER[01-06]
-
+master$ pi k3 install --master=MASTER --workers=WORKER[01-06]
 ```
 
 **Note**: If you have never enabled containers on your raspberry pis
 *before, please look at the first option listed below
 
-### Other options for install
+## Other options for install
 
 Enabling Containers: For Kubernetes to work, you must enable containers.
 To do this, append the following command to the install command above to
 enable containers on the master and workers you list.
 
 ```
---step=enable_containers
+pi k3 install --master=MASTER --workers=WORKER[01-06] --step=enable_containers
 ```
 
 ## Other Available Commands
@@ -27,19 +26,19 @@ enable containers on the master and workers you list.
 Uninstall Kubernetes on either the master or any worker
 
 ```
-pi k3 uninstall [--master=MASTER] [--workers=WORKER[01-06]]
+cms pi k3 uninstall [--master=MASTER] [--workers=WORKER[01-06]]
 ```
 
 Delete a node(s) from your master's cluster **(Not yet implemented)**
 
 ```
-pi k3 delete --workers=WORKER[01-06]
+cms pi k3 delete --workers=WORKER[01-06]
 ```
 
 Run a test on your setup cluster **(Not yet implemented)**
 
 ```
-pi k3 test --master=MASTER --workers=WORKER[01-06]
+cms pi k3 test --master=MASTER --workers=WORKER[01-06]
 ```
 
 View details about your cluster:
@@ -49,9 +48,9 @@ pi k3 view
 ```
 
 
-# **Everything located below is old implementation for command line**
+## Everything located below is old implementation for command line
 
-## Setting up a Pi Kubernetes Cluster
+### Setting up a Pi Kubernetes Cluster
 
 Source: <https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/>
 
@@ -59,7 +58,7 @@ Use cloudmesh.common.Shell wherever possible. Onet use pipes and >> <<
 develop alternative python programs as they may be easier to do than
 shell scripts
 
-## Enable Containers
+### Enable Containers
 
 If ```cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory``` is
 not in /boot/cmdline.txt, please add it to the file using the following
