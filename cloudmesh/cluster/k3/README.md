@@ -6,7 +6,7 @@ pi k3 install --master=MASTER --workers=WORKERS
 **Note**: If you have never enabled containers on your raspberry pis before, please look at the first option listed below
 
 ### Other options for install
-Enabling Containers: For Kubernetes to work, you must enable containers. To do this, append the following command to the install command above to enable containers on the master and workers you list. **(Not yet implemented)**
+Enabling Containers: For Kubernetes to work, you must enable containers. To do this, append the following command to the install command above to enable containers on the master and workers you list. 
 ```
 --step=enable_containers
 ```
