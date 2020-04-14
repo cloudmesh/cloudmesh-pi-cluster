@@ -107,14 +107,16 @@ class k3(Installer):
 
             # Check if workers already have line and if not, append to /boot/cmdline.txt
             tmp_cmdline = "~/cmdline.txt"
-            command = \
-                f"if grep -q '{line}' '/boot/cmdline.txt';" \ 
-                f"then "\
-                f"  rm {source}; "\ 
-                f"else cp /boot/cmdline.txt {tmp_cmdline}; "\ 
-                f"  cat {source} >> {tmp_cmdline}; "\
-                f"  sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};"\ 
-                f"fi"
+            command = """
+                if grep -q '{line}' '/boot/cmdline.txt';
+                then
+                  rm {source}; 
+                else cp /boot/cmdline.txt {tmp_cmdline}; 
+                  cat {source} >> {tmp_cmdline}; 
+                  sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
+                fi
+                """.replace("\n","").replace("  ", " ")
+            print (command)
             Host.ssh(hosts=hosts, command=command, executor=os.system)
 
             # Delete tmp file on master
