@@ -107,7 +107,7 @@ class k3(Installer):
 
             # Check if workers already have line and if not, append to /boot/cmdline.txt
             tmp_cmdline = "~/cmdline.txt"
-            command = """
+            command = f"""
                 if grep -q '{line}' '/boot/cmdline.txt';
                 then
                   rm {source}; 
