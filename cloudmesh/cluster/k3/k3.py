@@ -37,7 +37,7 @@ class Installer:
         os.system("shutdown -r now")
 
 
-class k3(Installer):
+class K3(Installer):
 
 
     def __init__(self):
