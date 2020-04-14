@@ -1,7 +1,7 @@
 ## Install 
 **Note**: The install command currently works by setting up Kubernetes on your master and workers, but is having issues adding the worker nodes to the master cluster. Fix coming soon. 
 ```
-pi k3 install --master=MASTER --workers=WORKERS
+pi k3 install --master=MASTER --workers=WORKER[01-06]
 ```
 **Note**: If you have never enabled containers on your raspberry pis before, please look at the first option listed below
 
@@ -14,17 +14,17 @@ Enabling Containers: For Kubernetes to work, you must enable containers. To do t
 ## Other Available Commands
 Uninstall Kubernetes on either the master or any worker
 ```
-pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
+pi k3 uninstall [--master=MASTER] [--workers=WORKER[01-06]]
 ```
 
 Delete a node(s) from your master's cluster **(Not yet implemented)**
 ```
-pi k3 delete --workers=WORKERS
+pi k3 delete --workers=WORKER[01-06]
 ```
 
 Run a test on your setup cluster **(Not yet implemented)**
 ```
-pi k3 test --master=MASTER --workers=WORKERS
+pi k3 test --master=MASTER --workers=WORKER[01-06]
 ```
 
 View details about your cluster:
