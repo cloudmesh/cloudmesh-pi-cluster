@@ -17,23 +17,23 @@ Uninstall Kubernetes on either the master or any worker
 pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
 ```
 
-Delete a node(s) from your master's cluster (Not implemented)
+Delete a node(s) from your master's cluster **(Not yet implemented)**
 ```
 pi k3 delete --workers=WORKERS
 ```
 
-Run a test on your setup cluster (Not implemented)
+Run a test on your setup cluster **(Not yet implemented)**
 ```
 pi k3 test --master=MASTER --workers=WORKERS
 ```
 
-View your cluster:
+View details about your cluster:
 ```
 pi k3 view
 ```
 
 
-# Everything located below is old implementation for command line
+# **Everything located below is old implementation for command line**
 ## Setting up a Pi Kubernetes Cluster
 
 Source: <https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/>
