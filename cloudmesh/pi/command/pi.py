@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from getpass import getpass
 
+from cloudmesh.cluster.k3.k3 import K3
 from cloudmesh.cluster.Installer import Script
 from cloudmesh.common.console import Console
 from cloudmesh.pi.board.free import Free
@@ -12,7 +13,6 @@ from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-
 
 class PiCommand(PluginCommand):
 
@@ -125,8 +125,7 @@ class PiCommand(PluginCommand):
             spark.execute(arguments)
 
         elif arguments.k3:
-            from cloudmesh.cluster.k3.k3 import k3
-            k3 = k3()
+            k3 = K3()
             k3.execute(arguments)
 
         elif arguments.script:

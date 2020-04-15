@@ -110,22 +110,12 @@ class K3(Installer):
             command = f"""
                 if grep -q '{line}' '/boot/cmdline.txt';
                 then
-<<<<<<< HEAD
                 rm {source};
                 else cp /boot/cmdline.txt {tmp_cmdline};
                 cat {source} >> {tmp_cmdline};
                 sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
                 fi"""
             print(command)
-=======
-                  rm {source}; 
-                else cp /boot/cmdline.txt {tmp_cmdline}; 
-                  cat {source} >> {tmp_cmdline}; 
-                  sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
-                fi
-                """.replace("\n","").replace("  ", " ")
-            print (command)
->>>>>>> b4709f9c07cbdcadca97f6548ff941dbf2363f3d
             Host.ssh(hosts=hosts, command=command, executor=os.system)
 
             # Delete tmp file on master
