@@ -147,9 +147,20 @@ class K3(Installer):
         # Setup workers and join to cluster
         #
         # make port a
-        command = "curl -sfL http://get.k3s.io | K3S_URL=https://{0}:{self.port} K3S_TOKEN={1} sh -".format(
-            master, token[0].decode('utf-8'))
-        install = Host.ssh(hosts=hosts, command=command, executor=os.system)
+        str_token = token[0].decode('utf-8')
+        command = f"curl -sfL http://get.k3s.io | K3S_URL=https://{master}:{self.port} K3S_TOKEN={str_token} sh -"
+        print(command)
+
+        found = []
+        if hosts:
+            found = found + hosts
+        if master:
+            if type(master) == list:
+                found = found + master
+            else:
+                found.append(master)
+        print ("Install on :", hosts)
+        install = Host.ssh(hosts=found, command=command, executor=os.system)
         print(install)
 
         # Print created cluster

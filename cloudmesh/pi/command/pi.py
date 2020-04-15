@@ -125,7 +125,7 @@ class PiCommand(PluginCommand):
             spark.execute(arguments)
 
         elif arguments.k3:
-            from cloudmesh.cluster.k3.k3 import k3
+            from cloudmesh.cluster.k3.k3 import K3
             k3 = K3()
             k3.execute(arguments)
 
