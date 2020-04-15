@@ -16,6 +16,9 @@ from cloudmesh.common.util import writefile
 from cloudmesh.common.Host import Host
 import platform
 import sys
+from cloudmesh.common.util import banner
+from pprint import pprint
+import textwrap
 
 class Installer:
 
@@ -34,8 +37,13 @@ class Installer:
             lines += f"\n{line}\n"
             writefile(filename, lines)
 
-    def reboot(self):
+    @staticmethod
+    def reboot():
         os.system("shutdown -r now")
+
+    @staticmethod
+    def oneline(msg):
+        return msg.repalce("\n", "").replace ("  ", " ")
 
 
 class K3(Installer):
@@ -108,14 +116,14 @@ class K3(Installer):
 
             # Check if workers already have line and if not, append to /boot/cmdline.txt
             tmp_cmdline = "~/cmdline.txt"
-            command = f"""
+            command = Installer.oneline(f"""
                 if grep -q '{line}' '/boot/cmdline.txt';
                 then
-                rm {source};
+                  rm {source};
                 else cp /boot/cmdline.txt {tmp_cmdline};
-                cat {source} >> {tmp_cmdline};
-                sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
-                fi"""
+                  cat {source} >> {tmp_cmdline};
+                  sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
+                fi""")
             print(command)
             Host.ssh(hosts=hosts, command=command, executor=os.system)
 
@@ -125,40 +133,59 @@ class K3(Installer):
 
     def install(self, master=None, hosts=None, step=None):
         # Setup containers on master
+
+        if master is None and hosts:
+            Console.error("You must specify a master to set up nodes")
+            raise ValueError
+
         if step is not None:
             if step in 'enable_containers':
                 self.enable_containers(hosts=hosts)
 
-        if type(master) != list:
-            master = Parameter.expand(master)
-
         # Install K3S on the master
         if master is not None:
+
+            if type(master) != list:
+                master = Parameter.expand(master)
+
             #
             # bug I shoudl be able to run this even if I am not on master
             #
-            hosts = [master]
+            banner(f"Setup Master {master}")
+
             command = "curl -sfL https://get.k3s.io | sh -"
-            install = Host.ssh(hosts=hosts, command=command, executor=os.system)
+            command = "hostname"
+
+            result = Host.ssh(hosts=master, command=command, executor=os.system)
+            pprint(result)
+
+
+            banner(f"Get Token {master}")
+
+            command = "sudo cat /var/lib/rancher/k3s/server/node-token"
+            token = Host.ssh(hosts=hosts, command=command, executor=os.system)[0]
+            pprint(token)
+            token = token.stdout
+
+
+
 
         # Setup workers and join to cluster
 
         #
         # bug I shoudl be able to run this even if I am not on master
         #
+        banner(str(hosts))
         if hosts is not None:
             if master is not None:
-                # Get join token from master
-                task = subprocess.Popen(
-                    ["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"],
-                    stdout=subprocess.PIPE)
-                for line in task.stdout:
-                    token = line.split()
+
 
                 # TODO - Currently workers cant join because of CA Cert issue.
                 # Can it be fixed here if I set server --tls-san or --bind-address params?
                 # TODO - I add .local to {master} param, should I remove later?
-                command = f"curl -sfL http://get.k3s.io | K3S_URL=https://{master}.local:{self.port} K3S_TOKEN={token[0].decode('utf-8')} sh -"
+                command = f"curl -sfL http://get.k3s.io | "\
+                          f"K3S_URL=https://{master}.local:{self.port} "\
+                          f"K3S_TOKEN={token[0].decode('utf-8')} sh -"
                 install = Host.ssh(hosts=hosts, command=command, executor=os.system)
                 print(install)
             else:
