@@ -135,21 +135,22 @@ class K3(Installer):
 
         # Setup workers and join to cluster
         if hosts is not None:
-            # Get join token from master
-            task = subprocess.Popen(
-                ["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"],
-                stdout=subprocess.PIPE)
-            for line in task.stdout:
-                token = line.split()
+            if master is not None:
+                # Get join token from master
+                task = subprocess.Popen(
+                    ["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"],
+                    stdout=subprocess.PIPE)
+                for line in task.stdout:
+                    token = line.split()
 
-
-            # TODO - Currently workers cant join because of CA Cert issue.
-            # Can it be fixed here if I set server --tls-san or --bind-address params?
-            # TODO - I add .local to {master} param, should I remove later?
-            command = f"curl -sfL http://get.k3s.io | K3S_URL=https://{master}.local:{self.port} K3S_TOKEN={token[0].decode('utf-8')} sh -"
-            print(command)
-            install = Host.ssh(hosts=hosts, command=command, executor=os.system)
-            print(install)
+                # TODO - Currently workers cant join because of CA Cert issue.
+                # Can it be fixed here if I set server --tls-san or --bind-address params?
+                # TODO - I add .local to {master} param, should I remove later?
+                command = f"curl -sfL http://get.k3s.io | K3S_URL=https://{master}.local:{self.port} K3S_TOKEN={token[0].decode('utf-8')} sh -"
+                install = Host.ssh(hosts=hosts, command=command, executor=os.system)
+                print(install)
+            else:
+                Console.warning("You must have the master parameter set to burn workers")
 
         # Print created cluster
         os.system("sudo kubectl get nodes")
