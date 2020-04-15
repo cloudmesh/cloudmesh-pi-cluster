@@ -43,7 +43,7 @@ class Installer:
 
     @staticmethod
     def oneline(msg):
-        return msg.repalce("\n", "").replace ("  ", " ")
+        return msg.replace("\n", "").replace ("  ", " ")
 
 
 class K3(Installer):
@@ -153,19 +153,23 @@ class K3(Installer):
             #
             banner(f"Setup Master {master}")
 
-            command = "curl -sfL https://get.k3s.io | sh -"
-            command = "hostname"
-
-            result = Host.ssh(hosts=master, command=command, executor=os.system)
-            pprint(result)
+            command = Installer.oneline(f""" 
+                      echo "Hostname:" `hostname`; echo;
+                      curl -sfL https://get.k3s.io | sh -
+                      """)
+            result = Host.ssh(hosts=master, command=command, executor=os.system)[0]
+            if "No change detected" in result.stdout:
+                print()
+                Console.info("Service already running")
 
 
             banner(f"Get Token {master}")
 
             command = "sudo cat /var/lib/rancher/k3s/server/node-token"
             token = Host.ssh(hosts=hosts, command=command, executor=os.system)[0]
-            pprint(token)
             token = token.stdout
+
+            print("Token:", token)
 
 
 
@@ -175,7 +179,8 @@ class K3(Installer):
         #
         # bug I shoudl be able to run this even if I am not on master
         #
-        banner(str(hosts))
+        workers = ', '.join(hosts)
+        banner(f"Install workers: {workers}")
         if hosts is not None:
             if master is not None:
 
@@ -183,9 +188,12 @@ class K3(Installer):
                 # TODO - Currently workers cant join because of CA Cert issue.
                 # Can it be fixed here if I set server --tls-san or --bind-address params?
                 # TODO - I add .local to {master} param, should I remove later?
-                command = f"curl -sfL http://get.k3s.io | "\
-                          f"K3S_URL=https://{master}.local:{self.port} "\
-                          f"K3S_TOKEN={token[0].decode('utf-8')} sh -"
+                command = Installer.oneline(f"""
+                            echo "Hostname:" `hostname`; echo;
+                            curl -sfL http://get.k3s.io | 
+                            K3S_URL=https://{master}.local:{self.port} 
+                            K3S_TOKEN={token} sh -
+                """)
                 install = Host.ssh(hosts=hosts, command=command, executor=os.system)
                 print(install)
             else:
