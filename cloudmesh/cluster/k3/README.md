@@ -10,7 +10,7 @@ find the documentation here to set it up:
 *nodes to the master cluster. Fix coming soon.
 
 ```
-master$ cms pi k3 install --master=MASTER --workers=WORKER[01-06]
+master$ cms pi k3 install [--master=MASTER] [--workers=WORKERS]
 ```
 
 **Note**: If you have never enabled containers on your raspberry pis
@@ -23,7 +23,7 @@ To do this, append the following command to the install command above to
 enable containers on the master and workers you list.
 
 ```
-master$ cms pi k3 install --master=MASTER --workers=WORKER[01-06] --step=enable_containers
+master$ cms pi k3 install [--master=MASTER] [--workers=WORKERS] --step=enable_containers
 ```
 
 ## Other Available Commands
@@ -31,19 +31,19 @@ master$ cms pi k3 install --master=MASTER --workers=WORKER[01-06] --step=enable_
 Uninstall Kubernetes on either the master or any worker
 
 ```
-master$ cms pi k3 uninstall [--master=MASTER] [--workers=WORKER[01-06]]
+master$ cms pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
 ```
 
 Delete a node(s) from your master's cluster **(Not yet implemented)**
 
 ```
-master$ cms pi k3 delete --workers=WORKER[01-06]
+master$ cms pi k3 delete [--master=MASTER] [--workers=WORKERS]
 ```
 
 Run a test on your setup cluster **(Not yet implemented)**
 
 ```
-master$ cms pi k3 test --master=MASTER --workers=WORKER[01-06]
+master$ cms pi k3 test [--master=MASTER] [--workers=WORKERS]
 ```
 
 View details about your cluster:

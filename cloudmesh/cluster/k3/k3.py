@@ -14,7 +14,8 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.Host import Host
-
+import platform
+import sys
 
 class Installer:
 
@@ -92,12 +93,12 @@ class K3(Installer):
     def enable_containers(self, filename="/boot/cmdline.txt", hosts=None):
         line = "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
         warning = "Your master already has containers enabled"
-        self.add_to_file(self, filename, line, warning)
+        self.add_to_file(filename, line, warning)
 
         if hosts is not None:
             # Create tmp file on master with enable_containers line
             source = "~/container_tmp.txt"
-            command = 'echo "{0}" >> {1}'.format(line, source)
+            command = f'echo "{line}" >> {source}'
             os.system(command)
 
             # Scp tmp file to each worker (TODO - Couldn't find Host.scp?)
@@ -110,58 +111,58 @@ class K3(Installer):
             command = f"""
                 if grep -q '{line}' '/boot/cmdline.txt';
                 then
-                  rm {source}; 
-                else cp /boot/cmdline.txt {tmp_cmdline}; 
-                  cat {source} >> {tmp_cmdline}; 
-                  sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
-                fi
-                """.replace("\n","").replace("  ", " ")
-            print (command)
+                rm {source};
+                else cp /boot/cmdline.txt {tmp_cmdline};
+                cat {source} >> {tmp_cmdline};
+                sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
+                fi"""
+            print(command)
             Host.ssh(hosts=hosts, command=command, executor=os.system)
 
             # Delete tmp file on master
-            command = "rm {0}".format(source)
+            command = f"rm {source}"
             os.system(command)
 
-    # TODO - Add --install param (as in only install on the worker I specify)
     def install(self, master=None, hosts=None, step=None):
         # Setup containers on master
         if step is not None:
-            # TODO - Add other steps eventually
             if step in 'enable_containers':
                 self.enable_containers(hosts=hosts)
 
-        # Install K3S on the master
-        # TODO - Currently workers cant join because of CA Cert issue.
-        # Can it be fixed here if I set server --tls-san or --bind-address params?
-        os.system("curl -sfL https://get.k3s.io | sh -")
-        #would Shell.live work? e.g. we can redirect stdin and stdout and check for errir?
+        if type(master) != list:
+            master = Parameter.expand(master)
 
-        # Get join token from master
-        task = subprocess.Popen(
-            ["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"],
-            stdout=subprocess.PIPE)
-        for line in task.stdout:
-            token = line.split()
+        # Install K3S on the master
+        if master is not None:
+            #
+            # bug I shoudl be able to run this even if I am not on master
+            #
+            hosts = [master]
+            command = "curl -sfL https://get.k3s.io | sh -"
+            install = Host.ssh(hosts=hosts, command=command, executor=os.system)
 
         # Setup workers and join to cluster
-        #
-        # make port a
-        str_token = token[0].decode('utf-8')
-        command = f"curl -sfL http://get.k3s.io | K3S_URL=https://{master}:{self.port} K3S_TOKEN={str_token} sh -"
-        print(command)
 
-        found = []
-        if hosts:
-            found = found + hosts
-        if master:
-            if type(master) == list:
-                found = found + master
+        #
+        # bug I shoudl be able to run this even if I am not on master
+        #
+        if hosts is not None:
+            if master is not None:
+                # Get join token from master
+                task = subprocess.Popen(
+                    ["sudo", "cat", "/var/lib/rancher/k3s/server/node-token"],
+                    stdout=subprocess.PIPE)
+                for line in task.stdout:
+                    token = line.split()
+
+                # TODO - Currently workers cant join because of CA Cert issue.
+                # Can it be fixed here if I set server --tls-san or --bind-address params?
+                # TODO - I add .local to {master} param, should I remove later?
+                command = f"curl -sfL http://get.k3s.io | K3S_URL=https://{master}.local:{self.port} K3S_TOKEN={token[0].decode('utf-8')} sh -"
+                install = Host.ssh(hosts=hosts, command=command, executor=os.system)
+                print(install)
             else:
-                found.append(master)
-        print ("Install on :", hosts)
-        install = Host.ssh(hosts=found, command=command, executor=os.system)
-        print(install)
+                Console.warning("You must have the master parameter set to burn workers")
 
         # Print created cluster
         os.system("sudo kubectl get nodes")
