@@ -163,8 +163,6 @@ class LED:
     @staticmethod
     def set(led=None, value=1):
 
-        print ("L", led, value)
-
         if led not in [1, 0]:
             raise ValueError("Led number is wrong")
 

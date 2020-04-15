@@ -9,7 +9,7 @@ from cloudmesh.common.Host import Host
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
 from matplotlib.animation import FuncAnimation
-
+from cloudmesh.common.debug import VERBOSE
 
 class Monitor:
 
@@ -18,6 +18,9 @@ class Monitor:
         self.title = "Monitor"
 
     def execute(self, arguments):
+
+        if type(arguments.NAMES) != list:
+            arguments.NAMES = list(Parameter.expand(arguments.NAMES))
 
         if arguments.rate and arguments.output == 'graph':
 
@@ -67,9 +70,6 @@ class Monitor:
             processors=3,
             update=None,
             ):
-
-        if type(hosts) != list:
-            hosts = Parameter.expand(hosts)
 
         results = Host.ssh(hosts=hosts,
                            command=self.command,
@@ -125,9 +125,6 @@ class Monitor:
                    rate=3.0,
                    processors=3,
                    output=None):
-
-        if type(hosts) != list:
-            hosts = list(Parameter.expand(hosts))
 
         series = {}
         for host in hosts:
@@ -211,54 +208,3 @@ class Monitor:
             print("Terminating, please wait ...")
             print()
 
-    """
-    @staticmethod
-    def Graph(results, output='graph'):
-
-        raise NotImplementedError
-
-        cpu = [entry['cpu'] for entry in results]
-        gpu = [entry['gpu'] for entry in results]
-        host = [entry['host'] for entry in results]
-
-        if output == 'line':
-            chart = pygal.Line(
-                title="Temperatures of the Pi Cluster",
-                ymin=30, width=400, height=200,
-                x_label_rotation=-45,
-            )
-
-        else:
-            chart = pygal.Bar(
-                title="Temperatures of the Pi Cluster",
-                ymin=30, width=400, height=200,
-                x_label_rotation=-45,
-                print_values=True,
-                print_values_position='top',
-                style=DefaultStyle(
-                    value_font_size=8,
-                    value_colors=('black')
-                )
-            )
-
-        chart.x_labels = host
-        chart.add('CPU', cpu)
-        chart.add('GPU', gpu)
-
-        if output == 'browser':
-
-            chart.render_in_browser(relative_to=50)
-
-        elif output == 'sparkline':
-
-            print(chart.render_sparktext(relative_to=50))
-
-        elif output in ['bar', 'line']:
-
-            chart.render_to_file('/tmp/chart.svg')
-            webbrowser.open("file:///tmp/chart.svg")
-
-        else:
-
-            pprint(results)
-    """
