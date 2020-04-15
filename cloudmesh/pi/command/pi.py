@@ -126,7 +126,7 @@ class PiCommand(PluginCommand):
 
         elif arguments.k3:
             from cloudmesh.cluster.k3.k3 import k3
-            k3 = K3()
+            k3 = k3()
             k3.execute(arguments)
 
         elif arguments.script:
