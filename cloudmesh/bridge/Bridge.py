@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import os
+import re
 import time
 import textwrap
 from pathlib import Path
@@ -122,7 +123,6 @@ class Bridge:
                 lower = interm[0].split('=')[1] # 10.1.1.2
                 cls.ip_range = lower, upper
 
-
                 to_add = []
                 for i in range(len(workers)):
                     host = workers[i]
@@ -135,20 +135,35 @@ class Bridge:
                         sys.exit(1)
 
                     # Check if static IP assignment already exists
-                    conf = sudo_readfile('/etc/dnsmasq.conf', split=False)
-                    pattern = f'dhcp-host={host}'
-                    line = f'{pattern},{ip}'
+                    conf = sudo_readfile('/etc/dnsmasq.conf')
 
-                    if pattern not in conf:
+                    start = f'dhcp-host={host}'
+                    line = f'{start},{ip}' # dhcp-host=red001,10.1.1.1
+                    ipPattern = re.compile(f'dhcp-host=.*{ip}')
+                    hostPattern = re.compile(f'{start}.*')
+
+                    ipResults = list(filter(ipPattern.search, conf)) # see if ip is already assigned
+                    hostResults = list(filter(hostPattern.search, conf)) # see if host is already assigned
+
+                    # If ip already assigned
+                    if ipResults:
+                        Console.error(f'{ip} is already assigned. Please try a different IP')
+                        sys.exit(1)
+
+                    # If new host
+                    if not hostResults:
                         to_add.append(line)
+
                     else:
                         Console.warning(f"Previous IP assignment for {host} found. Overwriting.")
-                        cls._replace_line('/etc/dnsmasq.conf', pattern, line)
+                        if len(hostResults) > 1:
+                            Console.warning(f"Found too many assignments for {host}. Overwriting first one")
+                        key = conf.index(hostResults[0])
+                        conf[key] = line
                 
-                config = sudo_readfile('/etc/dnsmasq.conf')
-                config += to_add
+                conf += to_add
 
-                sudo_writefile('/etc/dnsmasq.conf', '\n'.join(config) + '\n')
+                sudo_writefile('/etc/dnsmasq.conf', '\n'.join(conf) + '\n')
                 Console.ok("Added IP's to dnsmasq")
 
 
@@ -245,27 +260,6 @@ class Bridge:
             return exit
         else:
             return stdout
-
-
-    @classmethod
-    def _replace_line(cls, filename, pattern, line):
-        """
-        Replaces line in file that starts with pattern.
-
-        :param filename: Path to file
-        :param pattern: Pattern to search for 
-        :param line: Line to replace the pattern with
-        :return:
-        """
-        config = sudo_readfile(filename)
-        for i in range(len(config)):
-            if pattern in config[i]:
-                config[i] = line 
-                sudo_writefile(filename, '\n'.join(config) + '\n')
-                return
-
-        Console.error(f"Could not find pattern {pattern} in {filename}")
-
 
     @classmethod
     def _convert_ipv4(cls, ip):
