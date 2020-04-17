@@ -1,6 +1,8 @@
 import sys
 import subprocess
 import os
+import re
+import time
 import textwrap
 from pathlib import Path
 # Functions in utils should be moved to cloudmesh.common
@@ -31,7 +33,7 @@ class Bridge:
     dns=['8.8.8.8', '8.8.4.4']
 
     @classmethod
-    def create(cls, masterIP='10.0.0.1', ip_range=['10.0.0.2', '10.0.0.20'], master=None, workers=None,
+    def create(cls, masterIP='10.1.1.0', ip_range=['10.1.1.1', '10.1.1.20'], master=None, workers=None,
                 priv_interface='eth0', ext_interface='eth1', dryrun=False):
         """
         if worker(s) is missing the master is set up only
@@ -117,10 +119,9 @@ class Bridge:
             else:
                 conf_line = cls._system('cat /etc/dnsmasq.conf | grep dhcp-range')
                 interm = conf_line.split(',')
-                upper = interm[1] # 10.0.0.20
-                lower = interm[0].split('=')[1] # 10.0.0.2
+                upper = interm[1] # 10.1.1.20
+                lower = interm[0].split('=')[1] # 10.1.1.2
                 cls.ip_range = lower, upper
-
 
                 to_add = []
                 for i in range(len(workers)):
@@ -134,20 +135,35 @@ class Bridge:
                         sys.exit(1)
 
                     # Check if static IP assignment already exists
-                    conf = sudo_readfile('/etc/dnsmasq.conf', split=False)
-                    pattern = f'dhcp-host={host}'
-                    line = f'{pattern},{ip}'
+                    conf = sudo_readfile('/etc/dnsmasq.conf')
 
-                    if pattern not in conf:
+                    start = f'dhcp-host={host}'
+                    line = f'{start},{ip}' # dhcp-host=red001,10.1.1.1
+                    ipPattern = re.compile(f'dhcp-host=.*{ip}')
+                    hostPattern = re.compile(f'{start}.*')
+
+                    ipResults = list(filter(ipPattern.search, conf)) # see if ip is already assigned
+                    hostResults = list(filter(hostPattern.search, conf)) # see if host is already assigned
+
+                    # If ip already assigned
+                    if ipResults:
+                        Console.error(f'{ip} is already assigned. Please try a different IP')
+                        sys.exit(1)
+
+                    # If new host
+                    if not hostResults:
                         to_add.append(line)
+
                     else:
                         Console.warning(f"Previous IP assignment for {host} found. Overwriting.")
-                        cls._replace_line('/etc/dnsmasq.conf', pattern, line)
+                        if len(hostResults) > 1:
+                            Console.warning(f"Found too many assignments for {host}. Overwriting first one")
+                        key = conf.index(hostResults[0])
+                        conf[key] = line
                 
-                config = sudo_readfile('/etc/dnsmasq.conf')
-                config += to_add
+                conf += to_add
 
-                sudo_writefile('/etc/dnsmasq.conf', '\n'.join(config) + '\n')
+                sudo_writefile('/etc/dnsmasq.conf', '\n'.join(conf) + '\n')
                 Console.ok("Added IP's to dnsmasq")
 
 
@@ -162,10 +178,16 @@ class Bridge:
     @classmethod
     def restart(cls, workers=None, user='pi'):
         """
-        :param 
+        :param workers: List of workers to restart if needed
+        :return:
         """
 
         banner("Restarting bridge on master...", color='CYAN')
+        # Clear lease log
+        if Path('/var/lib/misc/dnsmasq.leases').is_file():
+            Console.info("Clearing leases file...")
+            sudo_writefile('/var/lib/misc/dnsmasq.leases', "\n")
+
         Console.info("Restarting dhcpcd please wait...")
 
         status = cls._system('sudo service dhcpcd restart', exitcode=True)
@@ -175,6 +197,7 @@ class Bridge:
         Console.info("Restarted dhcpcd")
 
         Console.info("Restarting dnsmasq please wait...")
+        time.sleep(5) # Wait 5 seconds for dhcpcd to full start up
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
             Console.error(f'Did not restart master dnsmasq service correctly')
@@ -197,6 +220,29 @@ class Bridge:
             Console.ok("Restarted DHCP service on workers")
 
 
+    @classmethod
+    def info(cls):
+        try:
+            info = readfile('~/.cloudmesh/bridge/info').split('\n')
+            info = info[:info.index('# LEASES #') + 1]
+
+        except:
+            Console.error("Cannot execute info command. Has the bridge been made yet?")
+            sys.exit(1)
+
+        try:
+            curr_leases = '\n' + readfile('/var/lib/misc/dnsmasq.leases')
+
+        except:
+            Console.warning("dnsmasq.leases file not found. No devices have been connected yet") 
+            curr_leases = "\n"
+
+        toWrite = '\n'.join(info) + curr_leases
+        sudo_writefile('~/.cloudmesh/bridge/info', toWrite)
+
+        banner(toWrite, color='CYAN')
+
+
     # Begin private methods for Bridge
     @classmethod
     def _system(cls, command, exitcode=False):
@@ -214,27 +260,6 @@ class Bridge:
             return exit
         else:
             return stdout
-
-
-    @classmethod
-    def _replace_line(cls, filename, pattern, line):
-        """
-        Replaces line in file that starts with pattern.
-
-        :param filename: Path to file
-        :param pattern: Pattern to search for 
-        :param line: Line to replace the pattern with
-        :return:
-        """
-        config = sudo_readfile(filename)
-        for i in range(len(config)):
-            if pattern in config[i]:
-                config[i] = line 
-                sudo_writefile(filename, '\n'.join(config) + '\n')
-                return
-
-        Console.error(f"Could not find pattern {pattern} in {filename}")
-
 
     @classmethod
     def _convert_ipv4(cls, ip):
@@ -260,6 +285,14 @@ class Bridge:
 
         :return:
         """
+        info = textwrap.dedent(f"""
+        IP range: {cls.ip_range[0]} - {cls.ip_range[1]}
+        Master IP: {cls.masterIP}
+
+        # LEASES #
+
+        """)
+
         banner(f"""
         Successfuly configured a dhcp server on the hostname {cls.master}
         Details:
@@ -279,9 +312,12 @@ class Bridge:
 
         Example:
         
-        $ cms bridge set red[002-003] 10.0.0.[2-3]
+        $ cms bridge set red[002-003] 10.1.1.[2-3]
 
-        """)
+        """, color='CYAN')
+
+        cls._system('sudo mkdir -p ~/.cloudmesh/bridge')
+        sudo_writefile('~/.cloudmesh/bridge/info', info)
 
 
     @classmethod
@@ -357,7 +393,6 @@ class Bridge:
 
             iface = f'interface {cls.priv_interface}'
             static_ip = f'static ip_address={cls.masterIP}'
-            Console.warning(static_ip)
 
             curr_config = sudo_readfile('/etc/dhcpcd.conf')
             if iface in curr_config:
@@ -376,6 +411,7 @@ class Bridge:
             else:
                 curr_config.append(iface)
                 curr_config.append(static_ip)
+                curr_config.append('nolink\n')
                 
             sudo_writefile('/etc/dhcpcd.conf', '\n'.join(curr_config))
             Console.ok('Successfully wrote to /etc/dhcpcd.conf')

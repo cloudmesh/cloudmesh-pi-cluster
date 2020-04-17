@@ -26,21 +26,22 @@ class BridgeCommand(PluginCommand):
             bridge test NAMES [--rate=RATE]
             bridge list NAMES
             bridge check NAMES [--configuration] [--connection]
+            bridge info
 
           Arguments:
               HOSTS        Hostnames of connected devices. 
-                           Ex. red002 
-                           Ex. red[002-003]
+                           Ex. red001 
+                           Ex. red[001-003]
               
               ADDRESSES    IP addresses to assign to HOSTS. Addresses
                            should be in the network range configured.
-                           Ex. 10.0.0.2
-                           Ex. 10.0.0.[2-3]
+                           Ex. 10.1.1.1
+                           Ex. 10.1.1.[1-3]
 
               NAMES        A parameterized list of hosts. The first hostname 
                            in the list is the master through which the traffic 
                            is routed. Example:
-                           blue,blue[002-003]
+                           blue,blue[001-003]
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
@@ -48,18 +49,18 @@ class BridgeCommand(PluginCommand):
                                      to bridge through WIFI on the master
                                      eth0 requires a USB to WIFI adapter
 
-              --ip=IPADDRESS         The ip address [default: 10.0.0.1] to assign the master on the
-                                     interface. Ex. 10.0.0.1
+              --ip=IPADDRESS         The ip address [default: 10.1.1.0] to assign the master on the
+                                     interface. Ex. 10.1.1.0
 
-              --range=IPRANGE        The inclusive range of IPs [default: 10.0.0.2,10.0.0.20] that can be assigned 
+              --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.1-10.1.1.20] that can be assigned 
                                      to connecting devices. Value should be a comma
                                      separated tuple of the two range bounds. Should
                                      not include the ip of the master
-                                     Ex. 10.0.0.2,10.0.0.20
+                                     Ex. 10.1.1.1,10.1.1.20
               
               --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
-                                     Ex. red002
-                                     Ex. red[002-003]
+                                     Ex. red001
+                                     Ex. red[001-003]
 
               --rate=RATE            The rate in seconds for repeating the test
                                      If ommitted its done just once.
@@ -94,6 +95,9 @@ class BridgeCommand(PluginCommand):
                 and netwokrk access. Thisis not a comprehensive speedtest
                 for which we use test.
 
+            bridge info
+                prints relevant information about the configured bridge
+
 
           Design Changes:
             We still may need the master to be part of other commands in case
@@ -121,10 +125,9 @@ class BridgeCommand(PluginCommand):
 
             $ cms bridge restart
 
-            If {arguments.HOSTS} is connected already, restart the network switch
-            or restart the worker pis.
+            If {arguments.HOSTS} is connected already, reboot {arguments.HOSTS}.
 
-            """)
+            """, color='CYAN')
 
             StopWatch.stop('Static IP assignment')
             StopWatch.status('Static IP assignment', True)
@@ -133,7 +136,7 @@ class BridgeCommand(PluginCommand):
         elif arguments.create:
             StopWatch.start('Bridge Creation')
 
-            Bridge.create(masterIP=arguments.ip, ip_range=arguments.range.split(","), priv_interface='eth0', ext_interface=arguments.interface)
+            Bridge.create(masterIP=arguments.ip, ip_range=arguments.range.split("-"), priv_interface='eth0', ext_interface=arguments.interface)
 
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
@@ -143,6 +146,12 @@ class BridgeCommand(PluginCommand):
             cms bridge restart 
 
             """), color='CYAN')
+
+        elif arguments.info:
+            StopWatch.start('info')
+            Bridge.info()
+            StopWatch.stop('info')
+            StopWatch.status('info', True)
 
         elif arguments.test:
 
