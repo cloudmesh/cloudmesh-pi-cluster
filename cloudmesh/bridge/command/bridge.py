@@ -30,18 +30,18 @@ class BridgeCommand(PluginCommand):
 
           Arguments:
               HOSTS        Hostnames of connected devices. 
-                           Ex. red001 
-                           Ex. red[001-003]
+                           Ex. red002
+                           Ex. red[002-003]
               
               ADDRESSES    IP addresses to assign to HOSTS. Addresses
                            should be in the network range configured.
-                           Ex. 10.1.1.1
-                           Ex. 10.1.1.[1-3]
+                           Ex. 10.1.1.2
+                           Ex. 10.1.1.[2-3]
 
               NAMES        A parameterized list of hosts. The first hostname 
                            in the list is the master through which the traffic 
                            is routed. Example:
-                           blue,blue[001-003]
+                           blue,blue[002-003]
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
@@ -49,18 +49,18 @@ class BridgeCommand(PluginCommand):
                                      to bridge through WIFI on the master
                                      eth0 requires a USB to WIFI adapter
 
-              --ip=IPADDRESS         The ip address [default: 10.1.1.0] to assign the master on the
-                                     interface. Ex. 10.1.1.0
+              --ip=IPADDRESS         The ip address [default: 10.1.1.1] to assign the master on the
+                                     interface. Ex. 10.1.1.1
 
-              --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.1-10.1.1.20] that can be assigned 
+              --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.20] that can be assigned 
                                      to connecting devices. Value should be a comma
                                      separated tuple of the two range bounds. Should
                                      not include the ip of the master
-                                     Ex. 10.1.1.1,10.1.1.20
+                                     Ex. 10.1.1.2-10.1.1.20
               
               --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
-                                     Ex. red001
-                                     Ex. red[001-003]
+                                     Ex. red002
+                                     Ex. red[002-003]
 
               --rate=RATE            The rate in seconds for repeating the test
                                      If ommitted its done just once.

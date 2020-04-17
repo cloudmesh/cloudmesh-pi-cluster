@@ -11,7 +11,7 @@ For reference, we will use the following setup:
 ---
 ## Step 1. Create necessary workers
 ```
-(ENV3) pi@red:$ cms burn create --hostname=red[001-003]
+(ENV3) pi@red:$ cms burn create --hostname=red[002-004]
 ```
 We do not need to boot them up yet as if we connect them to the master now, we will need to reboot them later. (It doesn't hurt though)
 
@@ -36,8 +36,8 @@ This will display the following important information (note this is the default 
 ```
 # ----------------------------------------------------------------------
 # 
-# IP range: 10.1.1.1 - 10.1.1.20
-# Master IP: 10.1.1.0
+# IP range: 10.1.1.2 - 10.1.1.20
+# Master IP: 10.1.1.1
 # 
 # # LEASES #
 # ----------------------------------------------------------------------
@@ -58,8 +58,8 @@ This will allow us to immediately start connecting devices to our network switch
 
 We can set a static IP for hostnames as follows:
 ```
-(ENV3) pi@red:$ cms bridge set red001 10.1.1.1
-(ENV3) pi@red:$ cms bridge set red[002-003] 10.1.1.[2-3]
+(ENV3) pi@red:$ cms bridge set red002 10.1.1.2
+(ENV3) pi@red:$ cms bridge set red[003-004] 10.1.1.[3-4]
 ```
 We then restart the bridge again.
 ```
