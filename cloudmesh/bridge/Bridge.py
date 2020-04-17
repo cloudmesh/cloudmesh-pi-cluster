@@ -197,7 +197,7 @@ class Bridge:
         Console.info("Restarted dhcpcd")
 
         Console.info("Restarting dnsmasq please wait...")
-        time.sleep(5) # Wait 5 seconds for dhcpcd to full start up
+        time.sleep(10) # Wait 10 seconds for dhcpcd to full start up
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
             Console.error(f'Did not restart master dnsmasq service correctly')
@@ -347,6 +347,17 @@ class Bridge:
             
             Console.info("Rewriting /etc/dnsmasq.conf")
             sudo_writefile('/etc/dnsmasq.conf', config)
+
+            # Also add sleep 10 to /etc/init.d/dnsmasq so that it waits for dhcp to start
+            initFile = sudo_readfile('/etc/init.d/dnsmasq')
+            if 'sleep 10' not in initFile:
+                temp = ['sleep 10']
+                temp += initFile
+                # The first line in initFile is #!/bin/sh
+                # Move it to index 0 of temp
+                temp[0], temp[1] = temp[1], temp[0]
+
+            sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
     
 
     @classmethod
