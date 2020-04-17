@@ -32,7 +32,7 @@ class Bridge:
     dns=['8.8.8.8', '8.8.4.4']
 
     @classmethod
-    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.20'], master=None, workers=None,
+    def create(cls, masterIP='10.1.1.0', ip_range=['10.1.1.1', '10.1.1.20'], master=None, workers=None,
                 priv_interface='eth0', ext_interface='eth1', dryrun=False):
         """
         if worker(s) is missing the master is set up only
