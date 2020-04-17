@@ -32,8 +32,16 @@ Wait for the program to finish. If no errors, occured, we have successfuly confi
 (ENV3) pi@red:$ cms bridge info
 ```
 
-This will display the following important information:
-...
+This will display the following important information (note this is the default setup):
+```
+# ----------------------------------------------------------------------
+# 
+# IP range: 10.1.1.1 - 10.1.1.20
+# Master IP: 10.1.1.0
+# 
+# # LEASES #
+# ----------------------------------------------------------------------
+```
 
 The `Master IP` tells us the IP address of the master on the private interface (eth0).
 The `IP Range` tells us the range of suitable IPs we can give to the workers.
