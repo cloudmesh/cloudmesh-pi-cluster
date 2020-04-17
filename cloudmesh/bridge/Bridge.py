@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import os
+import time
 import textwrap
 from pathlib import Path
 # Functions in utils should be moved to cloudmesh.common
@@ -31,7 +32,7 @@ class Bridge:
     dns=['8.8.8.8', '8.8.4.4']
 
     @classmethod
-    def create(cls, masterIP='10.0.0.1', ip_range=['10.0.0.2', '10.0.0.20'], master=None, workers=None,
+    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.20'], master=None, workers=None,
                 priv_interface='eth0', ext_interface='eth1', dryrun=False):
         """
         if worker(s) is missing the master is set up only
@@ -117,8 +118,8 @@ class Bridge:
             else:
                 conf_line = cls._system('cat /etc/dnsmasq.conf | grep dhcp-range')
                 interm = conf_line.split(',')
-                upper = interm[1] # 10.0.0.20
-                lower = interm[0].split('=')[1] # 10.0.0.2
+                upper = interm[1] # 10.1.1.20
+                lower = interm[0].split('=')[1] # 10.1.1.2
                 cls.ip_range = lower, upper
 
 
@@ -162,10 +163,16 @@ class Bridge:
     @classmethod
     def restart(cls, workers=None, user='pi'):
         """
-        :param 
+        :param workers: List of workers to restart if needed
+        :return:
         """
 
         banner("Restarting bridge on master...", color='CYAN')
+        # Clear lease log
+        if Path('/var/lib/misc/dnsmasq.leases').is_file():
+            Console.info("Clearing leases file...")
+            sudo_writefile('/var/lib/misc/dnsmasq.leases', "\n")
+
         Console.info("Restarting dhcpcd please wait...")
 
         status = cls._system('sudo service dhcpcd restart', exitcode=True)
@@ -175,6 +182,7 @@ class Bridge:
         Console.info("Restarted dhcpcd")
 
         Console.info("Restarting dnsmasq please wait...")
+        time.sleep(5) # Wait 5 seconds for dhcpcd to full start up
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
             Console.error(f'Did not restart master dnsmasq service correctly')
@@ -195,6 +203,29 @@ class Bridge:
                 Console.ok(f"Restarted dhcpcd on {worker}")
 
             Console.ok("Restarted DHCP service on workers")
+
+
+    @classmethod
+    def info(cls):
+        try:
+            info = readfile('~/.cloudmesh/bridge/info').split('\n')
+            info = info[:info.index('# LEASES #') + 1]
+
+        except:
+            Console.error("Cannot execute info command. Has the bridge been made yet?")
+            sys.exit(1)
+
+        try:
+            curr_leases = '\n' + readfile('/var/lib/misc/dnsmasq.leases')
+
+        except:
+            Console.warning("dnsmasq.leases file not found. No devices have been connected yet") 
+            curr_leases = "\n"
+
+        toWrite = '\n'.join(info) + curr_leases
+        sudo_writefile('~/.cloudmesh/bridge/info', toWrite)
+
+        banner(toWrite, color='CYAN')
 
 
     # Begin private methods for Bridge
@@ -260,6 +291,14 @@ class Bridge:
 
         :return:
         """
+        info = textwrap.dedent(f"""
+        IP range: {cls.ip_range[0]} - {cls.ip_range[1]}
+        Master IP: {cls.masterIP}
+
+        # LEASES #
+
+        """)
+
         banner(f"""
         Successfuly configured a dhcp server on the hostname {cls.master}
         Details:
@@ -279,9 +318,12 @@ class Bridge:
 
         Example:
         
-        $ cms bridge set red[002-003] 10.0.0.[2-3]
+        $ cms bridge set red[002-003] 10.1.1.[2-3]
 
-        """)
+        """, color='CYAN')
+
+        cls._system('sudo mkdir -p ~/.cloudmesh/bridge')
+        sudo_writefile('~/.cloudmesh/bridge/info', info)
 
 
     @classmethod
@@ -357,7 +399,6 @@ class Bridge:
 
             iface = f'interface {cls.priv_interface}'
             static_ip = f'static ip_address={cls.masterIP}'
-            Console.warning(static_ip)
 
             curr_config = sudo_readfile('/etc/dhcpcd.conf')
             if iface in curr_config:
@@ -376,6 +417,7 @@ class Bridge:
             else:
                 curr_config.append(iface)
                 curr_config.append(static_ip)
+                curr_config.append('nolink\n')
                 
             sudo_writefile('/etc/dhcpcd.conf', '\n'.join(curr_config))
             Console.ok('Successfully wrote to /etc/dhcpcd.conf')
