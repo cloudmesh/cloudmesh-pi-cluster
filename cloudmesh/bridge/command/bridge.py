@@ -20,25 +20,47 @@ class BridgeCommand(PluginCommand):
         ::
 
           Usage:
-            bridge create NAMES [--interface=INTERFACE]
-            bridge set NAMES [--interface=INTERFACE]
-            bridge restart NAMES 
+            bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
+            bridge set HOSTS ADDRESSES 
+            bridge restart [--workers=WORKERS] 
             bridge test NAMES [--rate=RATE]
             bridge list NAMES
             bridge check NAMES [--configuration] [--connection]
 
           Arguments:
-              NAMES  the parameterized list of the hosts to set up as the
-                     bridge. The first hostname in the list is the master
-                     through which the traffic is routed. Example:
-                     red,red[01-03]
-                     Only the set and create command require the master.
+              HOSTS        Hostnames of connected devices. 
+                           Ex. red002 
+                           Ex. red[002-003]
+              
+              ADDRESSES    IP addresses to assign to HOSTS. Addresses
+                           should be in the network range configured.
+                           Ex. 10.0.0.2
+                           Ex. 10.0.0.[2-3]
+
+              NAMES        A parameterized list of hosts. The first hostname 
+                           in the list is the master through which the traffic 
+                           is routed. Example:
+                           blue,blue[002-003]
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
                                      You can also specify wlan0 if you wnat
                                      to bridge through WIFI on the master
                                      eth0 requires a USB to WIFI adapter
+
+              --ip=IPADDRESS         The ip address [default: 10.0.0.1] to assign the master on the
+                                     interface. Ex. 10.0.0.1
+
+              --range=IPRANGE        The inclusive range of IPs [default: 10.0.0.2,10.0.0.20] that can be assigned 
+                                     to connecting devices. Value should be a comma
+                                     separated tuple of the two range bounds. Should
+                                     not include the ip of the master
+                                     Ex. 10.0.0.2,10.0.0.20
+              
+              --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
+                                     Ex. red002
+                                     Ex. red[002-003]
+
               --rate=RATE            The rate in seconds for repeating the test
                                      If ommitted its done just once.
 
@@ -47,18 +69,18 @@ class BridgeCommand(PluginCommand):
             Command used to set up a bride so that all nodes route the traffic
             trough the master PI.
 
-            bridge create NAMES [--interface=INTERFACE]
-                creates the bridge
+            bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
+                creates the bridge on the current device
                 The create command does not restart the network.
 
-            bridge set NAMES [--interface=INTERFACE]
-                sets the bridge if it is already created.
-                The set command does not restart the network.
+            bridge set HOSTS ADDRESSES 
+                the set command assigns the given static 
+                ip addresses to the given hostnames.
 
-            bridge restart NAMES
-                restarts the bridge interfaces without rebooting
-                The network will be interrupted temporarily the command will
-                wait till all pis come back.
+            bridge restart [--workers=WORKERS]
+                restarts the bridge on the master without rebooting. 
+                If --workers is specified, restart the interfaces on
+                the workers via ssh.
 
             bridge test NAMES
                 A test to see if the bridges are configured correctly and one
@@ -80,53 +102,45 @@ class BridgeCommand(PluginCommand):
         """
 
         map_parameters(arguments,
-                       'interface')
-
-        if arguments.set or arguments.create or arguments.restart:
-            if ',' not in arguments.NAMES:
-            # Handles either just master or just workers
-                if arguments.create:
-                    Console.warning("Creating bridge without workers. Only master will be configured")
-                    master = arguments.NAMES
-                    workers = None
-
-                elif arguments.restart:
-                    # Check whether the hostname(s) passed in is the master (this machine) or workers (remote machine)
-                    try:
-                        with open('/etc/hostname', 'r') as f:
-                            thishost = f.read().strip()
-                    except:
-                        Console.error('Could not read /etc/hostname')
-                        sys.exit(1)
-
-                    if arguments.NAMES == thishost:
-                        master = arguments.NAMES
-                        workers = None
-                    else:
-                        workers = Parameter.expand(arguments.NAMES)
-                        master = None
-
-            else:
-                master, workers = arguments.NAMES.split(',')
-                workers = Parameter.expand(workers)
-            
-        else:
-            hosts = arguments.NAMES
+                       'interface',
+                       'ip',
+                       'range',
+                       'workers')
 
         if arguments.set:
+            StopWatch.start('Static IP assignment')
 
-            banner("set")
+            addresses = Parameter.expand(arguments.ADDRESSES)
+            hosts = Parameter.expand(arguments.HOSTS)
+            Bridge.set(workers=hosts, addresses=addresses)
+            banner(f"""
+            You have successfuly set static ip(s) for
+            {arguments.HOSTS} with ips {arguments.ADDRESSES}
+
+            To see changes on server, run:
+
+            $ cms bridge restart
+
+            If {arguments.HOSTS} is connected already, restart the network switch
+            or restart the worker pis.
+
+            """)
+
+            StopWatch.stop('Static IP assignment')
+            StopWatch.status('Static IP assignment', True)
+
 
         elif arguments.create:
             StopWatch.start('Bridge Creation')
-            Bridge.create(master=master, workers=workers, priv_interface='eth0', ext_interface=arguments.interface)
+
+            Bridge.create(masterIP=arguments.ip, ip_range=arguments.range.split(","), priv_interface='eth0', ext_interface=arguments.interface)
+
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
             banner(textwrap.dedent(f"""
-            You have now configured a bridge between your worker(s) and master. To see the effects, you must restart your network interfaces.
-            To do so, simply call
+            You have now configured a bridge on your master pi. To see the changes reflected, run the following command:
 
-            cms bridge restart {arguments.NAMES}
+            cms bridge restart 
 
             """), color='CYAN')
 
@@ -136,7 +150,8 @@ class BridgeCommand(PluginCommand):
 
         elif arguments.restart:
             StopWatch.start('Network Service Restart')
-            Bridge.restart(master=master, workers=workers)
+            workers = Parameter.expand(arguments.workers)
+            Bridge.restart(workers=workers)
             StopWatch.stop('Network Service Restart')
             StopWatch.status('Network Service Restart', True)
 
