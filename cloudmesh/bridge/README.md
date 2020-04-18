@@ -8,8 +8,15 @@ For reference, we will use the following setup:
 * Master Pi is connected to network switch on `eth0` (private interface that workers will connect to)
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
 * Prior steps for `cms burn` [setup](https://github.com/cloudmesh/cloudmesh-pi-burn) are done
+* If your home network operates on a 10.1.1.0 network, then you will need to specify more options in step1
+
 ---
 ## Step 1. Create necessary workers
+If your home network operats on a 10.1.1.0 network, then use the following command:
+```
+(ENV3) pi@red:$ cms burn create --hostname=red[002-004] --ip=172.16.0.1 --range=172.16.0.2-172.16.0.20
+```
+otherwise:
 ```
 (ENV3) pi@red:$ cms burn create --hostname=red[002-004]
 ```
