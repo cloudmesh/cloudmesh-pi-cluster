@@ -207,7 +207,7 @@ class K3(Installer):
                 # because worker does not know master's host name
                 ip = self.get_master_ip_address('eth0')
                 command = Installer.oneline("""
-                            curl -sfL http://get.k3s.io
+                            curl -sfL http://get.k3s.io |
                             K3S_URL=https://{ip}:{self.port}
                             K3S_TOKEN={token} sh -
                 """)
