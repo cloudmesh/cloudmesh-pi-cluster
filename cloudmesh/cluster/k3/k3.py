@@ -8,6 +8,9 @@
 
 import os
 import subprocess
+import socket
+import fcntl
+import struct
 
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
@@ -47,6 +50,14 @@ class Installer:
     def oneline(msg):
         return msg.replace("\n", "").replace ("  ", " ")
 
+    @staticmethod
+    def get_master_ip_address(ifname):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        return socket.inet_ntoa(fcntl.ioctl(
+            s.fileno(),
+            0x8915,  # SIOCGIFADDR
+            struct.pack('256s', ifname[:15].encode('utf-8'))
+        )[20:24])
 
 class K3(Installer):
 
@@ -175,11 +186,11 @@ class K3(Installer):
                 Console.info("Service already running")
 
 
-            banner(f"Get Token {master}")
+            banner(f"Get Token {master[0]}")
 
             command = "sudo cat /var/lib/rancher/k3s/server/node-token"
             jobSet = JobSet("kubernetes_token_retrieval", executor=JobSet.ssh)
-            jobSet.add({"name": self.hostname, "host": master[0], "command": command})
+            jobSet.add({"name": master[0], "host": master[0], "command": command})
             jobSet.run()
             token = jobSet.array()[0]['stdout'].decode('UTF-8')
 
@@ -192,21 +203,20 @@ class K3(Installer):
         banner(f"Setup Workers: {workers}")
         if hosts is not None:
             if master is not None:
-                # TODO - Currently this jobSet below does not work (does not install k3s)
-                command = Installer.oneline(f"""
-                            curl -sfL http://get.k3s.io |
-                            K3S_URL=https://{master[0]}:{self.port}
-                            K3S_TOKEN={token} sh -
-                """)
+                ip = self.get_master_ip_address('eth0')
+                print(ip)
+                command = Installer.oneline("""curl -sfL http://get.k3s.io | sh -""")
+                #            K3S_URL=https://{ip}:{self.port}
+                #            K3S_TOKEN={token} sh -
+                #""")
                 # TODO - This does not join with master hostname, but does with eth0 ip
                 jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
+                #TODO - Only works with one worker, does not work with multiple (runs on last one)
                 for host in hosts:
-                    jobSet.add({"name": self.hostname, "host": host, "command": command})
+                    jobSet.add({"name": host, "host": host, "command": command})
                 #jobSet.add({"name": hostname, "host": hostname, "command": command})
                 jobSet.run(parallel=len(hosts))
-                Printer.write(jobSet.array(),
-                        order=["name", "command", "status", "stdout",
-                               "returncode"])
+                jobSet.Print()
             else:
                 Console.warning("You must have the master parameter set to burn workers")
 
@@ -234,7 +244,7 @@ class K3(Installer):
             jobSet = JobSet("kubernetes_worker_uninstall", executor=JobSet.ssh)
 
             for host in hosts:
-                jobSet.add({"name": self.hostname, "host": host, "command": command})
+                jobSet.add({"name": host, "host": host, "command": command})
             #jobSet.add({"name": hostname, "host": hostname, "command": command})
 
             jobSet.run(parallel=len(hosts))
