@@ -93,7 +93,7 @@ class K3(Installer):
             self.uninstall(master, hosts)
 
         if arguments.delete:
-            self.delete(master, hosts)
+            self.delete(hosts)
 
         if arguments.test:
             self.test(master, hosts)
@@ -243,16 +243,17 @@ class K3(Installer):
 
 
     def delete(self, master=None, hosts=None):
-        # Uninstall master
-        if master is not None:
-            banner(f"Deleting Master Node: {master}")
-
-            command = Installer.oneline(f"""
-                        sudo kubectl delete {master}
-            """)
-            jobSet = JobSet("kubernetes_master_delete", executor=JobSet.ssh)
-            jobSet.add({"name": self.hostname, "host": master, "command": command})
-            jobSet.run()
+        # Delete master node
+        # TODO - k3s does not allow you to delete it's parent node
+        #if master is not None:
+        #    banner(f"Deleting Master Node: {master}")
+        #
+        #    command = Installer.oneline(f"""
+        #                sudo kubectl delete {master}
+        #    """)
+        #    jobSet = JobSet("kubernetes_master_delete", executor=JobSet.ssh)
+        #    jobSet.add({"name": self.hostname, "host": master, "command": command})
+        #    jobSet.run()
 
         # Uninstall workers
         if hosts is not None:
