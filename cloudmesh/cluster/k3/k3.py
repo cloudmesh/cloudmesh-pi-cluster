@@ -142,7 +142,7 @@ class K3(Installer):
             jobSet = JobSet("kubernetes_worker_enable_containers", executor=JobSet.ssh)
             for host in hosts:
                 print(host)
-                jobSet.add({"name": self.hostname, "host": host, "command": command})
+                jobSet.add({"name": host, "host": host, "command": command})
             jobSet.run(parallel=len(hosts))
             print(Printer.write(jobSet.array(),
                     order=["name", "command", "status", "stdout",
@@ -203,13 +203,14 @@ class K3(Installer):
         banner(f"Setup Workers: {workers}")
         if hosts is not None:
             if master is not None:
+                # TODO - Currently get ip address from eth0 instead of using hostname
+                # because worker does not know master's host name
                 ip = self.get_master_ip_address('eth0')
-                print(ip)
-                command = Installer.oneline("""curl -sfL http://get.k3s.io | sh -""")
-                #            K3S_URL=https://{ip}:{self.port}
-                #            K3S_TOKEN={token} sh -
-                #""")
-                # TODO - This does not join with master hostname, but does with eth0 ip
+                command = Installer.oneline("""
+                            curl -sfL http://get.k3s.io
+                            K3S_URL=https://{ip}:{self.port}
+                            K3S_TOKEN={token} sh -
+                """)
                 jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
                 #TODO - Only works with one worker, does not work with multiple (runs on last one)
                 for host in hosts:
@@ -233,7 +234,7 @@ class K3(Installer):
                         /usr/local/bin/k3s-uninstall.sh
             """)
             jobSet = JobSet("kubernetes_master_uninstall", executor=JobSet.ssh)
-            jobSet.add({"name": self.hostname, "host": master, "command": command})
+            jobSet.add({"name": master, "host": master, "command": command})
             jobSet.run()
 
         # Uninstall workers
@@ -275,7 +276,7 @@ class K3(Installer):
                 command = Installer.oneline(f"""
                         sudo kubectl delete {host}
                 """)
-                jobSet.add({"name": self.hostname, "host": master, "command": command})
+                jobSet.add({"name": master, "host": master, "command": command})
             #jobSet.add({"name": hostname, "host": hostname, "command": command})
             jobSet.run(parallel=len(hosts))
             print("Workers:", Printer.write(jobSet.array(),
