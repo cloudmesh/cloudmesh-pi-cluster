@@ -54,7 +54,13 @@ We can now restart the bridge to reflect these changes:
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
-This will allow us to immediately start connecting devices to our network switch and access the internet.
+This will allow us to immediately start connecting devices to our network switch and access the internet. This command is a bit buggy right now. Run the following commands to see if the needed services are up:
+
+```
+(ENV3) pi@red:$ sudo service dhcpcd status
+(ENV3) pi@red:$ sudo service dnsmasq status
+```
+If either service is not working, try restarting again.
 
 We can set a static IP for hostnames as follows:
 ```
