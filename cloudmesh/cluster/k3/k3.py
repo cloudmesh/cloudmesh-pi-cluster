@@ -185,7 +185,6 @@ class K3(Installer):
 
 
         # Setup workers and join to cluster
-
         #
         # TODO - bug I should be able to run this even if I am not on master
         #
@@ -193,12 +192,13 @@ class K3(Installer):
         banner(f"Setup Workers: {workers}")
         if hosts is not None:
             if master is not None:
+                # TODO - Currently this jobSet below does not work (does not install k3s)
                 command = Installer.oneline(f"""
-                            curl -sfL http://get.k3s.io | sh - 
+                            curl -sfL http://get.k3s.io |
+                            K3S_URL=https://{master[0]}:{self.port}
+                            K3S_TOKEN={token} sh -
                 """)
-                #K3S_URL=https://{master[0]}:{self.port} 
-                #            K3S_TOKEN={token} sh -
-                # """)
+                # TODO - This does not join with master hostname, but does with eth0 ip
                 jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
                 for host in hosts:
                     jobSet.add({"name": self.hostname, "host": host, "command": command})
