@@ -68,10 +68,11 @@ class K3(Installer):
 
     def execute(self, arguments):
         """
-        pi k3 install --master=MASTER --workers=WORKERS [--step=COMMAND]
+        pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
+        pi k3 join --master=MASTER --workers=WORKERS
         pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
         pi k3 delete --workers=WORKERS
-        pi k3 test --master=MASTER --workers=WORKERS
+        pi k3 test [--master=MASTER] [--workers=WORKERS]
         pi k3 view
         :param arguments:
         :return:
@@ -100,8 +101,8 @@ class K3(Installer):
         if arguments.install:
             self.install(master, hosts, step)
 
-        if arguments.add:
-            self.add(hosts)
+        if arguments.join:
+            self.join(master, hosts)
 
         if arguments.uninstall:
             self.uninstall(master, hosts)
@@ -178,8 +179,7 @@ class K3(Installer):
             #
             banner(f"Setup Master: {master[0]}")
 
-            command = Installer.oneline(f""" 
-            echo "Hostname:" `hostname`; echo;
+            command = Installer.oneline(f"""
             curl -sfL https://get.k3s.io | sh -
             """)
             jobSet = JobSet("kubernetes_master_install", executor=JobSet.ssh)
@@ -191,61 +191,79 @@ class K3(Installer):
                 Console.info("Service already running")
 
 
-            banner(f"Get Token {master[0]}")
-
-            command = "sudo cat /var/lib/rancher/k3s/server/node-token"
-            jobSet = JobSet("kubernetes_token_retrieval", executor=JobSet.ssh)
-            jobSet.add({"name": master[0], "host": master[0], "command": command})
-            jobSet.run()
-            token = jobSet.array()[0]['stdout'].decode('UTF-8')
-
-
         # Setup workers and join to cluster
         #
         # TODO - bug I should be able to run this even if I am not on master
         #
         if hosts is not None:
             if master is not None:
+                banner(f"Get Join Token From {master[0]}")
+                command = "sudo cat /var/lib/rancher/k3s/server/node-token"
+                jobSet = JobSet("kubernetes_token_retrieval", executor=JobSet.ssh)
+                jobSet.add({"name": master[0], "host": master[0], "command": command})
+                jobSet.run()
+                token = jobSet.array()[0]['stdout'].decode('UTF-8')
+
+                # Install kubernetes to workers
                 workers = ', '.join(hosts)
                 banner(f"Setup Workers: {workers}")
 
+                command = "curl -sfL http://get.k3s.io | sh -"
+                #worker_install = Host.ssh(hosts=hosts, command=command, executor=os.system)
 
-                # TODO - Currently get ip address from eth0 instead of using hostname
-                # because worker does not know master's host name
-                ip = self.get_master_ip_address('eth0')
-                command = Installer.oneline(f"""
-                curl -sfL http://get.k3s.io | sh -;
-                sudo k3s agent --server https://{ip}:{self.port}
-                --token {token};
-                """)
-
-                worker_install = Host.ssh(hosts=hosts, command=command, executor=os.system)
-
-                #TODO - Get working later
-                """jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
+                jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
                 for host in hosts:
                     jobSet.add({"name": host, "host": host, "command": command})
                 jobSet.run(parallel=len(hosts))
                 jobSet.Print()
 
-                command = Installer.oneline(f
+                # Join workers to master's cluster
+                # TODO - Currently get ip address from eth0 instead of using hostname
+                # because worker does not know master's host name
+                ip = self.get_master_ip_address('eth0')
+
+                command = Installer.oneline(f"""
                 sleep 5; sudo k3s agent --server https://{ip}:{self.port}
                 --token {token}
-                )
-                jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
+                """)
+
+                jobSet = JobSet("kubernetes_worker_join", executor=JobSet.ssh)
                 for host in hosts:
                     jobSet.add({"name": host, "host": host, "command": command})
-                #jobSet.run(parallel=len(hosts))
-                jobSet.Print()"""
+                jobSet.run(parallel=len(hosts))
+                jobSet.Print()
             else:
                 Console.warning("You must have the master parameter set to burn workers")
 
         # Print created cluster
-        os.system("sudo kubectl get nodes")
+        self.view()
 
-    def add(self, hosts=None):
-        #TODO - Add a worker (that is already installed) to the master cluster
-        print("Not yet implemented")
+
+    def join(self, master=None, hosts=None):
+        if hosts is not None and master is not None:
+            banner(f"Get Join Token From {master}")
+            command = "sudo cat /var/lib/rancher/k3s/server/node-token"
+            jobSet = JobSet("kubernetes_token_retrieval", executor=JobSet.ssh)
+            jobSet.add({"name": master, "host": master, "command": command})
+            jobSet.run()
+            token = jobSet.array()[0]['stdout'].decode('UTF-8')
+
+            # TODO - Currently get ip address from eth0 instead of using hostname
+            # because worker does not know master's host name
+            ip = self.get_master_ip_address('eth0')
+
+            command = Installer.oneline(f"""
+            sudo k3s agent --server https://{ip}:{self.port}
+            --token {token}""")
+
+            jobSet = JobSet("kubernetes_worker_join", executor=JobSet.ssh)
+            for host in hosts:
+                jobSet.add({"name": host, "host": host, "command": command})
+            jobSet.run(parallel=len(hosts))
+            jobSet.Print()
+
+            self.view()
+
 
     def uninstall(self, master=None, hosts=None):
         # Uninstall master

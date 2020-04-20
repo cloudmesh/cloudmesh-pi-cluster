@@ -38,7 +38,7 @@ class PiCommand(PluginCommand):
             pi spark test --master=MASTER --workers=WORKERS
             pi spark check [--master=MASTER] [--workers=WORKERS]
             pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
-            pi k3 add --workers=WORKERS
+            pi k3 join --master=MASTER --workers=WORKERS
             pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
             pi k3 delete [--master=MASTER] [--workers=WORKERS]
             pi k3 test [--master=MASTER] [--workers=WORKERS]
