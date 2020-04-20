@@ -100,11 +100,14 @@ class K3(Installer):
         if arguments.install:
             self.install(master, hosts, step)
 
+        if arguments.add:
+            self.add(hosts)
+
         if arguments.uninstall:
             self.uninstall(master, hosts)
 
         if arguments.delete:
-            self.delete(hosts)
+            self.delete(master, hosts)
 
         if arguments.test:
             self.test(master, hosts)
@@ -130,23 +133,25 @@ class K3(Installer):
 
             # Check if workers already have line and if not, append to /boot/cmdline.txt
             tmp_cmdline = "~/cmdline.txt"
-            command = Installer.oneline(f"""
-                if grep -q '{line}' '/boot/cmdline.txt';
+            command = f"""
+                if grep -q '{line}' '/boot/cmdline.txt'
                 then
                   rm {source};
-                else cp /boot/cmdline.txt {tmp_cmdline};
+                else
+                  cp /boot/cmdline.txt {tmp_cmdline};
                   cat {source} >> {tmp_cmdline};
                   sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
-                fi""")
-            # TODO - Host.ssh(hosts=hosts, command=command, executor=os.system)
-            jobSet = JobSet("kubernetes_worker_enable_containers", executor=JobSet.ssh)
-            for host in hosts:
-                print(host)
-                jobSet.add({"name": host, "host": host, "command": command})
-            jobSet.run(parallel=len(hosts))
-            print(Printer.write(jobSet.array(),
-                    order=["name", "command", "status", "stdout",
-                           "returncode"]))
+                fi"""
+
+            # TODO - The jobSet command was freezing my entire terminal up here
+            # and not working, so just going to use Host.ssh here for now
+            enable_worker_containers = Host.ssh(hosts=hosts, command=command, executor=os.system)
+            #jobSet = JobSet("kubernetes_worker_enable_containers", executor=JobSet.ssh)
+            #for host in hosts:
+            #    print(host)
+                #jobSet.add({"name": host, "host": host, "command": command})
+            #jobSet.run()
+            #jobSet.Print()
 
             # Delete tmp file on master
             command = f"rm {source}"
@@ -174,9 +179,9 @@ class K3(Installer):
             banner(f"Setup Master: {master[0]}")
 
             command = Installer.oneline(f""" 
-                      echo "Hostname:" `hostname`; echo;
-                      curl -sfL https://get.k3s.io | sh -
-                      """)
+            echo "Hostname:" `hostname`; echo;
+            curl -sfL https://get.k3s.io | sh -
+            """)
             jobSet = JobSet("kubernetes_master_install", executor=JobSet.ssh)
             jobSet.add({"name": self.hostname, "host": master[0], "command": command})
             jobSet.run()
@@ -199,58 +204,77 @@ class K3(Installer):
         #
         # TODO - bug I should be able to run this even if I am not on master
         #
-        workers = ', '.join(hosts)
-        banner(f"Setup Workers: {workers}")
         if hosts is not None:
             if master is not None:
+                workers = ', '.join(hosts)
+                banner(f"Setup Workers: {workers}")
+
+
                 # TODO - Currently get ip address from eth0 instead of using hostname
                 # because worker does not know master's host name
                 ip = self.get_master_ip_address('eth0')
-                command = Installer.oneline("""
-                            curl -sfL http://get.k3s.io |
-                            K3S_URL=https://{ip}:{self.port}
-                            K3S_TOKEN={token} sh -
+                command = Installer.oneline(f"""
+                curl -sfL http://get.k3s.io | sh -;
+                sudo k3s agent --server https://{ip}:{self.port}
+                --token {token};
                 """)
-                jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
-                #TODO - Only works with one worker, does not work with multiple (runs on last one)
+
+                worker_install = Host.ssh(hosts=hosts, command=command, executor=os.system)
+
+                #TODO - Get working later
+                """jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
                 for host in hosts:
                     jobSet.add({"name": host, "host": host, "command": command})
-                #jobSet.add({"name": hostname, "host": hostname, "command": command})
                 jobSet.run(parallel=len(hosts))
                 jobSet.Print()
+
+                command = Installer.oneline(f
+                sleep 5; sudo k3s agent --server https://{ip}:{self.port}
+                --token {token}
+                )
+                jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
+                for host in hosts:
+                    jobSet.add({"name": host, "host": host, "command": command})
+                #jobSet.run(parallel=len(hosts))
+                jobSet.Print()"""
             else:
                 Console.warning("You must have the master parameter set to burn workers")
 
         # Print created cluster
         os.system("sudo kubectl get nodes")
 
+    def add(self, hosts=None):
+        #TODO - Add a worker (that is already installed) to the master cluster
+        print("Not yet implemented")
 
     def uninstall(self, master=None, hosts=None):
         # Uninstall master
         if master is not None:
             banner(f"Uninstalling Master {master}")
 
-            command = Installer.oneline(f"""
-                        /usr/local/bin/k3s-uninstall.sh
-            """)
+            command = "/usr/local/bin/k3s-uninstall.sh"
             jobSet = JobSet("kubernetes_master_uninstall", executor=JobSet.ssh)
             jobSet.add({"name": master, "host": master, "command": command})
             jobSet.run()
+            jobSet.Print()
 
         # Uninstall workers
         if hosts is not None:
             workers = ', '.join(hosts)
             banner(f"Uninstalling Workers: {workers}")
-            command = "/usr/local/bin/k3s-agent-uninstall.sh"
+            #command = "/usr/local/bin/k3s-agent-uninstall.sh"
+            command = "/usr/local/bin/k3s-uninstall.sh"
             jobSet = JobSet("kubernetes_worker_uninstall", executor=JobSet.ssh)
 
             for host in hosts:
                 jobSet.add({"name": host, "host": host, "command": command})
-            #jobSet.add({"name": hostname, "host": hostname, "command": command})
 
             jobSet.run(parallel=len(hosts))
-            print("Workers:", Printer.write(jobSet.array(),
-                    order=["name", "command", "status", "stdout", "returncode"]))
+            jobSet.Print()
+
+            self.delete(hosts=hosts)
+            #print("Workers:", Printer.write(jobSet.array(),
+            #        order=["name", "command", "status", "stdout", "returncode"]))
 
 
     def delete(self, master=None, hosts=None):
@@ -274,10 +298,10 @@ class K3(Installer):
             jobSet = JobSet("kubernetes_worker_delete", executor=JobSet.ssh)
             for host in hosts:
                 command = Installer.oneline(f"""
-                        sudo kubectl delete {host}
+                sudo kubectl drain {host} --ignore-daemonsets --delete-local-data; 
+                sudo kubectl delete node {host}
                 """)
-                jobSet.add({"name": master, "host": master, "command": command})
-            #jobSet.add({"name": hostname, "host": hostname, "command": command})
+                jobSet.add({"name": self.hostname, "host": self.hostname, "command": command})
             jobSet.run(parallel=len(hosts))
             print("Workers:", Printer.write(jobSet.array(),
                     order=["name", "command", "status", "stdout", "returncode"]))
