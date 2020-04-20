@@ -28,13 +28,19 @@ master$ cms pi k3 install [--master=MASTER] [--workers=WORKERS] --step=enable_co
 
 ## Other Available Commands
 
+Add a worker to the master's cluster if Kubernetes is already installed on the node **(Not yet implemented)**
+
+```
+master$ cms pi k3 add --workers=WORKERS
+```
+
 Uninstall Kubernetes on either the master or any worker
 
 ```
 master$ cms pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
 ```
 
-Delete a node(s) from your master's cluster **(Not yet implemented)**
+Delete a node(s) from your master's cluster
 
 ```
 master$ cms pi k3 delete [--master=MASTER] [--workers=WORKERS]
