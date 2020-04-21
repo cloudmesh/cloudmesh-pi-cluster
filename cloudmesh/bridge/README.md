@@ -1,45 +1,105 @@
-# A simple command to setup a network bridge between raspberry pi workers and master
+## A simple command to setup a network bridge between raspberry pi workers and master utilizing dnsmasq
 WARNING: This program is designed for Raspberry Pi and must not be executed on your laptop
 ---
-# Quick Start
+##  Quick Start
 ---
 For reference, we will use the following setup:
-* Master Pi hostname is `red`
-* Master Pi is connected to network switch via the build-in ethernet port on the Pi
-* Master Pi is connected to the internet via interface `wlan0` (WiFi)
-* Master Pi is running the most up-to-date raspbian
-* Master Pi has installed the necessary cloudmesh pi programs and burned three workers utilizing cm-pi-burn. See [cloudmesh-pi-burn](https://github.com/cloudmesh/cloudmesh_pi_burn) for details.
-* 3 worker Pis burned with hostnames `red001, red002, red003` with ipaddresses `169.254.10.1, 169.254.10.2, 169.254.10.3` respectively.
-* It is assumed that all hostnames of the workers are known under /etc/hosts of the master
+* Master Pi has hostname `red` and is connected to the internet via interface `wlan0` (WiFi)
+* Master Pi is connected to network switch on `eth0` (private interface that workers will connect to)
+* Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
+* Prior steps for `cms burn` [setup](https://github.com/cloudmesh/cloudmesh-pi-burn) are done
+* If your home network operates on a 10.1.1.0 network, then you will need to specify more options in step1
 
 ---
+## Step 1. Create necessary workers
+If your home network operats on a 10.1.1.0 network, then use the following command:
+```
+(ENV3) pi@red:$ cms burn create --hostname=red[002-004] --ip=172.16.0.1 --range=172.16.0.2-172.16.0.20
+```
+otherwise:
+```
+(ENV3) pi@red:$ cms burn create --hostname=red[002-004]
+```
+We do not need to boot them up yet as if we connect them to the master now, we will need to reboot them later. (It doesn't hurt though)
+
+*Note* 
+Notice how we are not setting the `--ipaddr` option. This is intentional as we want to handle static IPs in a centralized manner now. The program will still work if you configure the Pis with static IPs, but you just won't be able to change them from the master.
+
+---
+
+## Step 2.
+
 We can configure our network bridge as follows:
 ```
-(ENV3) pi@red:$ cms bridge create red,red[001-003] --interface='wlan0'
+(ENV3) pi@red:$ cms bridge create --interface='wlan0'
 ```
 
-Wait for the program to finish. If no errors, occured, we have successfuly configured the bridge.
-
-
-To see changes take effect, simply restart your interfaces as follows:
+Wait for the program to finish. If no errors, occured, we have successfuly configured the bridge. Check details on the configuration using 
 ```
-(ENV3) pi@red:$ cms bridge restart red,red[001-003]
+(ENV3) pi@red:$ cms bridge info
 ```
 
-To test connections, utilize ssh to connect to you workers. There are several tests you can run to verify a connection. A simple way is:
+This will display the following important information (note this is the default setup):
 ```
-pi@red001:$ sudo apt-get update
-```
-or
-```
-pi@red001:$ ping google.com
-```
-(hint: use ctrl+c to stop ping command)
-
-
-In the future, we will automate these tests in the form:
-```
-(ENV3) pi@red:$ cms bridge test red,red[001-003]
+# ----------------------------------------------------------------------
+# 
+# IP range: 10.1.1.2 - 10.1.1.20
+# Master IP: 10.1.1.1
+# 
+# # LEASES #
+# ----------------------------------------------------------------------
 ```
 
+The `Master IP` tells us the IP address of the master on the private interface (eth0).
+The `IP Range` tells us the range of suitable IPs we can give to the workers.
 
+In the future, a command will be added to expand the `IP range` dynamically.
+
+## Step 3.
+
+We can now restart the bridge to reflect these changes:
+```
+(ENV3) pi@red:$ cms bridge restart
+```
+This will allow us to immediately start connecting devices to our network switch and access the internet. This command is a bit buggy right now. Run the following commands to see if the needed services are up:
+
+```
+(ENV3) pi@red:$ sudo service dhcpcd status
+(ENV3) pi@red:$ sudo service dnsmasq status
+```
+If either service is not working, try restarting again.
+
+We can set a static IP for hostnames as follows:
+```
+(ENV3) pi@red:$ cms bridge set red002 10.1.1.2
+(ENV3) pi@red:$ cms bridge set red[003-004] 10.1.1.[3-4]
+```
+We then restart the bridge again.
+```
+(ENV3) pi@red:$ cms bridge restart
+```
+
+*Note*
+Any workers previously connected to the bridge that have just been assigned static IPs must be rebooted.
+
+## Step 4.
+To verify that workers have successfuly connected, we call the info command again:
+```
+(ENV3) pi@red:$ cms bridge info
+```
+In addition to the information displayed in step 2, we will also have information on the given leases below `# LEASES #` including the hostnames, MAC addresses, and the assigned IP.
+
+## Step 5
+Enjoy. These commands have been designed to prevent several user errors, and will most often have a handled error message for debugging purposes should any issues arise. Additionally, the above commands can be run as many times as needed. There should be no ill effects. 
+
+
+
+
+*IMPORTANT NOTE*
+When customizing the IP range of the server or setting static IPs, remember you must abide by RFC 1918 for Private addresses. The IP range must fall within one of the following ip ranges:
+```
+10.0.0.0        -   10.255.255.255  (10/8 prefix)
+172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
+192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
+```
+The default configuration falls within the first of the listed ranges.

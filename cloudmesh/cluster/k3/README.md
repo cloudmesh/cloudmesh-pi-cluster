@@ -5,9 +5,7 @@ your master. This is done by using the command ```cms bridge```. You can
 find the documentation here to set it up:
 <https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/bridge>
 
-**Note**: The install command currently works by setting up Kubernetes
-*on your master and workers, but is having issues adding the worker
-*nodes to the master cluster. Fix coming soon.
+This command will install Kubernetes to the master and workers you provide, and will join the workers to your master's cluster.
 
 ```
 master$ cms pi k3 install [--master=MASTER] [--workers=WORKERS]
@@ -28,13 +26,19 @@ master$ cms pi k3 install [--master=MASTER] [--workers=WORKERS] --step=enable_co
 
 ## Other Available Commands
 
+Join a worker to the master's cluster if Kubernetes is already installed on the node 
+
+```
+master$ cms pi k3 join --workers=WORKERS
+```
+
 Uninstall Kubernetes on either the master or any worker
 
 ```
 master$ cms pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
 ```
 
-Delete a node(s) from your master's cluster **(Not yet implemented)**
+Delete a node(s) from your master's cluster
 
 ```
 master$ cms pi k3 delete [--master=MASTER] [--workers=WORKERS]

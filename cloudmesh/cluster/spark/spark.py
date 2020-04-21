@@ -255,9 +255,9 @@ class Spark:
     #
     def spark_env(self, filename="/usr/local/spark/spark/conf/spark-env.sh"):
         #
-        # should hthis also not be in bashrc?
+        # should this also not be in bashrc?
         #
-        name = "spack."
+        name = "spark."
         banner(name)
         script = textwrap.dedent("""
             #JAVA_HOME
