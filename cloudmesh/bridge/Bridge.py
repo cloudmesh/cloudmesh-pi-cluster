@@ -52,6 +52,7 @@ class Bridge:
         cls.dryrun = dryrun
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
+        cls.lease_bookmark = "# ACTIVE LEASES #"
 
 
         # Master configuration
@@ -228,7 +229,7 @@ class Bridge:
     def info(cls):
         try:
             info = readfile('~/.cloudmesh/bridge/info').split('\n')
-            info = info[:info.index('# LEASES #') + 1]
+            info = info[:info.index(cls.lease_bookmark) + 1]
 
         except:
             Console.error("Cannot execute info command. Has the bridge been made yet?")
@@ -324,7 +325,7 @@ class Bridge:
         IP range: {cls.ip_range[0]} - {cls.ip_range[1]}
         Master IP: {cls.masterIP}
 
-        # LEASES #
+        {cls.lease_bookmark}
 
         """)
 
