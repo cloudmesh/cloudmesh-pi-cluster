@@ -12,11 +12,6 @@ For reference, we will use the following setup:
 
 ---
 ## Step 1. Create necessary workers
-If your home network operats on a 10.1.1.0 network, then use the following command:
-```
-(ENV3) pi@red:$ cms burn create --hostname=red[002-004] --ip=172.16.0.1 --range=172.16.0.2-172.16.0.20
-```
-otherwise:
 ```
 (ENV3) pi@red:$ cms burn create --hostname=red[002-004]
 ```
