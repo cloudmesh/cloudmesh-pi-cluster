@@ -208,6 +208,7 @@ class Bridge:
         if status != 0:
             Console.error(f'Did not restart master dnsmasq service correctly')
             sys.exit(1)
+        Console.ok("Restarted dnsmasq successfuly")
 
         Console.ok("Restarted bridge service on master")
 
