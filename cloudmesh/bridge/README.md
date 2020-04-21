@@ -4,9 +4,10 @@ WARNING: This program is designed for Raspberry Pi and must not be executed on y
 ##  Quick Start
 ---
 For reference, we will use the following setup:
-* Master Pi has hostname `red` and is connected to the internet via interface `wlan0` (WiFi)
+* Master Pi has hostname `red` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
 * Master Pi is connected to network switch on `eth0` (private interface that workers will connect to)
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
+* If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe will break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case.
 
 ---
 ## Step 1. Create necessary workers
@@ -27,7 +28,7 @@ Plug the master Pi into the private interface (network switch) via the built-in 
 
 We can configure our network bridge as follows:
 ```
-(ENV3) pi@red:$ cms bridge create --interface='wlan0'
+(ENV3) pi@red:$ cms bridge create --interface='eth1'
 ```
 
 Wait for the program to finish. If no errors, occured, we have successfuly configured the bridge. Check details on the configuration using 
@@ -78,6 +79,8 @@ INFO: Restarting dnsmasq please wait...
 Restarted dnsmasq successfuly
 Restarted bridge service on master
 ```
+* Note *
+
 At this point, our bridge is ready and the master is configured with dhcp services.
 
 ---
