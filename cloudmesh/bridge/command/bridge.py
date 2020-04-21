@@ -125,7 +125,7 @@ class BridgeCommand(PluginCommand):
 
             $ cms bridge restart
 
-            If {arguments.HOSTS} is connected already, reboot {arguments.HOSTS}.
+            If {arguments.HOSTS} is connected already, restart bridge then reboot {arguments.HOSTS}.
 
             """, color='CYAN')
 
