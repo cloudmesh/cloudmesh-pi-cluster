@@ -7,7 +7,7 @@ For reference, we will use the following setup:
 * Master Pi has hostname `red` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
 * Master Pi is connected to network switch on `eth0` (private interface that workers will connect to)
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
-* If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe will break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case.
+* If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe will break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case as the command will most likely result in an error.
 
 ---
 ## Step 1. Create necessary workers
