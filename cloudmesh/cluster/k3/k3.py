@@ -127,7 +127,7 @@ class K3(Installer):
             command = f'echo "{line}" >> {source}'
             os.system(command)
 
-            # Scp tmp file to each worker (TODO - Couldn't find Host.scp?)
+            # Copy over temporary file with container line
             for host in hosts:
                 command = "scp {0} pi@{1}:~/".format(source, host)
                 os.system(command)
@@ -135,7 +135,7 @@ class K3(Installer):
             # Check if workers already have line and if not, append to /boot/cmdline.txt
             tmp_cmdline = "~/cmdline.txt"
             command = f"""
-                if grep -q '{line}' '/boot/cmdline.txt'
+                if grep -q "{line}" '/boot/cmdline.txt'
                 then
                   rm {source};
                 else
@@ -144,14 +144,10 @@ class K3(Installer):
                   sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
                 fi"""
 
-            # TODO - The jobSet command was freezing my entire terminal up here
-            # and not working, so just going to use Host.ssh here for now
-            enable_worker_containers = Host.ssh(hosts=hosts, command=command, executor=os.system)
-            #jobSet = JobSet("kubernetes_worker_enable_containers", executor=JobSet.ssh)
-            #for host in hosts:
-            #    print(host)
-                #jobSet.add({"name": host, "host": host, "command": command})
-            #jobSet.run()
+            jobSet = JobSet("kubernetes_worker_enable_containers", executor=JobSet.ssh)
+            for host in hosts:
+                jobSet.add({"name": host, "host": host, "command": command})
+            jobSet.run()
             #jobSet.Print()
 
             # Delete tmp file on master
@@ -222,11 +218,11 @@ class K3(Installer):
                 # because worker does not know master's host name
                 ip = self.get_master_ip_address('eth0')
 
-                command = Installer.oneline(f"""
-                sleep 5; sudo k3s agent --server https://{ip}:{self.port}
-                --token {token}
-                """)
+                command = f"""sudo k3s agent --server https://{ip}:{self.port} 
+                --token {token}"""
 
+                # TODO - This currently does not work, command runs fine but
+                # "k3s agent" having trouble creating node. 
                 jobSet = JobSet("kubernetes_worker_join", executor=JobSet.ssh)
                 for host in hosts:
                     jobSet.add({"name": host, "host": host, "command": command})
@@ -252,9 +248,9 @@ class K3(Installer):
             # because worker does not know master's host name
             ip = self.get_master_ip_address('eth0')
 
-            command = Installer.oneline(f"""
+            command = f"""
             sudo k3s agent --server https://{ip}:{self.port}
-            --token {token}""")
+            --token {token}"""
 
             jobSet = JobSet("kubernetes_worker_join", executor=JobSet.ssh)
             for host in hosts:
