@@ -33,7 +33,7 @@ class Bridge:
     dns=['8.8.8.8', '8.8.4.4']
 
     @classmethod
-    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.20'], master=None, workers=None,
+    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'], master=None, workers=None,
                 priv_interface='eth0', ext_interface='eth1', dryrun=False):
         """
         if worker(s) is missing the master is set up only
@@ -176,7 +176,7 @@ class Bridge:
         raise NotImplementedError
 
     @classmethod
-    def restart(cls, workers=None, user='pi'):
+    def restart(cls, priv_iface='eth0', workers=None, user='pi'):
         """
         :param workers: List of workers to restart if needed
         :return:
@@ -195,9 +195,14 @@ class Bridge:
             Console.error(f'Did not restart master networking service correctly')
             sys.exit(1)
         Console.info("Restarted dhcpcd")
+        Console.info("Verifying dhcpcd status...")
+        if not cls._dhcpcd_active(iface=priv_iface):
+            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time')
+            sys.exit(1)
+
+        Console.ok("Verified dhcpcd status successfuly")
 
         Console.info("Restarting dnsmasq please wait...")
-        time.sleep(10) # Wait 10 seconds for dhcpcd to full start up
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
             Console.error(f'Did not restart master dnsmasq service correctly')
@@ -260,6 +265,37 @@ class Bridge:
             return exit
         else:
             return stdout
+
+
+    @classmethod
+    def _dhcpcd_active(cls, iface='eth0', timeout=10, time_interval=5):
+        """
+        Returns True if dhcpcd is active else False
+
+        :param iface: the interface that is connected to the private network. Default eth0
+        :return boolean:
+        """
+        # It's possible dhcpcd isn't fully started up yet after restarting. This is tricky as it says active even if it may fail
+        # after probing all interfaces
+        # Usually, dhcpcd is working once we see f'{interface}: no IPv6 Routers available' somewhere in the status message
+        pattern = re.compile(f'{iface}: no IPv6 Routers available*')
+
+        # Loop if necessary
+        count = 1
+        while True:
+            if count > timeout:
+                return False
+            Console.info(f'Checking if dhcpcd is up - Attempt {count}')
+            full_status = cls._system('sudo service dhcpcd status')
+            if pattern.search(full_status):
+                Console.info('dhcpcd is done starting')
+                status_line = cls._system('sudo service dhcpcd status | grep Active')
+                return 'running' in status_line
+
+            count += 1
+            Console.info('dhcpcd is not ready. Checking again in 5 seconds')
+            time.sleep(time_interval)
+                
 
     @classmethod
     def _convert_ipv4(cls, ip):
