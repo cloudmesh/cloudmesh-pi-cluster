@@ -52,7 +52,7 @@ class BridgeCommand(PluginCommand):
               --ip=IPADDRESS         The ip address [default: 10.1.1.1] to assign the master on the
                                      interface. Ex. 10.1.1.1
 
-              --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.20] that can be assigned 
+              --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.122] that can be assigned 
                                      to connecting devices. Value should be a comma
                                      separated tuple of the two range bounds. Should
                                      not include the ip of the master

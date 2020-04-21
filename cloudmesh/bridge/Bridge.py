@@ -289,7 +289,7 @@ class Bridge:
                 status_line = cls._system('sudo service dhcpcd status | grep Active')
                 return 'running' in status_line
             
-            if count > timeout:
+            if count >= timeout:
                 return False
             count += 1
             Console.info('dhcpcd is not ready. Checking again in 5 seconds')
