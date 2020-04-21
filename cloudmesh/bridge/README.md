@@ -7,13 +7,11 @@ For reference, we will use the following setup:
 * Master Pi has hostname `red` and is connected to the internet via interface `wlan0` (WiFi)
 * Master Pi is connected to network switch on `eth0` (private interface that workers will connect to)
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
-* Prior steps for `cms burn` [setup](https://github.com/cloudmesh/cloudmesh-pi-burn) are done
-* If your home network operates on a 10.1.1.0 network, then you will need to specify more options in step1
 
 ---
 ## Step 1. Create necessary workers
 ```
-(ENV3) pi@red:$ cms burn create --hostname=red[002-004]
+(ENV3) pi@red:$ cms burn create --hostname=red[003-004]
 ```
 Connect them to the private interface (network switch) via ethernet.
 
@@ -77,6 +75,7 @@ INFO: Checking if dhcpcd is up - Attempt 4
 INFO: dhcpcd is done starting
 Verified dhcpcd status successfuly
 INFO: Restarting dnsmasq please wait...
+Restarted dnsmasq successfuly
 Restarted bridge service on master
 ```
 At this point, our bridge is ready and the master is configured with dhcp services.
@@ -134,7 +133,7 @@ In addition to the information displayed in step 2, we will also have informatio
 # IP range: 10.1.1.2 - 10.1.1.122
 # Master IP: 10.1.1.1
 # 
-# # LEASES #
+# # ACTIVE LEASES #
 # 2020-04-22 07:08:26 {MAC_ADDRESS} 10.1.1.3 red003 {CLIENT_ID}
 # 2020-04-22 07:08:29 {MAC_ADDRESS} 10.1.1.4 red004 {CLIENT_ID}
 # ----------------------------------------------------------------------
@@ -145,6 +144,7 @@ The fields in {} will be populated with the worker-specific info.
 Additionally, the expiration time is there for reference. There is no need to reassign a static IP after it has already been assigned unless the bridge is re-created.
 
 ---
+
 These commands have been designed to prevent several user errors, and will most often have a handled error message for debugging purposes should any issues arise. Additionally, the above commands can be run as many times as needed. There should be no ill effects to doing so.
 
 
