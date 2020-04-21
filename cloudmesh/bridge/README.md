@@ -15,6 +15,8 @@ For reference, we will use the following setup:
 ```
 (ENV3) pi@red:$ cms burn create --hostname=red[002-004]
 ```
+Connect them to the private interface (network switch) via ethernet.
+
 We do not need to boot them up yet as if we connect them to the master now, we will need to reboot them later. (It doesn't hurt though)
 
 *Note* 
@@ -22,7 +24,8 @@ Notice how we are not setting the `--ipaddr` option. This is intentional as we w
 
 ---
 
-## Step 2.
+## Step 2 Create Bridge.
+Plug the master Pi into the private interface (network switch) via the built-in ethernet port (eth0)
 
 We can configure our network bridge as follows:
 ```
@@ -38,7 +41,7 @@ This will display the following important information (note this is the default 
 ```
 # ----------------------------------------------------------------------
 # 
-# IP range: 10.1.1.2 - 10.1.1.20
+# IP range: 10.1.1.2 - 10.1.1.122
 # Master IP: 10.1.1.1
 # 
 # # LEASES #
@@ -50,43 +53,99 @@ The `IP Range` tells us the range of suitable IPs we can give to the workers.
 
 In the future, a command will be added to expand the `IP range` dynamically.
 
-## Step 3.
+---
+
+## Step 3. Restart Bridge
 
 We can now restart the bridge to reflect these changes:
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
-This will allow us to immediately start connecting devices to our network switch and access the internet. This command is a bit buggy right now. Run the following commands to see if the needed services are up:
-
+You will see output similar to the following:
 ```
-(ENV3) pi@red:$ sudo service dhcpcd status
-(ENV3) pi@red:$ sudo service dnsmasq status
+INFO: Clearing leases file...
+INFO: Restarting dhcpcd please wait...
+INFO: Restarted dhcpcd
+INFO: Verifying dhcpcd status...
+INFO: Checking if dhcpcd is up - Attempt 1
+INFO: dhcpcd is not ready. Checking again in 5 seconds
+INFO: Checking if dhcpcd is up - Attempt 2
+INFO: dhcpcd is not ready. Checking again in 5 seconds
+INFO: Checking if dhcpcd is up - Attempt 3
+INFO: dhcpcd is not ready. Checking again in 5 seconds
+INFO: Checking if dhcpcd is up - Attempt 4
+INFO: dhcpcd is done starting
+Verified dhcpcd status successfuly
+INFO: Restarting dnsmasq please wait...
+Restarted bridge service on master
 ```
-If either service is not working, try restarting again.
+At this point, our bridge is ready and the master is configured with dhcp services.
 
+---
+
+## Step 4 (optional). Assign static IPs to workers
 We can set a static IP for hostnames as follows:
 ```
-(ENV3) pi@red:$ cms bridge set red002 10.1.1.2
+(ENV3) pi@red:$ cms bridge set red003 10.1.1.3
+```
+for individual workers and/or
+```
 (ENV3) pi@red:$ cms bridge set red[003-004] 10.1.1.[3-4]
 ```
-We then restart the bridge again.
+for multiple workers. We will see a message similar to the following displayed:
+```
+INFO: Setting red003 to 10.1.1.3
+INFO: Setting red003 to 10.1.1.4
+Added IP's to dnsmasq
+
+# ----------------------------------------------------------------------
+# 
+#             You have successfuly set static ip(s) for
+#             red[003-004] with ips 10.1.1.[3-4]
+# 
+#             To see changes on server, run:
+# 
+#             $ cms bridge restart
+# 
+#             If red[003-004] is connected already, 
+#             restart bridge then reboot red[003-004].
+# 
+#             
+# ----------------------------------------------------------------------
+
+```
+
+We then restart the bridge again and reboot workers if necessary.
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
 
-*Note*
-Any workers previously connected to the bridge that have just been assigned static IPs must be rebooted.
+---
 
-## Step 4.
+## Step 5.
 To verify that workers have successfuly connected, we call the info command again:
 ```
 (ENV3) pi@red:$ cms bridge info
 ```
-In addition to the information displayed in step 2, we will also have information on the given leases below `# LEASES #` including the hostnames, MAC addresses, and the assigned IP.
+In addition to the information displayed in step 2, we will also have information on the given leases below `# ACTIVE LEASES #` including the lease expiration time, hostnames, MAC addresses, the assigned IP, and the client-ID. Here is an example output.
+```
+# ----------------------------------------------------------------------
+# 
+# IP range: 10.1.1.2 - 10.1.1.122
+# Master IP: 10.1.1.1
+# 
+# # LEASES #
+# 2020-04-22 07:08:26 {MAC_ADDRESS} 10.1.1.3 red003 {CLIENT_ID}
+# 2020-04-22 07:08:29 {MAC_ADDRESS} 10.1.1.4 red004 {CLIENT_ID}
+# ----------------------------------------------------------------------
+```
 
-## Step 5
-Enjoy. These commands have been designed to prevent several user errors, and will most often have a handled error message for debugging purposes should any issues arise. Additionally, the above commands can be run as many times as needed. There should be no ill effects. 
+*Note*
+The fields in {} will be populated with the worker-specific info.
+Additionally, the expiration time is there for reference. There is no need to reassign a static IP after it has already been assigned unless the bridge is re-created.
 
+---
+These commands have been designed to prevent several user errors, and will most often have a handled error message for debugging purposes should any issues arise. Additionally, the above commands can be run as many times as needed. There should be no ill effects to doing so.
 
 
 
