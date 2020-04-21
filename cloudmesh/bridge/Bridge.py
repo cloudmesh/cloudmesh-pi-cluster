@@ -197,7 +197,7 @@ class Bridge:
         Console.info("Restarted dhcpcd")
         Console.info("Verifying dhcpcd status...")
         if not cls._dhcpcd_active(iface=priv_iface):
-            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time')
+            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Is this device plugged into the private interface?')
             sys.exit(1)
 
         Console.ok("Verified dhcpcd status successfuly")
@@ -209,7 +209,6 @@ class Bridge:
             sys.exit(1)
 
         Console.ok("Restarted bridge service on master")
-
 
         if workers is not None:
             banner("Restart networking service on workers...", color='CYAN')
@@ -283,15 +282,15 @@ class Bridge:
         # Loop if necessary
         count = 1
         while True:
-            if count > timeout:
-                return False
             Console.info(f'Checking if dhcpcd is up - Attempt {count}')
             full_status = cls._system('sudo service dhcpcd status')
             if pattern.search(full_status):
                 Console.info('dhcpcd is done starting')
                 status_line = cls._system('sudo service dhcpcd status | grep Active')
                 return 'running' in status_line
-
+            
+            if count > timeout:
+                return False
             count += 1
             Console.info('dhcpcd is not ready. Checking again in 5 seconds')
             time.sleep(time_interval)
@@ -392,8 +391,9 @@ class Bridge:
                 # The first line in initFile is #!/bin/sh
                 # Move it to index 0 of temp
                 temp[0], temp[1] = temp[1], temp[0]
+                sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
 
-            sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
+            
     
 
     @classmethod
