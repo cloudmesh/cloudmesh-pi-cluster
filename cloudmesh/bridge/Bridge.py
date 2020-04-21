@@ -31,6 +31,7 @@ class Bridge:
     ip_range = None
     workers = None
     dns=['8.8.8.8', '8.8.4.4']
+    lease_bookmark = '# ACTIVE LEASES #'
 
     @classmethod
     def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'], master=None, workers=None,
@@ -52,7 +53,6 @@ class Bridge:
         cls.dryrun = dryrun
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
-        cls.lease_bookmark = "# ACTIVE LEASES #"
 
 
         # Master configuration
