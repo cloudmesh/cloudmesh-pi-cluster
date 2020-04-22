@@ -197,6 +197,8 @@ class Bridge:
             sys.exit(1)
         Console.info("Restarted dhcpcd")
         Console.info("Verifying dhcpcd status...")
+        # Give the service a change to adjust
+        time.sleep(2)
         if not cls._dhcpcd_active(iface=priv_iface):
             Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Is this device plugged into the private interface?')
             sys.exit(1)
