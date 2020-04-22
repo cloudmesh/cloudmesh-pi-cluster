@@ -43,7 +43,7 @@ This will display the following important information (note this is the default 
 # IP range: 10.1.1.2 - 10.1.1.122
 # Master IP: 10.1.1.1
 # 
-# # LEASES #
+# # ACTIVE LEASES #
 # ----------------------------------------------------------------------
 ```
 
