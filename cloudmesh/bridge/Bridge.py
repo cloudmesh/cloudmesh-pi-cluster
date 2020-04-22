@@ -258,15 +258,16 @@ class Bridge:
 
     # Begin private methods for Bridge
     @classmethod
-    def _system(cls, command, exitcode=False):
+    def _system(cls, command, exitcode=False, warnuser=True):
         """
         :param command:
         :param exitcode: True if we only want exitcode
+        :param warnuser: True if we want to warn the user of command errors
         :return: stdout of command
         """
         exit, stdout = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
-        if exit != 0:
+        if exit != 0 and warnuser:
             Console.warning(f'Warning: "{command}" did not execute properly -> {stdout} :: exit code {exit}')
 
         if exitcode:
@@ -289,21 +290,34 @@ class Bridge:
         pattern = re.compile(f'{iface}: no IPv6 Routers available*')
 
         # Loop if necessary
+        restartCount = 1
         count = 1
         while True:
             Console.info(f'Checking if dhcpcd is up - Attempt {count}')
-            full_status = cls._system('sudo service dhcpcd status')
+            full_status, code = cls._system('sudo service dhcpcd status', exitcode=True, warnuser=False)
             if pattern.search(full_status):
                 Console.info('dhcpcd is done starting')
                 status_line = cls._system('sudo service dhcpcd status | grep Active')
                 return 'running' in status_line
             
+            # Occassionally dhcpcd fails to start when using WiFi. 
+            # Unresolved bug as it works after a few restarts
+            elif code != 0:
+                if restartCount >= 5:
+                    return False    
+                else:
+                    Console.warning(f'dhcpcd failed to restart. Retrying in 5 seconds... Restart number {restartCount} - Maximum 5 restarts')
+                    time.sleep(time_interval)
+                    cls._system('sudo service dhcpcd restart')
+                    restartCount += 1
+                    count = 1
+                    continue
+
             if count >= timeout:
                 return False
             count += 1
-            Console.info('dhcpcd is not ready. Checking again in 5 seconds')
+            Console.info('dhcpcd is not ready. Checking again in 5 seconds...')
             time.sleep(time_interval)
-                
 
     @classmethod
     def _convert_ipv4(cls, ip):
