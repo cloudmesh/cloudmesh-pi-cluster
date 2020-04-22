@@ -98,7 +98,7 @@ for individual workers and/or
 for multiple workers. We will see a message similar to the following displayed:
 ```
 INFO: Setting red003 to 10.1.1.3
-INFO: Setting red003 to 10.1.1.4
+INFO: Setting red004 to 10.1.1.4
 Added IP's to dnsmasq
 
 # ----------------------------------------------------------------------
