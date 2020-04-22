@@ -11,6 +11,7 @@ For reference, we will use the following setup:
 
 ---
 ## Step 1. Create necessary workers
+Utilize [cmburn](https://github.com/cloudmesh/cloudmesh-pi-burn) to create the workers
 ```
 (ENV3) pi@red:$ cms burn create --hostname=red[003-004]
 ```
