@@ -242,7 +242,9 @@ class Bridge:
             curr_leases = sudo_readfile('/var/lib/misc/dnsmasq.leases')
             # If cur_leases is not empty, then the first element of each row is the epoch time of the lease expiration date
             for i in range(len(curr_leases)):
-                curr_leases[i][0] = time.time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(curr_leases[0])))
+                curr_leases[i] = curr_leases[i].split()
+                curr_leases[i][0] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(curr_leases[i][0])))
+                curr_leases[i] = ' '.join(curr_leases[i])
 
             curr_leases = '\n' + '\n'.join(curr_leases)
 
