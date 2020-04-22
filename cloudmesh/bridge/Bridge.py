@@ -258,19 +258,21 @@ class Bridge:
 
     # Begin private methods for Bridge
     @classmethod
-    def _system(cls, command, exitcode=False, warnuser=True):
+    def _system(cls, command, exitcode=False, warnuser=True, both=False):
         """
         :param command:
         :param exitcode: True if we only want exitcode
         :param warnuser: True if we want to warn the user of command errors
+        :param both: True if we want both the exit code and the stdout. Takes precedent over exitcode
         :return: stdout of command
         """
         exit, stdout = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
         if exit != 0 and warnuser:
             Console.warning(f'Warning: "{command}" did not execute properly -> {stdout} :: exit code {exit}')
-
-        if exitcode:
+        if both:
+            return exit, stdout
+        elif exitcode:
             return exit
         else:
             return stdout
@@ -294,7 +296,7 @@ class Bridge:
         count = 1
         while True:
             Console.info(f'Checking if dhcpcd is up - Attempt {count}')
-            full_status, code = cls._system('sudo service dhcpcd status', exitcode=True, warnuser=False)
+            code, full_status = cls._system('sudo service dhcpcd status',warnuser=False, both=True)
             if pattern.search(full_status):
                 Console.info('dhcpcd is done starting')
                 status_line = cls._system('sudo service dhcpcd status | grep Active')
