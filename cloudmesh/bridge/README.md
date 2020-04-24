@@ -80,7 +80,7 @@ INFO: Restarting dnsmasq please wait...
 Restarted dnsmasq successfuly
 Restarted bridge service on master
 ```
-* Note *
+*Note*
 
 This process may take up to 10 attempts. This can be attributed to a slow network, or if the private interface is not connected to an active network hub.
 
