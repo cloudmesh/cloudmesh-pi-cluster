@@ -5,12 +5,13 @@ WARNING: This program is designed for Raspberry Pi and must not be executed on y
 ---
 For reference, we will use the following setup:
 * Master Pi has hostname `red` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
-* Master Pi is connected to network switch on `eth0` (private interface that workers will connect to)
+* Master Pi is connected to network switch on `eth0` (private interface that workers will connect to ie. the hub). Make sure network switch is turned on.
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
 * If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe may break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case as the command will most likely result in an error.
 
 ---
 ## Step 1. Create necessary workers
+Utilize [cmburn](https://github.com/cloudmesh/cloudmesh-pi-burn) to create the workers
 ```
 (ENV3) pi@red:$ cms burn create --hostname=red[003-004]
 ```
@@ -97,7 +98,7 @@ for individual workers and/or
 for multiple workers. We will see a message similar to the following displayed:
 ```
 INFO: Setting red003 to 10.1.1.3
-INFO: Setting red003 to 10.1.1.4
+INFO: Setting red004 to 10.1.1.4
 Added IP's to dnsmasq
 
 # ----------------------------------------------------------------------
