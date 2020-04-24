@@ -200,7 +200,7 @@ class Bridge:
         # Give the service a change to adjust
         time.sleep(2)
         if not cls._dhcpcd_active(iface=priv_iface):
-            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Is this device plugged into the private interface?')
+            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Is this device plugged into the private interface? Use `sudo service dhcpcd status` for more info.')
             sys.exit(1)
 
         Console.ok("Verified dhcpcd status successfuly")
