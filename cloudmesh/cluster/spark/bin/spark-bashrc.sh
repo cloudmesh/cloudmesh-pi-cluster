@@ -8,6 +8,6 @@ cat >> ~/.bashrc << EOF
 export SCALA_HOME=/usr/share/scala
 export PATH=$PATH:$SCALA_HOME/bin
 #SPARK_HOME
-export SPARK_HOME=/usr/local/spark/spark
+export SPARK_HOME=/spark-2.3.4-bin-hadoop2.7
 export PATH=$PATH:$SPARK_HOME/bin
 EOF
