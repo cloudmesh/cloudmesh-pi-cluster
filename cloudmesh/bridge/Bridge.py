@@ -31,9 +31,10 @@ class Bridge:
     ip_range = None
     workers = None
     dns=['8.8.8.8', '8.8.4.4']
+    lease_bookmark = '# ACTIVE LEASES #'
 
     @classmethod
-    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.20'], master=None, workers=None,
+    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'], master=None, workers=None,
                 priv_interface='eth0', ext_interface='eth1', dryrun=False):
         """
         if worker(s) is missing the master is set up only
@@ -176,7 +177,7 @@ class Bridge:
         raise NotImplementedError
 
     @classmethod
-    def restart(cls, workers=None, user='pi'):
+    def restart(cls, priv_iface='eth0', workers=None, user='pi'):
         """
         :param workers: List of workers to restart if needed
         :return:
@@ -195,16 +196,23 @@ class Bridge:
             Console.error(f'Did not restart master networking service correctly')
             sys.exit(1)
         Console.info("Restarted dhcpcd")
+        Console.info("Verifying dhcpcd status...")
+        # Give the service a change to adjust
+        time.sleep(2)
+        if not cls._dhcpcd_active(iface=priv_iface):
+            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
+            sys.exit(1)
+
+        Console.ok("Verified dhcpcd status successfuly")
 
         Console.info("Restarting dnsmasq please wait...")
-        time.sleep(10) # Wait 10 seconds for dhcpcd to full start up
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
             Console.error(f'Did not restart master dnsmasq service correctly')
             sys.exit(1)
+        Console.ok("Restarted dnsmasq successfuly")
 
         Console.ok("Restarted bridge service on master")
-
 
         if workers is not None:
             banner("Restart networking service on workers...", color='CYAN')
@@ -224,14 +232,21 @@ class Bridge:
     def info(cls):
         try:
             info = readfile('~/.cloudmesh/bridge/info').split('\n')
-            info = info[:info.index('# LEASES #') + 1]
+            info = info[:info.index(cls.lease_bookmark) + 1]
 
         except:
             Console.error("Cannot execute info command. Has the bridge been made yet?")
             sys.exit(1)
 
         try:
-            curr_leases = '\n' + readfile('/var/lib/misc/dnsmasq.leases')
+            curr_leases = sudo_readfile('/var/lib/misc/dnsmasq.leases')
+            # If cur_leases is not empty, then the first element of each row is the epoch time of the lease expiration date
+            for i in range(len(curr_leases)):
+                curr_leases[i] = curr_leases[i].split()
+                curr_leases[i][0] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(curr_leases[i][0])))
+                curr_leases[i] = ' '.join(curr_leases[i])
+
+            curr_leases = '\n' + '\n'.join(curr_leases)
 
         except:
             Console.warning("dnsmasq.leases file not found. No devices have been connected yet") 
@@ -245,21 +260,69 @@ class Bridge:
 
     # Begin private methods for Bridge
     @classmethod
-    def _system(cls, command, exitcode=False):
+    def _system(cls, command, exitcode=False, warnuser=True, both=False):
         """
         :param command:
         :param exitcode: True if we only want exitcode
+        :param warnuser: True if we want to warn the user of command errors
+        :param both: True if we want both the exit code and the stdout. Takes precedent over exitcode
         :return: stdout of command
         """
         exit, stdout = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
-        if exit != 0:
+        if exit != 0 and warnuser:
             Console.warning(f'Warning: "{command}" did not execute properly -> {stdout} :: exit code {exit}')
-
-        if exitcode:
+        if both:
+            return exit, stdout
+        elif exitcode:
             return exit
         else:
             return stdout
+
+
+    @classmethod
+    def _dhcpcd_active(cls, iface='eth0', timeout=10, time_interval=5):
+        """
+        Returns True if dhcpcd is active else False
+
+        :param iface: the interface that is connected to the private network. Default eth0
+        :return boolean:
+        """
+        # It's possible dhcpcd isn't fully started up yet after restarting. This is tricky as it says active even if it may fail
+        # after probing all interfaces
+        # Usually, dhcpcd is working once we see f'{interface}: no IPv6 Routers available' somewhere in the status message
+        pattern = re.compile(f'{iface}: no IPv6 Routers available*')
+
+        # Loop if necessary
+        restartCount = 1
+        count = 1
+        while True:
+            Console.info(f'Checking if dhcpcd is up - Attempt {count}')
+            code, full_status = cls._system('sudo service dhcpcd status',warnuser=False, both=True)
+            if pattern.search(full_status):
+                Console.info('dhcpcd is done starting')
+                status_line = cls._system('sudo service dhcpcd status | grep Active')
+                return 'running' in status_line
+            
+            # Occassionally dhcpcd fails to start when using WiFi. 
+            # Unresolved bug as it works after a few restarts
+            elif code != 0:
+                if restartCount >= 5:
+                    return False    
+                else:
+                    Console.warning(f'dhcpcd failed to restart. Retrying in 5 seconds... Restart number {restartCount} - Maximum 5 restarts')
+                    time.sleep(time_interval)
+                    cls._system('sudo service dhcpcd restart')
+                    restartCount += 1
+                    count = 1
+                    continue
+
+            if count >= timeout:
+                status_line = cls._system('sudo service dhcpcd status | grep Active')
+                return 'running' in status_line
+            count += 1
+            Console.info('dhcpcd is not ready. Checking again in 5 seconds...')
+            time.sleep(time_interval)
 
     @classmethod
     def _convert_ipv4(cls, ip):
@@ -289,7 +352,7 @@ class Bridge:
         IP range: {cls.ip_range[0]} - {cls.ip_range[1]}
         Master IP: {cls.masterIP}
 
-        # LEASES #
+        {cls.lease_bookmark}
 
         """)
 
@@ -349,15 +412,18 @@ class Bridge:
             sudo_writefile('/etc/dnsmasq.conf', config)
 
             # Also add sleep 10 to /etc/init.d/dnsmasq so that it waits for dhcp to start
-            initFile = sudo_readfile('/etc/init.d/dnsmasq')
-            if 'sleep 10' not in initFile:
-                temp = ['sleep 10']
-                temp += initFile
-                # The first line in initFile is #!/bin/sh
-                # Move it to index 0 of temp
-                temp[0], temp[1] = temp[1], temp[0]
+            # We no longer want dnsmasq to start right away. Too many issues
 
-            sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
+            # initFile = sudo_readfile('/etc/init.d/dnsmasq')
+            # if 'sleep 10' not in initFile:
+            #     temp = ['sleep 10']
+            #     temp += initFile
+            #     # The first line in initFile is #!/bin/sh
+            #     # Move it to index 0 of temp
+            #     temp[0], temp[1] = temp[1], temp[0]
+            #     sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
+
+            
     
 
     @classmethod
