@@ -172,6 +172,24 @@ class Bridge:
 
 
     @classmethod
+    def status(cls):
+        """
+        A simple status check of the bridge setup. It looks at both dhcpcd and dnsmasq status messages.
+        """
+        dhcpcdRunning = 'running' in cls._system('sudo service dhcpcd status | grep Active', warnuser=False)
+        dnsmasqRunning = 'running' in cls._system('sudo service dnsmasq status | grep Active', warnuser=False)
+        banner(textwrap.dedent(f"""
+        Status of Bridge:
+
+        DHCPCD     -  Service running: {dhcpcdRunning}
+        DNSMASQ  -  Service running: {dnsmasqRunning}
+
+        BRIDGE        - Service running: {dhcpcdRunning and dnsmasqRunning}
+        
+        """), color='CYAN')
+        
+
+    @classmethod
     def list(cls, host=None):
         raise NotImplementedError
 

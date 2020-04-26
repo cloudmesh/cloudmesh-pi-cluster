@@ -22,7 +22,8 @@ class BridgeCommand(PluginCommand):
           Usage:
             bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
             bridge set HOSTS ADDRESSES 
-            bridge restart [--workers=WORKERS] 
+            bridge restart
+            bridge status
             bridge test NAMES [--rate=RATE]
             bridge list NAMES
             bridge check NAMES [--configuration] [--connection]
@@ -78,10 +79,11 @@ class BridgeCommand(PluginCommand):
                 the set command assigns the given static 
                 ip addresses to the given hostnames.
 
-            bridge restart [--workers=WORKERS]
+            bridge status
+                Returns the status of the bridge and its linked services.
+
+            bridge restart
                 restarts the bridge on the master without rebooting. 
-                If --workers is specified, restart the interfaces on
-                the workers via ssh.
 
             bridge test NAMES
                 A test to see if the bridges are configured correctly and one
@@ -133,6 +135,10 @@ class BridgeCommand(PluginCommand):
             StopWatch.stop('Static IP assignment')
             StopWatch.status('Static IP assignment', True)
 
+        elif arguments.status:
+            StopWatch.start('Status')
+            Bridge.status()
+            StopWatch.stop('Status')
 
         elif arguments.create:
             StopWatch.start('Bridge Creation')
