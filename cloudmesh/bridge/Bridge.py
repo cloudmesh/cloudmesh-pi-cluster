@@ -415,16 +415,15 @@ class Bridge:
             sudo_writefile('/etc/dnsmasq.conf', config)
 
             # Also add sleep 10 to /etc/init.d/dnsmasq so that it waits for dhcp to start
-            # We no longer want dnsmasq to start right away. Too many issues
 
-            # initFile = sudo_readfile('/etc/init.d/dnsmasq')
-            # if 'sleep 10' not in initFile:
-            #     temp = ['sleep 10']
-            #     temp += initFile
-            #     # The first line in initFile is #!/bin/sh
-            #     # Move it to index 0 of temp
-            #     temp[0], temp[1] = temp[1], temp[0]
-            #     sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
+            initFile = sudo_readfile('/etc/init.d/dnsmasq')
+            if 'sleep 10' not in initFile:
+                temp = ['sleep 10']
+                temp += initFile
+                # The first line in initFile is #!/bin/sh
+                # Move it to index 0 of temp
+                temp[0], temp[1] = temp[1], temp[0]
+                sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
 
             
     @classmethod
