@@ -7,7 +7,7 @@ For reference, we will use the following setup:
 * Master Pi has hostname `red` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
 * Master Pi uses interface `eth0` as the private interface to communicate with the workers.
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
-* If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe may break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case as the command will most likely result in an error.
+* If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe may break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case as the command will most likely result in an error. If this is not an option, see the `nohup` option in Step 3.
 * It is recommended that the master be connected to the active network hub on the private interface. This will allow the restart process to be even quicker.
 
 ---
@@ -94,6 +94,23 @@ This process may take up to 10 attempts. This can be attributed to a slow networ
 
 At this point, our bridge is ready and the master is configured with dhcp services.
 
+We can check to verify the bridge is working by calling
+```
+(ENV3) pi@red:$ cms bridge status
+
+# ----------------------------------------------------------------------
+# 
+# Status of Bridge:
+# 
+# DHCPCD     -  Service running: True
+# DNSMASQ  -  Service running: True
+# 
+# BRIDGE        - Service running: True
+# 
+# ----------------------------------------------------------------------
+
+```
+
 ---
 
 ## Step 4 (optional). Assign static IPs to workers
@@ -162,7 +179,11 @@ Additionally, the expiration time is there for reference. There is no need to re
 
 ---
 
-These commands have been designed to prevent several user errors, and will most often have a handled error message for debugging purposes should any issues arise. Additionally, the above commands can be run as many times as needed. There should be no ill effects to doing so.
+### Quick Fixes
+Here are some quick actions to try if you are unable to access your workers:
+* Restart the bridge
+* Restart the workers
+* Set a static IP for the hostname
 
 
 
