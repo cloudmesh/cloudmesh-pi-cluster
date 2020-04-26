@@ -443,7 +443,9 @@ class Bridge:
             """)
 
             StopWatch.start('install dnsmasq')
-            os.system('sudo apt-get install -y dnsmasq')
+            # We sometimes get a prompt when dnsmasq has an update. It asks if we wish to update our files. We will comply with this as the create function assumes the dnsmasq is at a first time install.
+            dpkg_options = '-o Dpkg::Options::="--force-confnew"'
+            cls._system(f'sudo apt-get {dpkg_options} install -y dnsmasq')
             StopWatch.stop('install dnsmasq')
             StopWatch.status('install dnsmasq', True)
 
