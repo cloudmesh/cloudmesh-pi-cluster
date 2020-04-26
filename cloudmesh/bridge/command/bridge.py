@@ -20,9 +20,10 @@ class BridgeCommand(PluginCommand):
         ::
 
           Usage:
-            bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
+            bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
             bridge set HOSTS ADDRESSES 
-            bridge restart [--workers=WORKERS] 
+            bridge restart [--nohup]
+            bridge status
             bridge test NAMES [--rate=RATE]
             bridge list NAMES
             bridge check NAMES [--configuration] [--connection]
@@ -62,6 +63,10 @@ class BridgeCommand(PluginCommand):
                                      Ex. red002
                                      Ex. red[002-003]
 
+              --purge       Include option if a full reinstallation of dnsmasq is desired
+
+              --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
+
               --rate=RATE            The rate in seconds for repeating the test
                                      If ommitted its done just once.
 
@@ -78,10 +83,11 @@ class BridgeCommand(PluginCommand):
                 the set command assigns the given static 
                 ip addresses to the given hostnames.
 
-            bridge restart [--workers=WORKERS]
+            bridge status
+                Returns the status of the bridge and its linked services.
+
+            bridge restart [--nohup]
                 restarts the bridge on the master without rebooting. 
-                If --workers is specified, restart the interfaces on
-                the workers via ssh.
 
             bridge test NAMES
                 A test to see if the bridges are configured correctly and one
@@ -109,7 +115,9 @@ class BridgeCommand(PluginCommand):
                        'interface',
                        'ip',
                        'range',
-                       'workers')
+                       'workers',
+                       'purge',
+                       'nohup')
 
         if arguments.set:
             StopWatch.start('Static IP assignment')
@@ -123,7 +131,7 @@ class BridgeCommand(PluginCommand):
 
             To see changes on server, run:
 
-            $ cms bridge restart
+            $ cms bridge restart --nohup
 
             If {arguments.HOSTS} is connected already, 
             restart bridge then reboot {arguments.HOSTS}.
@@ -133,11 +141,15 @@ class BridgeCommand(PluginCommand):
             StopWatch.stop('Static IP assignment')
             StopWatch.status('Static IP assignment', True)
 
+        elif arguments.status:
+            StopWatch.start('Status')
+            Bridge.status()
+            StopWatch.stop('Status')
 
         elif arguments.create:
             StopWatch.start('Bridge Creation')
 
-            Bridge.create(masterIP=arguments.ip, ip_range=arguments.range.split("-"), priv_interface='eth0', ext_interface=arguments.interface)
+            Bridge.create(masterIP=arguments.ip, ip_range=arguments.range.split("-"), priv_interface='eth0', ext_interface=arguments.interface, purge=True if arguments.purge else False)
 
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
@@ -161,7 +173,8 @@ class BridgeCommand(PluginCommand):
         elif arguments.restart:
             StopWatch.start('Network Service Restart')
             workers = Parameter.expand(arguments.workers)
-            Bridge.restart(workers=workers)
+            nohup = True if arguments.nohup else False
+            Bridge.restart(workers=workers, nohup=nohup)
             StopWatch.stop('Network Service Restart')
             StopWatch.status('Network Service Restart', True)
 

@@ -35,7 +35,7 @@ class Bridge:
 
     @classmethod
     def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'], master=None, workers=None,
-                priv_interface='eth0', ext_interface='eth1', dryrun=False):
+                priv_interface='eth0', ext_interface='eth1', purge=False, dryrun=False):
         """
         if worker(s) is missing the master is set up only
 
@@ -63,6 +63,13 @@ class Bridge:
         cls._dhcpcd_conf()
         StopWatch.stop('dhcpcd.conf configuration')
         StopWatch.status('dhcpcd.conf configuration', True)
+
+        if purge:
+            # Uninstall dnsmasq and all files
+            StopWatch.start('dnsmasq purge')
+            cls._purge_dnsmasq()
+            StopWatch.start('dnsmasq purge')
+            StopWatch.status('dnsmasq purge', True)
 
         # Install dnsmasq if it is not already installed
         if not cls._dnsmasq_exists():
@@ -172,6 +179,24 @@ class Bridge:
 
 
     @classmethod
+    def status(cls):
+        """
+        A simple status check of the bridge setup. It looks at both dhcpcd and dnsmasq status messages.
+        """
+        dhcpcdRunning = 'running' in cls._system('sudo service dhcpcd status | grep Active', warnuser=False)
+        dnsmasqRunning = 'running' in cls._system('sudo service dnsmasq status | grep Active', warnuser=False)
+        banner(textwrap.dedent(f"""
+        Status of Bridge:
+
+        DHCPCD     -  Service running: {dhcpcdRunning}
+        DNSMASQ  -  Service running: {dnsmasqRunning}
+
+        BRIDGE        - Service running: {dhcpcdRunning and dnsmasqRunning}
+        
+        """), color='CYAN')
+        
+
+    @classmethod
     def list(cls, host=None):
         raise NotImplementedError
 
@@ -180,7 +205,7 @@ class Bridge:
         raise NotImplementedError
 
     @classmethod
-    def restart(cls, priv_iface='eth0', workers=None, user='pi'):
+    def restart(cls, priv_iface='eth0', workers=None, user='pi', nohup=False):
         """
         :param workers: List of workers to restart if needed
         :return:
@@ -192,21 +217,23 @@ class Bridge:
             Console.info("Clearing leases file...")
             sudo_writefile('/var/lib/misc/dnsmasq.leases', "\n")
 
-        Console.info("Restarting dhcpcd please wait...")
+        # If nohup is true, do not restart dhcpcd
+        if not nohup:
+            Console.info("Restarting dhcpcd please wait...")
 
-        status = cls._system('sudo service dhcpcd restart', exitcode=True)
-        if status != 0:
-            Console.error(f'Did not restart master networking service correctly')
-            sys.exit(1)
-        Console.info("Restarted dhcpcd")
-        Console.info("Verifying dhcpcd status...")
-        # Give the service a change to adjust
-        time.sleep(2)
-        if not cls._dhcpcd_active(iface=priv_iface):
-            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
-            sys.exit(1)
+            status = cls._system('sudo service dhcpcd restart', exitcode=True)
+            if status != 0:
+                Console.error(f'Did not restart master networking service correctly')
+                sys.exit(1)
+            Console.info("Restarted dhcpcd")
+            Console.info("Verifying dhcpcd status...")
+            # Give the service a change to adjust
+            time.sleep(2)
+            if not cls._dhcpcd_active(iface=priv_iface):
+                Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
+                sys.exit(1)
 
-        Console.ok("Verified dhcpcd status successfuly")
+            Console.ok("Verified dhcpcd status successfuly")
 
         Console.info("Restarting dnsmasq please wait...")
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
@@ -449,6 +476,15 @@ class Bridge:
 
             Console.ok("Finished installing dnsmasq")
         
+    @classmethod
+    def _purge_dnsmasq(cls):
+        """
+        Uses apt-get remove along with --purge and --auto-remove to remove dnsmasq.
+        """
+        Console.info("Purging dnsmasq. Please wait...")
+        cls._system('sudo apt-get --purge --auto-remove remove -y dnsmasq', warnuser=False)
+        Console.info("Removed dnsmasq")
+
     @classmethod
     def _dnsmasq_exists(cls):
         """
