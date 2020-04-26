@@ -152,6 +152,9 @@ In addition to the information displayed in step 2, we will also have informatio
 # 2020-04-22 07:08:29 {MAC_ADDRESS} 10.1.1.4 red004 {CLIENT_ID}
 # ----------------------------------------------------------------------
 ```
+*Note*
+The fields under `# ACTIVE LEASES #` only show the devices that have been recognized by the server before the last restart.
+It is NOT an indicator of devices currently connected. That feature is still in development.
 
 *Note*
 The fields in {} will be populated with the worker-specific info.
