@@ -184,6 +184,7 @@ Here are some quick actions to try if you are unable to access your workers:
 * Restart the bridge
 * Restart the workers
 * Set a static IP for the hostname
+* Utilize the purge option `cms bridge create --interface='eth1' --purge` for a total reconfiguration of the bridge.
 
 
 
