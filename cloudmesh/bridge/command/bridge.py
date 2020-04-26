@@ -22,7 +22,7 @@ class BridgeCommand(PluginCommand):
           Usage:
             bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
             bridge set HOSTS ADDRESSES 
-            bridge restart
+            bridge restart [--nohup]
             bridge status
             bridge test NAMES [--rate=RATE]
             bridge list NAMES
@@ -65,6 +65,8 @@ class BridgeCommand(PluginCommand):
 
               --purge       Include option if a full reinstallation of dnsmasq is desired
 
+              --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
+
               --rate=RATE            The rate in seconds for repeating the test
                                      If ommitted its done just once.
 
@@ -84,7 +86,7 @@ class BridgeCommand(PluginCommand):
             bridge status
                 Returns the status of the bridge and its linked services.
 
-            bridge restart
+            bridge restart [--nohup]
                 restarts the bridge on the master without rebooting. 
 
             bridge test NAMES
@@ -114,7 +116,8 @@ class BridgeCommand(PluginCommand):
                        'ip',
                        'range',
                        'workers',
-                       'purge')
+                       'purge',
+                       'nohup')
 
         if arguments.set:
             StopWatch.start('Static IP assignment')
@@ -170,7 +173,8 @@ class BridgeCommand(PluginCommand):
         elif arguments.restart:
             StopWatch.start('Network Service Restart')
             workers = Parameter.expand(arguments.workers)
-            Bridge.restart(workers=workers)
+            nohup = True if arguments.nohup else False
+            Bridge.restart(workers=workers, nohup=nohup)
             StopWatch.stop('Network Service Restart')
             StopWatch.status('Network Service Restart', True)
 

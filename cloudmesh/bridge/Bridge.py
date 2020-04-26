@@ -205,7 +205,7 @@ class Bridge:
         raise NotImplementedError
 
     @classmethod
-    def restart(cls, priv_iface='eth0', workers=None, user='pi'):
+    def restart(cls, priv_iface='eth0', workers=None, user='pi', nohup=False):
         """
         :param workers: List of workers to restart if needed
         :return:
@@ -217,21 +217,23 @@ class Bridge:
             Console.info("Clearing leases file...")
             sudo_writefile('/var/lib/misc/dnsmasq.leases', "\n")
 
-        Console.info("Restarting dhcpcd please wait...")
+        # If nohup is true, do not restart dhcpcd
+        if not nohup:
+            Console.info("Restarting dhcpcd please wait...")
 
-        status = cls._system('sudo service dhcpcd restart', exitcode=True)
-        if status != 0:
-            Console.error(f'Did not restart master networking service correctly')
-            sys.exit(1)
-        Console.info("Restarted dhcpcd")
-        Console.info("Verifying dhcpcd status...")
-        # Give the service a change to adjust
-        time.sleep(2)
-        if not cls._dhcpcd_active(iface=priv_iface):
-            Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
-            sys.exit(1)
+            status = cls._system('sudo service dhcpcd restart', exitcode=True)
+            if status != 0:
+                Console.error(f'Did not restart master networking service correctly')
+                sys.exit(1)
+            Console.info("Restarted dhcpcd")
+            Console.info("Verifying dhcpcd status...")
+            # Give the service a change to adjust
+            time.sleep(2)
+            if not cls._dhcpcd_active(iface=priv_iface):
+                Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
+                sys.exit(1)
 
-        Console.ok("Verified dhcpcd status successfuly")
+            Console.ok("Verified dhcpcd status successfuly")
 
         Console.info("Restarting dnsmasq please wait...")
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
