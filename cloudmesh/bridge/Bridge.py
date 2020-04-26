@@ -64,11 +64,14 @@ class Bridge:
         StopWatch.stop('dhcpcd.conf configuration')
         StopWatch.status('dhcpcd.conf configuration', True)
 
-        # Install dnsmasq
-        StopWatch.start('dnsmasq installation')
-        cls._install_dnsmasq()
-        StopWatch.stop('dnsmasq installation')
-        StopWatch.status('dnsmasq installation', True)
+        # Install dnsmasq if it is not already installed
+        if not cls._dnsmasq_exists():
+            StopWatch.start('dnsmasq installation')
+            cls._install_dnsmasq()
+            StopWatch.stop('dnsmasq installation')
+            StopWatch.status('dnsmasq installation', True)
+        else:
+            Console.info("dnsmasq already installed. Skipping installation")
 
         # Configure dnsmasq
         StopWatch.start('dnsmasq config')
@@ -424,8 +427,6 @@ class Bridge:
             #     sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
 
             
-    
-
     @classmethod
     def _install_dnsmasq(cls):
         """
@@ -443,14 +444,19 @@ class Bridge:
             """)
 
             StopWatch.start('install dnsmasq')
-            # We sometimes get a prompt when dnsmasq has an update. It asks if we wish to update our files. We will comply with this as the create function assumes the dnsmasq is at a first time install.
-            dpkg_options = '-o Dpkg::Options::="--force-confnew"'
-            cls._system(f'sudo apt-get {dpkg_options} install -y dnsmasq')
+            cls._system(f'sudo apt-get install -y dnsmasq')
             StopWatch.stop('install dnsmasq')
             StopWatch.status('install dnsmasq', True)
 
             Console.ok("Finished installing dnsmasq")
-
+        
+    @classmethod
+    def _dnsmasq_exists(cls):
+        """
+        Returns true if dnsmasq service is already installed
+        """
+        status = cls._system("dpkg-query -W -f='${Status}' dnsmasq")
+        return status == 'install ok installed'
 
     @classmethod
     def _dhcpcd_conf(cls):
