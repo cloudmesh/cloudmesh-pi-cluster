@@ -156,7 +156,7 @@ class BridgeCommand(PluginCommand):
             banner(textwrap.dedent(f"""
             You have now configured a bridge on your master pi. To see the changes reflected, run the following command:
 
-            cms bridge restart 
+            cms bridge restart --nohup
 
             """), color='CYAN')
 
