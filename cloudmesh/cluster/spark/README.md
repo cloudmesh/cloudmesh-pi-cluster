@@ -84,13 +84,8 @@ cms pi script list spark --details
   includes installing Java, Scala and Spark and adding variables to /.bashrc
    so they are available via the terminal
    
- See the shell script files for setting up the master in the directory listed
-  below: 
- 
- ```bash
- git clone https://github.com/cloudmesh-community/sp20-516-246.git
-cd pi_spark
- ```
+ See the shell script files for setting up the master in the directory
+  cloudmesh-pi-cluster/cluster/spark/bin/
 
 ## Setup the Master
 
@@ -99,21 +94,21 @@ First, install the necessary software on the Master (Java, Scala, Spark), see
  , update spark-env.sh in the spark/conf directory.
 
 ```bash
-sh ./bin/spark-setup.sh
-sh ./bin/spark-bashrc.sh
-sh ./bin/spark-env.sh.setup.sh
+sh /bin/spark-setup.sh
+sh /bin/spark-bashrc.sh
+sh /bin/spark-env.sh.setup.sh
 ```
 To ensure workers are setup the same as the master, the master's setup is
  zipped in order to copy to each worker.
 
 ```bash
-sh ./bin/spark-save-master.sh
+sh /bin/spark-save-master.sh
 ```
 
 The zipped directory files are copied to the worker 
 
 ```bash
-sh ./bin/spark-scp-files-to-worker.sh
+sh /bin/spark-scp-files-to-worker.sh
 ```
 A shell file executed from the master finishes
  the worker set up. An ssh command on the master, executes a
@@ -135,24 +130,22 @@ Successfully installed nmap-0.0.1
  
  
  ## Setup the Worker (an example)
- **Following are actual steps used in setting up worker yellow-001**
+ **Following are actual steps used in setting up worker green001**
  
- Copy or create the batch files from the sp20-516-246/pi_spark/bin directory or
-  see shell scripts at the end of this notebook below
+ Copied files from cloudmesh-pi-cluster/cloudmesh/cluster/spark/bin/ into pi
+ @green: /bin/
  
-    (ENV3) pi@yellow:~ $ sudo nano ~/spark-setup-worker.sh
-    (ENV3) pi@yellow:/bin $ sudo nano spark-bashrc.sh  
-    (ENV3) pi@yellow:/bin $ sudo nano spark-env-sh-setup.sh 
+    (ENV3) pi@green:~ $ sudo nano ~/spark-setup-worker.sh
+    (ENV3) pi@green:/bin $ sudo nano spark-bashrc.sh  
+    (ENV3) pi@green:/bin $ sudo nano spark-env-sh-setup.sh 
     
-    (ENV3) pi@yellow:~ $ sudo nano /bin/spark-scp-files-to-worker.sh 
+    (ENV3) pi@green:~ $ sudo nano /bin/spark-scp-files-to-worker.sh 
 
-    #!/usr/bin/env bash
-    scp -r $SCALA_HOME/scalaout2-11.tar.gz pi@yellow-001:
-    scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz pi@yellow-001:
-    scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz pi@yellow-001:
-    scp -r ~/spark-setup-worker.sh pi@yellow-001:
-    scp -r ~/spark-env.sh.setup.sh pi@yellow-001:
-    scp -r ~/spark-bashrc.sh pi@yellow-001:
+    Batch file problems:
+    1) bashrc file is getting updated wrong, too many directories in path, $PATH
+     question
+     
+    2) unable to edit the spark-env.sh file from script
     
     #This executes the secure copy (scp) steps above
     (ENV3) pi@yellow:~ $ sh /bin/spark-scp-files-to-worker.sh
