@@ -147,8 +147,9 @@ Added IP's to dnsmasq
 
 We then restart the bridge again and boot up (or reboot) the workers.
 ```
-(ENV3) pi@red:$ cms bridge restart
+(ENV3) pi@red:$ cms bridge restart --nohup
 ```
+Notice how there is an added option `--nohup`. This option is used when we do not want to reset the entire networking setup of the pi. This is useful in case your are connected to the device via ssh. This will ensure that your pipeline is not broken. Note that we can only use this command after the initial post-creation restart is run once. 
 
 ---
 
