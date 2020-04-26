@@ -59,9 +59,16 @@ In the future, a command will be added to expand the `IP range` dynamically.
 ## Step 3. Restart Bridge
 
 We can now restart the bridge to reflect these changes:
+
+*Note*
+If you are ssh'd into the Pi via WiFi, execute `nohup cms bridge restart &` so that the command is not terminated in the case that the ssh pipeline is broken. The output of the commend below will be stored in `nohup.out`
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
+
+
+
+
 You will see output similar to the following:
 ```
 INFO: Clearing leases file...
