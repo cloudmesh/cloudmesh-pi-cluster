@@ -131,7 +131,7 @@ class BridgeCommand(PluginCommand):
 
             To see changes on server, run:
 
-            $ cms bridge restart
+            $ cms bridge restart --nohup
 
             If {arguments.HOSTS} is connected already, 
             restart bridge then reboot {arguments.HOSTS}.
@@ -156,7 +156,7 @@ class BridgeCommand(PluginCommand):
             banner(textwrap.dedent(f"""
             You have now configured a bridge on your master pi. To see the changes reflected, run the following command:
 
-            cms bridge restart --nohup
+            cms bridge restart 
 
             """), color='CYAN')
 
