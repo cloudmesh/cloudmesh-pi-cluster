@@ -94,6 +94,23 @@ This process may take up to 10 attempts. This can be attributed to a slow networ
 
 At this point, our bridge is ready and the master is configured with dhcp services.
 
+We can check to verify the bridge is working by calling
+```
+(ENV3) pi@red:$ cms bridge status
+
+# ----------------------------------------------------------------------
+# 
+# Status of Bridge:
+# 
+# DHCPCD     -  Service running: True
+# DNSMASQ  -  Service running: True
+# 
+# BRIDGE        - Service running: True
+# 
+# ----------------------------------------------------------------------
+
+```
+
 ---
 
 ## Step 4 (optional). Assign static IPs to workers
@@ -162,7 +179,11 @@ Additionally, the expiration time is there for reference. There is no need to re
 
 ---
 
-These commands have been designed to prevent several user errors, and will most often have a handled error message for debugging purposes should any issues arise. Additionally, the above commands can be run as many times as needed. There should be no ill effects to doing so.
+### Quick Fixes
+Here are some quick actions to try if you are unable to access your workers:
+* Restart the bridge
+* Restart the workers
+* Set a static IP for the hostname
 
 
 
