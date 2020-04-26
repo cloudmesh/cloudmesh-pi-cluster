@@ -62,6 +62,11 @@ We can now restart the bridge to reflect these changes:
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
+*Note*
+If you are ssh'd into the Pi via WiFi, execute `nohup cms bridge restart &` so that the command is not terminated in the case that the ssh pipeline is broken. The output of the commend below will be stored in `nohup.out`
+
+
+
 You will see output similar to the following:
 ```
 INFO: Clearing leases file...
