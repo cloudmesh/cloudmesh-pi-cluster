@@ -128,7 +128,7 @@ Added IP's to dnsmasq
 
 ```
 
-We then restart the bridge again and reboot workers if necessary.
+We then restart the bridge again and boot up (or reboot) the workers.
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
