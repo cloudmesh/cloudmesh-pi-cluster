@@ -455,7 +455,9 @@ class Bridge:
         """
         Returns true if dnsmasq service is already installed
         """
-        status = cls._system("dpkg-query -W -f='${Status}' dnsmasq")
+        exitCode, status = cls._system("dpkg-query -W -f='${Status}' dnsmasq", warnuser=False, both=True)
+        if exitCode != 0:
+            return False
         return status == 'install ok installed'
 
     @classmethod
