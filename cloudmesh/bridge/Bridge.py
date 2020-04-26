@@ -35,7 +35,7 @@ class Bridge:
 
     @classmethod
     def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'], master=None, workers=None,
-                priv_interface='eth0', ext_interface='eth1', dryrun=False):
+                priv_interface='eth0', ext_interface='eth1', purge=False, dryrun=False):
         """
         if worker(s) is missing the master is set up only
 
@@ -63,6 +63,13 @@ class Bridge:
         cls._dhcpcd_conf()
         StopWatch.stop('dhcpcd.conf configuration')
         StopWatch.status('dhcpcd.conf configuration', True)
+
+        if purge:
+            # Uninstall dnsmasq and all files
+            StopWatch.start('dnsmasq purge')
+            cls._purge_dnsmasq()
+            StopWatch.start('dnsmasq purge')
+            StopWatch.status('dnsmasq purge', True)
 
         # Install dnsmasq if it is not already installed
         if not cls._dnsmasq_exists():
@@ -467,6 +474,15 @@ class Bridge:
 
             Console.ok("Finished installing dnsmasq")
         
+    @classmethod
+    def _purge_dnsmasq(cls):
+        """
+        Uses apt-get remove along with --purge and --auto-remove to remove dnsmasq.
+        """
+        Console.info("Purging dnsmasq. Please wait...")
+        cls._system('sudo apt-get --purge --auto-remove remove -y dnsmasq', warnuser=False)
+        Console.info("Removed dnsmasq")
+
     @classmethod
     def _dnsmasq_exists(cls):
         """
