@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-scp /bin/spark-setup.sh pi@green001:
 scp ~/spark-bashrc.txt pi@green001:
 scp /bin/spark-uninstall.sh pi@green001:
-ssh pi@green001 sh ~/spark-setup.sh
+scp ~/sparkout.tgz pi@green001:
+ssh pi@green001 sh ~/spark-worker-setup.sh
+cat >> $SPARK_HOME/conf/slaves << EOF
+pi@green001
+EOF
