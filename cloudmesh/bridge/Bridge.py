@@ -470,7 +470,9 @@ class Bridge:
             """)
 
             StopWatch.start('install dnsmasq')
-            cls._system(f'sudo apt-get install -y dnsmasq')
+            # cls._system(f'sudo apt-get install -y dnsmasq')
+            # Use os.system to display the installation feedback
+            os.system('sudo apt-get install -y dnsmasq')
             StopWatch.stop('install dnsmasq')
             StopWatch.status('install dnsmasq', True)
 
@@ -482,7 +484,9 @@ class Bridge:
         Uses apt-get remove along with --purge and --auto-remove to remove dnsmasq.
         """
         Console.info("Purging dnsmasq. Please wait...")
-        cls._system('sudo apt-get --purge --auto-remove remove -y dnsmasq', warnuser=False)
+        # cls._system('sudo apt-get --purge --auto-remove remove -y dnsmasq', warnuser=False)
+        # We use os.system this time so that we can display the output as it is purged.
+        os.system('sudo apt-get --purge --auto-remove remove -y dnsmasq')
         Console.info("Removed dnsmasq")
 
     @classmethod
