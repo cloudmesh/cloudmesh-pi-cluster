@@ -22,7 +22,7 @@ For reference, we will use the following setup:
 * It is recommended that the master be connected to the active network hub on the private interface. This will allow the restart process to be even quicker.
 
 ---
-## Step 1. Create necessary workers
+**Step 1. Create necessary workers**
 Utilize [cmburn](https://github.com/cloudmesh/cloudmesh-pi-burn) to create the workers
 ```
 (ENV3) pi@red:$ cms burn create --hostname=red[003-004]
@@ -36,7 +36,7 @@ Notice how we are not setting the `--ipaddr` option. This is intentional as we w
 
 ---
 
-## Step 2 Create Bridge.
+**Step 2 Create Bridge.**
 Plug the master Pi into the private interface (network switch) via the built-in ethernet port (eth0)
 
 We can configure our network bridge as follows:
@@ -67,7 +67,7 @@ In the future, a command will be added to expand the `IP range` dynamically.
 
 ---
 
-## Step 3. Restart Bridge
+**Step 3. Restart Bridge**
 
 We can now restart the bridge to reflect these changes:
 
@@ -124,7 +124,7 @@ We can check to verify the bridge is working by calling
 
 ---
 
-## Step 4 (optional). Assign static IPs to workers
+**Step 4 (optional). Assign static IPs to workers**
 We can set a static IP for hostnames as follows:
 ```
 (ENV3) pi@red:$ cms bridge set red003 10.1.1.3
@@ -164,7 +164,7 @@ Notice how there is an added option `--nohup`. This option is used when we do no
 
 ---
 
-## Step 5.
+**Step 5.**
 To verify that workers have successfuly connected, we call the info command again:
 ```
 (ENV3) pi@red:$ cms bridge info
@@ -289,7 +289,7 @@ cms bridge test red[002-004]
 ```
 cms bridge set HOSTS ADDRESSES
 ```
-Used to assign static IPs to given hosts. The given addresses must fall in the current ip range of the server. After setting the IPs, the bridge must be restarted. 
+Used to assign static IPs to given hosts. The given addresses must fall in the current ip range of the server. The range can be viewed using `cms bridge info`. After setting the IPs, the bridge must be restarted. 
 ```
 cms bridge restart --nohup
 ```
