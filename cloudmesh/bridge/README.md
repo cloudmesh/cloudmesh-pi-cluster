@@ -18,7 +18,7 @@ For reference, we will use the following setup:
 * Master Pi has hostname `red` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
 * Master Pi uses interface `eth0` as the private interface to communicate with the workers.
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
-* If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe may break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case as the command will most likely result in an error. If this is not an option, see the `nohup` option in Step 3.
+* If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe may break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case as the command will most likely result in an error. If this is not an option, see the `--background` option in Step 3.
 * It is recommended that the master be connected to the active network hub on the private interface. This will allow the restart process to be even quicker.
 
 ---
@@ -74,7 +74,7 @@ In the future, a command will be added to expand the `IP range` dynamically.
 We can now restart the bridge to reflect these changes:
 
 *Note*
-If you are ssh'd into the Pi via WiFi, execute `nohup cms bridge restart &` so that the command is not terminated in the case that the ssh pipeline is broken. The output of the commend below will be stored in `nohup.out`
+If you are ssh'd into the Pi via WiFi, execute `cms bridge restart --background` so that the command is not terminated in the case that the ssh pipeline is broken. The output of the command below will be stored in `bridge_restart.log` in the current working directory.
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
@@ -231,12 +231,13 @@ The default configuration will work for most unless the external network overlap
 
 ## Using the restart command
 ```
-cms bridge restart [--nohup]
+cms bridge restart [--nohup] [--background]
 ```
 Restarts the bridge and its services. Used when there is a modification to the bridge configuration. Note that the restart command must be called at least once before using the `--nohup` command.
 | Option    | Description  |
 | :-------: | ----------|
 |`--nohup` | Restarts only the `dnsmasq` service and not the `dhcpcd` service (which is the default behavior). This is useful for when simply assigning a static IP to a host or refreshing the lease history. This is particularly of interest for those that are ssh'd into the master during this process. This option guarantees that the ssh pipe will not be broken after restarting. |
+|`--background` | Used for when a user wishes to run the command in the background. Usage for this option is mostly for when users are ssh'd through WiFi and experience broken pipelines. Using `--background` will prevent the command from terminating in the case that a pipeline is broken. The output of the command will be stored in the current working directory on the Pi in a file called `bridge_restart.log` |
 
 ---
 

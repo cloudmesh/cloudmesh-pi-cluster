@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import os
 import textwrap
 
 from cloudmesh.common.util import banner
@@ -22,7 +23,7 @@ class BridgeCommand(PluginCommand):
           Usage:
             bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
             bridge set HOSTS ADDRESSES 
-            bridge restart [--nohup]
+            bridge restart [--nohup] [--background]
             bridge status
             bridge test HOSTS [--rate=RATE]
             bridge list NAMES
@@ -64,6 +65,8 @@ class BridgeCommand(PluginCommand):
                                      Ex. red[002-003]
 
               --purge       Include option if a full reinstallation of dnsmasq is desired
+
+              --background    Runs the restart command in the background. stdout to bridge_restart.log
 
               --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
 
@@ -175,12 +178,20 @@ class BridgeCommand(PluginCommand):
             StopWatch.status('test', True)
 
         elif arguments.restart:
-            StopWatch.start('Network Service Restart')
-            workers = Parameter.expand(arguments.workers)
+            background = True if arguments.background else False
             nohup = True if arguments.nohup else False
-            Bridge.restart(workers=workers, nohup=nohup)
-            StopWatch.stop('Network Service Restart')
-            StopWatch.status('Network Service Restart', True)
+            if background:
+                if nohup:
+                    os.system('nohup cms bridge restart --nohup > test.log 2>&1 &')
+                else:
+                    os.system('nohup cms bridge restart > test.log 2>&1 &')
+
+            else:
+                StopWatch.start('Network Service Restart')
+                workers = Parameter.expand(arguments.workers)
+                Bridge.restart(workers=workers, nohup=nohup)
+                StopWatch.stop('Network Service Restart')
+                StopWatch.status('Network Service Restart', True)
 
         elif arguments.list:
 
