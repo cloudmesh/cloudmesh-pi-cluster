@@ -242,8 +242,7 @@ class Bridge:
                 # I believe this is a sufficient check
                 count += 1
                 if status != 0:
-                    message = textwrap.dedent(f"""
-                    Could not ping {host} successfuly. ping command had return message:
+                    message = textwrap.dedent(f"""Could not ping {host} successfuly. ping command had return message:
                     {stdout}
 
                     Rebooting {host} may fix the problem.

@@ -1,5 +1,11 @@
 ## A simple command to setup a network bridge between raspberry pi workers and master utilizing dnsmasq
 WARNING: This program is designed for Raspberry Pi and must not be executed on your laptop
+
+---
+## Table of Contents
+* [Quick Start](#quick-start)
+* [Usage: Create command](#using-the-create-command)
+
 ---
 ##  Quick Start
 ---
@@ -188,7 +194,6 @@ Here are some quick actions to try if you are unable to access your workers:
 * Utilize the purge option `cms bridge create --interface='eth1' --purge` for a total reconfiguration of the bridge.
 
 
-
 *IMPORTANT NOTE*
 When customizing the IP range of the server or setting static IPs, remember you must abide by RFC 1918 for Private addresses. The IP range must fall within one of the following ip ranges:
 ```
@@ -197,3 +202,33 @@ When customizing the IP range of the server or setting static IPs, remember you 
 192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
 ```
 The default configuration falls within the first of the listed ranges.
+
+## Using the create command
+```
+cms bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
+```
+The create command is used for configurating the given raspberry pi as a dhcp server to be used by worker nodes as an internet access point.
+
+| Option        | Description      |
+| :-------------: |-------------|
+| `--interface`      | The network interface with access to the internet. Usually one of `eth1`, or `wlan0` for most uses. Default `eth1`.|
+| `--ip`     | The IP address to give the master Pi on the private interface. See note below. Default `10.1.1.1`     |
+| `--range` | The range of IPs that the server is allowed to give out. Cannot overlap with `--ip`. See note below. Default `10.1.1.2-10.1.1.122` |
+| `--purge` | Used in the case that dnsmasq is inexplicably failing after the initial install. Does a complete reinstallation and reconfiguration of dnsmasq. Requires `cms bridge restart` afterwrads for effect. |
+| zebra stripes | are neat      | 
+
+**Note**
+
+Per RFC 1918, private addresses should fall in one of the ranges below. Failing to do so will most likely cause issues when trying to connect with the internet. The default falls in the first of these ranges. The default configuration will work for most unless the external network overlaps with the `10.1.1.0` network. In which case, one can simply select a suitable subrange from one of the network ranges below. 
+`When customizing the IP range of the server or setting static IPs, remember you must abide by RFC 1918 for Private addresses. The IP range must fall within one of the following ip ranges:`
+```
+10.0.0.0        -   10.255.255.255  (10/8 prefix)
+172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
+192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
+```
+The default configuration falls within the first of the listed ranges.
+
+
+**Dependencies**
+* [dnsmasq](https://wiki.archlinux.org/index.php/dnsmasq) - Installed upon first call to `create` and reinstalled when using `--purge`
+* [dhcpcd](https://wiki.archlinux.org/index.php/Dhcpcd) - Pre-installed with raspbian OS
