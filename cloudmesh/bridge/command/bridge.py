@@ -189,5 +189,5 @@ class BridgeCommand(PluginCommand):
         StopWatch.stop('command')
         StopWatch.status('command', True)
         StopWatch.status('load', True)
-        StopWatch.benchmark(sysinfo=False, csv=False)
+        # StopWatch.benchmark(sysinfo=False, csv=False)
         return ""
