@@ -240,7 +240,6 @@ class Bridge:
                 Console.info(f'Pinging Host {host}. Please wait ...')
                 status, stdout = cls._system(f'ping -c 1 {host}', warnuser=False, both=True)
                 # I believe this is a sufficient check
-                count += 1
                 if status != 0:
                     message = textwrap.dedent(f"""
                     Could not ping {host} successfuly.
@@ -251,6 +250,7 @@ class Bridge:
                     """)
                     Console.warning(message)
                 else:
+                    count += 1
                     Console.ok(f"Successfuly pinged {host}")
         
         Console.ok(f'Completed checks. {count} out of {hosts_to_check} checks succeeded.')
