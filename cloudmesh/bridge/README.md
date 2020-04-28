@@ -1,10 +1,15 @@
 ## A simple command to setup a network bridge between raspberry pi workers and master utilizing dnsmasq
 WARNING: This program is designed for Raspberry Pi and must not be executed on your laptop
 
+
 ---
 ## Table of Contents
 * [Quick Start](#quick-start)
 * [Usage: Create command](#using-the-create-command)
+* [Usage: Restart command](#using-the-restart-command)
+* [Usage: Info and Status command](#using-the-info-and-status-commands)
+* [Usage: Test command](#using-the-test-command)
+* [Usage: Set command](#using-the-set-command)
 
 ---
 ##  Quick Start
@@ -186,22 +191,14 @@ Additionally, the expiration time is there for reference. There is no need to re
 
 ---
 
-### Quick Fixes
+**Quick Fixes**
 Here are some quick actions to try if you are unable to access your workers:
 * Restart the bridge
 * Restart the workers
 * Set a static IP for the hostname
 * Utilize the purge option `cms bridge create --interface='eth1' --purge` for a total reconfiguration of the bridge.
 
-
-*IMPORTANT NOTE*
-When customizing the IP range of the server or setting static IPs, remember you must abide by RFC 1918 for Private addresses. The IP range must fall within one of the following ip ranges:
-```
-10.0.0.0        -   10.255.255.255  (10/8 prefix)
-172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
-192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
-```
-The default configuration falls within the first of the listed ranges.
+---
 
 ## Using the create command
 ```
@@ -211,23 +208,101 @@ The create command is used for configurating the given raspberry pi as a dhcp se
 
 | Option        | Description      |
 | :-------------: |-------------|
-| `--interface`      | The network interface with access to the internet. Usually one of `eth1`, or `wlan0` for most uses. Default `eth1`.|
+| `--interface`    | The network interface with access to the internet. Usually one of `eth1`, or `wlan0` for most uses. Default `eth1`.|
 | `--ip`     | The IP address to give the master Pi on the private interface. See note below. Default `10.1.1.1`     |
 | `--range` | The range of IPs that the server is allowed to give out. Cannot overlap with `--ip`. See note below. Default `10.1.1.2-10.1.1.122` |
 | `--purge` | Used in the case that dnsmasq is inexplicably failing after the initial install. Does a complete reinstallation and reconfiguration of dnsmasq. Requires `cms bridge restart` afterwrads for effect. |
-| zebra stripes | are neat      | 
 
 **Note**
 
-Per RFC 1918, private addresses should fall in one of the ranges below. Failing to do so will most likely cause issues when trying to connect with the internet. The default falls in the first of these ranges. The default configuration will work for most unless the external network overlaps with the `10.1.1.0` network. In which case, one can simply select a suitable subrange from one of the network ranges below. 
-`When customizing the IP range of the server or setting static IPs, remember you must abide by RFC 1918 for Private addresses. The IP range must fall within one of the following ip ranges:`
+Per RFC 1918, private addresses should fall in one of the ranges below. Failing to do so will most likely cause issues when trying to connect with the internet. The default falls in the first of these ranges. 
+
+The default configuration will work for most unless the external network overlaps with the `10.1.1.0` network. In which case, one can simply select a suitable subrange from one of the network ranges below. 
 ```
 10.0.0.0        -   10.255.255.255  (10/8 prefix)
 172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
 192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
 ```
-The default configuration falls within the first of the listed ranges.
+---
 
+## Using the restart command
+```
+cms bridge restart [--nohup]
+```
+Restarts the bridge and its services. Used when there is a modification to the bridge configuration. Note that the restart command must be called at least once before using the `--nohup` command.
+| Option    | Description  |
+| :-------: | ----------|
+|`--nohup` | Restarts only the `dnsmasq` service and not the `dhcpcd` service (which is the default behavior). This is useful for when simply assigning a static IP to a host or refreshing the lease history. This is particularly of interest for those that are ssh'd into the master during this process. This option guarantees that the ssh pipe will not be broken after restarting. |
+
+---
+
+## Using the info and status commands
+```
+cms bridge status
+```
+Use the status command to check on the status of the bridge itself. If all services are running, then the bridge is active. 
+
+```
+cms bridge info
+```
+The info command displays information about the current configuration of the bridge. Information includes details like the IP address of the master, the IP range, and the lease history of the bridge. The following is a sample output with the default configuration.
+
+```
+# ----------------------------------------------------------------------
+# 
+# IP range: 10.1.1.2 - 10.1.1.122
+# Master IP: 10.1.1.1
+# 
+# # LEASE HISTORY #
+# 2020-04-28 14:21:40 b8:27:eb:57:f6:65 10.1.1.9 red002 01:b8:27:eb:57:f6:65
+# 2020-04-28 14:21:40 b8:27:eb:c9:b1:ff 10.1.1.42 red003 01:b8:27:eb:c9:b1:ff
+# ----------------------------------------------------------------------
+```
+
+The first two entries of each row show the date and time in which the lease expires and is set to renew. The next entries show, in order, the MAC address, the assigned IP address, the hostname, and the client id.
+
+**Note**
+The lease history is not a list of connected devices. It simply demonstrates the known information about each lease it has given out during its lifetime. To check if a host is connected, see the `test` command usage below
+
+---
+
+## Using the test command
+```
+cms bridge test HOSTS
+```
+The test command is used to verify a connection with the given hostnames. Using a ping attempt, the command will first verify that the
+server has seen the specified host before, and then check to see if there are transmitted packets.
+
+Example usage:
+```
+cms bridge test red002
+
+cms bridge test red002,red005
+
+cms bridge test red[002-004]
+```
+
+---
+
+## Using the set command
+
+```
+cms bridge set HOSTS ADDRESSES
+```
+Used to assign static IPs to given hosts. The given addresses must fall in the current ip range of the server. After setting the IPs, the bridge must be restarted. 
+```
+cms bridge restart --nohup
+```
+
+Example usage:
+```
+cms bridge set red002 10.1.1.2
+
+cms bridge set red[003-005] 10.1.1.[3-5]
+
+```
+
+---
 
 **Dependencies**
 * [dnsmasq](https://wiki.archlinux.org/index.php/dnsmasq) - Installed upon first call to `create` and reinstalled when using `--purge`
