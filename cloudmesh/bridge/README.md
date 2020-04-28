@@ -73,13 +73,12 @@ In the future, a command will be added to expand the `IP range` dynamically.
 
 We can now restart the bridge to reflect these changes:
 
-*Note*
-If you are ssh'd into the Pi via WiFi, execute `cms bridge restart --background` so that the command is not terminated in the case that the ssh pipeline is broken. The output of the command below will be stored in `bridge_restart.log` in the current working directory.
 ```
 (ENV3) pi@red:$ cms bridge restart
 ```
 
-
+*Note*
+If you are ssh'd into the Pi via WiFi, execute `cms bridge restart --background` so that the command is not terminated in the case that the ssh pipeline is broken. The output of the command would be stored in `bridge_restart.log` in the current working directory if this were the case.
 
 
 You will see output similar to the following:
