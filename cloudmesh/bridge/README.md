@@ -23,6 +23,7 @@ For reference, we will use the following setup:
 
 ---
 **Step 1. Create necessary workers**
+
 Utilize [cmburn](https://github.com/cloudmesh/cloudmesh-pi-burn) to create the workers
 ```
 (ENV3) pi@red:$ cms burn create --hostname=red[003-004]
@@ -37,6 +38,7 @@ Notice how we are not setting the `--ipaddr` option. This is intentional as we w
 ---
 
 **Step 2 Create Bridge.**
+
 Plug the master Pi into the private interface (network switch) via the built-in ethernet port (eth0)
 
 We can configure our network bridge as follows:
@@ -125,6 +127,7 @@ We can check to verify the bridge is working by calling
 ---
 
 **Step 4 (optional). Assign static IPs to workers**
+
 We can set a static IP for hostnames as follows:
 ```
 (ENV3) pi@red:$ cms bridge set red003 10.1.1.3
@@ -165,6 +168,7 @@ Notice how there is an added option `--nohup`. This option is used when we do no
 ---
 
 **Step 5.**
+
 To verify that workers have successfuly connected, we call the info command again:
 ```
 (ENV3) pi@red:$ cms bridge info
