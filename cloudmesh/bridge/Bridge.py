@@ -243,10 +243,11 @@ class Bridge:
                 count += 1
                 if status != 0:
                     message = textwrap.dedent(f"""
-                    Could not ping {host} successfuly. ping command had return message:
-                    {stdout}
-
+                    Could not ping {host} successfuly.
+                    
                     Rebooting {host} may fix the problem.
+
+                    Manually ping {host} for more details.
                     """)
                     Console.warning(message)
                 else:
