@@ -182,9 +182,9 @@ class BridgeCommand(PluginCommand):
             nohup = True if arguments.nohup else False
             if background:
                 if nohup:
-                    os.system('nohup cms bridge restart --nohup > test.log 2>&1 &')
+                    os.system('nohup cms bridge restart --nohup > bridge_restart.log 2>&1 &')
                 else:
-                    os.system('nohup cms bridge restart > test.log 2>&1 &')
+                    os.system('nohup cms bridge restart > brige_restart.log 2>&1 &')
 
             else:
                 StopWatch.start('Network Service Restart')
