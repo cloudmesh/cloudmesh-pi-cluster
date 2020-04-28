@@ -24,7 +24,7 @@ class BridgeCommand(PluginCommand):
             bridge set HOSTS ADDRESSES 
             bridge restart [--nohup]
             bridge status
-            bridge test NAMES [--rate=RATE]
+            bridge test HOSTS [--rate=RATE]
             bridge list NAMES
             bridge check NAMES [--configuration] [--connection]
             bridge info
@@ -167,8 +167,12 @@ class BridgeCommand(PluginCommand):
             StopWatch.status('info', True)
 
         elif arguments.test:
-
-            banner("test")
+            StopWatch.start('test')
+            hosts = Parameter.expand(arguments.HOSTS)
+            banner("Test command", color='CYAN')
+            Bridge.test(hosts)
+            StopWatch.stop('test')
+            StopWatch.status('test', True)
 
         elif arguments.restart:
             StopWatch.start('Network Service Restart')
@@ -183,8 +187,7 @@ class BridgeCommand(PluginCommand):
             banner("list")
 
         elif arguments.check:
-
-            banner("check")
+            banner('Check')
 
         StopWatch.stop('command')
         StopWatch.status('command', True)
