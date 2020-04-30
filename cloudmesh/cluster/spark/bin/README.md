@@ -10,9 +10,9 @@ For testing shell scripts as part of creating python script
 4th file copies the setup files to worker and executes the shell program on
  worker
  
- 5th and 6th file are for uninstalling Spark versions of Spark
+ 5th file for uninstalling Spark versions of Spark
  
- 7th file is for testing the Spark setup
+ 6th file for testing the Spark setup
 
 1) save spark-bashrc.txt to ~/
 
@@ -20,10 +20,8 @@ For testing shell scripts as part of creating python script
 
 3) save spark-setup-worker.sh to /bin
 
-4) save spark-scp-setup-to-worker.sh to /bin
+4) save spark-copy-spark-to-worker.sh to /bin
 
-5) save spark-uninstall2.3.4.sh to /bin
+5) save spark-uninstall2.4.5.sh to /bin
 
-6) save spark-uninstall2.4.5.sh to /bin
-
-7) save spark-run-cluster-test.sh to /bin
+6) save spark-run-cluster-test.sh to /bin
