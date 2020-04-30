@@ -78,6 +78,9 @@ cms pi script list spark --details
 
 ## Pi Spark setup with shell programs as precursor to above
 
+Website with information <https://www.educba.com/how-to-install-spark/>
+
+
  ## Prerequisites for Spark
  
  In order to use cloudmesh-spark, we first set up the Pi master. This
@@ -120,6 +123,7 @@ A shell file executed from the master finishes
 ```bash
 ssh yellow-002 sh ~/spark-setup-worker.sh
 ```
+
 
 These shell programs will be put into python program for including in cms.
 
