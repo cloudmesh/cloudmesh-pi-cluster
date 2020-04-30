@@ -174,6 +174,7 @@ class Spark:
         if self.master:
             self.run_script(name="spark.setup", hosts=self.master)
             update_bashrc(self)
+            #spark_env(self)
 
         #
         # SETUP WORKER
@@ -192,15 +193,19 @@ class Spark:
         # update_bashrc(self)
 
         # Update the master's spark-env.sh file
-        # update_spark-env(self)
+        # spark_env(self)
 
-        # Copy Spark files to workers
-        #copy-spark-to-worker(self)
+        # Create a shell file to run on worker
+        # create_spark.setup.worker(self)
 
-        # Run setup on workers
-        # setup_spark_workers(self)
+        # Create a file that will append to ~/.bashrc on worker
+        # create_spark-bashrc.txt(self)
+
+        # Copy Spark shell and bashrc change files to workers, execute shell file on worker
+        # copy.spark.to.worker(self)
 
         # Update slaves file on master
+        # update_slaves(self)
 
     def test(self):
         if self.master:
@@ -212,6 +217,7 @@ class Spark:
         Add new worker name to bottom of slaves file on master
         :return:
         """
+        banner("Updating $SPARK_HOME/conf/slaves file")
         script = textwrap.dedent("""
            {user}@{worker}
         """)
@@ -222,6 +228,7 @@ class Spark:
         Add the following lines to the bottom of the ~/.bashrc file
         :return:
         """
+        banner("Updating ~/.bashrc file")
         script = textwrap.dedent("""
 
                # ################################################
@@ -260,6 +267,9 @@ class Spark:
         This file is created on master and copied to worker, then executed from master
         :return:
         """
+
+
+        banner("Creating the spark.setup.worker.sh file")
         version = "2.4.5"
         script = textwrap.dedent("""
                     #!/usr/bin/env bash
