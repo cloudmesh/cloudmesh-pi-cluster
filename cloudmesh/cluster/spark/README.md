@@ -43,7 +43,7 @@ To start the cluster use
 cms pi spark start --master=red --workers="red[01-03]"
 ```
 
-Now you can run yoru spark programs. A simple test is avalable when you run
+Now you can run your spark programs. A simple test is available when you run
 
 ```
 cms pi spark start --master=red --workers="red[01-03]"
@@ -87,250 +87,171 @@ Website with information <https://www.educba.com/how-to-install-spark/>
   includes installing Java, Scala and Spark and adding variables to /.bashrc
    so they are available via the terminal
    
- See the shell script files for setting up the master in the directory
+ See the shell script files in the directory
   cloudmesh-pi-cluster/cluster/spark/bin/
 
-## Setup the Master
+## Setup using shell scripts
+ 
+ To use the shell program approach:
+ 1) Create ~/spark-bashrc.txt
+ 2) Create /bin/spark-setup.sh
+ 3) Create /bin/spark/spark-copy-spark-to-worker.sh
+ 4) Create /binspark-setup-worker.sh
+ 5) Create /bin/spark-run-cluster-test.sh
+ 6) Create /bin/spark-uninstall2.4.5.sh
+ 
 
-First, install the necessary software on the Master (Java, Scala, Spark), see
- spark-setup.sh.  Second, update /home/pi/.bashrc, see spark-bashrc.sh.   Then
- , update spark-env.sh in the spark/conf directory.
+### On Master (green) ran the following:
 
 ```bash
 sh /bin/spark-setup.sh
-sh /bin/spark-bashrc.sh
-sh /bin/spark-env.sh.setup.sh
-```
-To ensure workers are setup the same as the master, the master's setup is
- zipped in order to copy to each worker.
-
-```bash
-sh /bin/spark-save-master.sh
 ```
 
-The zipped directory files are copied to the worker 
+ ### Setup the Worker (green003)
+ **Following are actual steps used in setting up worker green003**
 
-```bash
-sh /bin/spark-scp-files-to-worker.sh
-```
-A shell file executed from the master finishes
- the worker set up. An ssh command on the master, executes a
-  shell program (spark-setup
--worker.sh) on the
- worker (yellow-002) 
- remotely. 
+    sh /bin/spark-copy-spark-to-worker.sh  
+
+Which included this detail:
+
+    #!/usr/bin/env bash
+    scp /bin/spark-setup-worker.sh pi@green003:
+    scp ~/spark-bashrc.txt pi@green003:
+    scp /bin/spark-uninstall2.4.5.sh pi@green003:
+    scp ~/sparkout.tgz pi@green003:
+    ssh pi@green003 sh ~/spark-setup-worker.sh
+    sudo cat >> $SPARK_HOME/conf/slaves << EOF
+    pi@green003
+    EOF
+
+Received this error:
+
+    7: /bin/spark-scp-setup-to-worker.sh: cannot create /home/pi/spark-2.4.5-bin-hadoop2.7/conf/slaves: Permission denied
+ 
+ So made the change to slaves file on master manually
+ 
   
-```bash
-ssh yellow-002 sh ~/spark-setup-worker.sh
-```
-
-
-These shell programs will be put into python program for including in cms.
-
-Note: nmap is suggested by one of the sites for managing clusters.  Installed
- but haven't used it. 
-  (ENV3) pi@yellow:~ $ pip install nmap
-Successfully installed nmap-0.0.1
- 
- 
- ## Setup the Worker (an example)
- **Following are actual steps used in setting up worker green001**
- 
- Copied files from cloudmesh-pi-cluster/cloudmesh/cluster/spark/bin/ into pi
- @green: /bin/
- 
-    (ENV3) pi@green:~ $ sudo nano ~/spark-setup-worker.sh
-    (ENV3) pi@green:/bin $ sudo nano spark-bashrc.sh  
-    (ENV3) pi@green:/bin $ sudo nano spark-env-sh-setup.sh 
-    
-    (ENV3) pi@green:~ $ sudo nano /bin/spark-scp-files-to-worker.sh 
-
-    Batch file problems:
-    1) bashrc file is getting updated wrong, too many directories in path, $PATH
-     question
-     
-    2) unable to edit the spark-env.sh file from script
-    
-    #This executes the secure copy (scp) steps above
-    (ENV3) pi@yellow:~ $ sh /bin/spark-scp-files-to-worker.sh
-
-
-After running above, all the needed files are on the worker, but they aren't
- in the right file or directory locations.   Therefore, need to run the
-  following
-  command from
-  the master to start the shell scripts on the worker (yellow-001) 
- 
-    ssh yellow-001 sh ~/spark-setup-worker.sh
-   
-Then, yellow-001 was added to the following file on the master
-
-    sudo nano /usr/local/spark/spark/conf/slaves
- 
  ## Test the Master & Worker setup with a Spark test
  
-Followed by the Spark test run
+ Spark test run
     
     #Start Spark cluster
-    (ENV3) pi@yellow:~ $ /usr/local/spark/spark/sbin/start-all.sh 
+    (ENV3) pi@green:~ $ sh $SPARK_HOME/sbin/start-all.sh
+
+
+    starting org.apache.spark.deploy.master.Master, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy.master.Master-1-green.out
+    pi@localhost's password: pi@green002: starting org.apache.spark.deploy.worker.Worker, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy.worker.Worker-1-green002.out
+    pi@green001: starting org.apache.spark.deploy.worker.Worker, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy.worker.Worker-1-green001.out
+    pi@green003: starting org.apache.spark.deploy.worker.Worker, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy.worker.Worker-1-green003.out
+
+    localhost: starting org.apache.spark.deploy.worker.Worker, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy.worker.Worker-1-green.out
     
     #Run the Spark test script   
-    (ENV3) pi@yellow:~ $ /usr/local/spark/spark/bin/run-example SparkPi 4 10  
+    (ENV3) pi@green:~ $ $SPARK_HOME/bin/run-example SparkPi 4 10
+
     
  Output of Spark test script included:
  
-    2020-04-19 22:22:21 INFO  DAGScheduler:54 - Job 0 finished: reduce at
-    SparkPi.scala:38, took 2.315185 s
-    Pi is roughly 3.142117855294638    
+    20/04/30 16:42:54 INFO DAGScheduler: Job 0 finished: reduce at SparkPi.scala:38, took 1.953871 s
+    Pi is roughly 3.143637859094648  
     
 Stopping Spark cluster
 
-    (ENV3) pi@yellow:~ $ /usr/local/spark/spark/sbin/stop-all.sh
-    
-    pi@localhost's password: 
-    yellow-001: stopping org.apache.spark.deploy.worker.Worker
-    yellow-003: stopping org.apache.spark.deploy.worker.Worker
-    yellow-002: stopping org.apache.spark.deploy.worker.Worker
+    (ENV3) pi@green:~ $ sh $SPARK_HOME/sbin/stop-all.sh
+
+    pi@localhost's password: pi@green001: stopping org.apache.spark.deploy.worker.Worker
+    pi@green003: stopping org.apache.spark.deploy.worker.Worker
+    pi@green002: stopping org.apache.spark.deploy.worker.Worker
+
     localhost: stopping org.apache.spark.deploy.worker.Worker
     stopping org.apache.spark.deploy.master.Master
+    /home/pi/spark-2.4.5-bin-hadoop2.7/sbin/stop-all.sh: 34: [: unexpected operator
+    (ENV3) pi@green:~ $
     
     
-## Following are the shell files.  
+## Following are the shell and text files.  
 
-See sp20-516-246/pi_spark/bin directory
+See <https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/cluster/spark/bin>
  
  spark-setup.sh
  
  ```bash
 #!/usr/bin/env bash
-sudo apt-get install openjdk-8-jre
+sudo apt-get update
+sudo apt-get install default-jdk
 sudo apt-get install scala
-cd /usr/local/spark
-sudo wget http://apache.osuosl.org/spark/spark-2.3.4/spark-2.3.4-bin-hadoop2.7.tgz -O sparkout2-3-4.tgz
-sudo tar -xzf sparkout2-3-4.tgz
+cd ~
+sudo wget http://mirror.metrocast.net/apache/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz -O sparkout.tgz
+sudo tar -xzf sparkout.tgz
+cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
+sudo cp ~/.bashrc ~/.bashrc-backup
+sudo cp ~/temp-bashrc ~/.bashrc
+sudo rm ~/temp-bashrc
+sudo chmod 777 ~/spark-2.4.5-bin-hadoop2.7/conf
+sudo cp /home/pi/spark-2.4.5-bin-hadoop2.7/conf/slaves.template /home/pi/spark-2.4.5-bin-hadoop2.7/conf/slaves
 ```
 
- spark-bashrc.sh
- 
- cat ~/.bashrc
- 
- ```bash
+ spark/spark-copy-spark-to-worker.sh
+  ```bash
 #!/usr/bin/env bash
-cat >> ~/.bashrc << EOF
+scp ~/spark-bashrc.txt pi@green001:
+scp /bin/spark-uninstall2.4.5.sh pi@green001:
+scp /bin/spark-setup-worker.sh pi@green001:
+scp ~/sparkout.tgz pi@green001:
+ssh pi@green001 sh ~/spark-setup-worker.sh
+sudo cat >> $SPARK_HOME/conf/slaves << EOF
+pi@green001
+EOF
+```
+
+spark-setup-worker.sh
+  ```bash
+#!/usr/bin/env bash
+sudo apt-get update
+sudo apt-get install default-jdk
+sudo apt-get install scala
+cd ~
+sudo tar -xzf sparkout.tgz
+cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
+sudo cp ~/.bashrc ~/.bashrc-backup
+sudo cp ~/temp-bashrc ~/.bashrc
+sudo rm ~/temp-bashrc
+sudo chmod 777 ~/spark-2.4.5-bin-hadoop2.7/
+```
+
+
+spark-bashrc.txt
+
+  ```bash
+#JAVA_HOME
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
 #SCALA_HOME
 export SCALA_HOME=/usr/share/scala
 export PATH=$PATH:$SCALA_HOME/bin
 #SPARK_HOME
-export SPARK_HOME=/usr/local/spark/spark
+export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
 export PATH=$PATH:$SPARK_HOME/bin
-EOF
 ```
+spark-uninstall2.4.5.sh
 
- spark-env-sh-setup.sh
- 
- ```bash
+  ```bash
 #!/usr/bin/env bash
-cat >> /usr/local/spark/spark/conf/spark-env.sh << EOF
-#JAVA_HOME
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
-EOF
+sudo apt-get remove openjdk-11-jre
+sudo apt-get remove scala
+cd ~
+sudo rm -rf spark-2.4.5-bin-hadoop2.7
+sudo rm -f sparkout.tgz
+sudo cp ~/.bashrc-backup ~/.bashrc
 ```
-spark-save-master.sh
- 
- ```bash
+
+spark-run-cluster-test.sh
+  ```bash
 #!/usr/bin/env bash
-cd /usr/share/scala-2.11
-sudo tar -cvzf scalaout2-11.tar.gz *
-cd /usr/lib/jvm/java-8-openjdk-armhf
-sudo tar -cvzf javaout8.tgz *
-cd /usr/local/spark/spark
-sudo tar -cvzf sparkout.2-3-4.tgz *
-```
-spark-scp-files-to-worker.sh
- 
- ```bash
-#!/usr/bin/env bash
-scp -r $SCALA_HOME/scalaout2-11.tar.gz pi@yellow-001:
-scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz pi@yellow-001:
-scp -r /usr/local/spark/spark/sparkout.2-3-4.tgz pi@yellow-001:
-scp -r ~/spark.setup.worker.sh pi@yellow-001:
-scp -r ~/spark-env.sh.setup.sh pi@yellow-001:                        
-scp -r ~/spark-bashrc.sh pi@yellow-001:
-```
-spark-setup-worker.sh
-
- ```bash
-#!/usr/bin/env bash
-cd /usr/lib
-sudo mkdir jvm
-cd jvm
-sudo mkdir java-8-openjdk-armhf
-sudo mv ~/javaout8.tgz /usr/lib/jvm/java-8-openjdk-armhf/
-cd /usr/lib/jvm/java-8-openjdk-armhf
-sudo tar -xvzf javaout8.tgz
-cd /usr/share
-sudo mkdir /usr/share/scala-2.11
-sudo mv ~/scalaout2-11.tar.gz /usr/share/scala-2.11/
-cd /usr/share/scala-2.11
-sudo tar -xvzf scalaout2-11.tar.gz
-cd /usr/local
-sudo mkdir spark
-cd /usr/local/spark
-sudo mkdir spark
-cd /usr/local/spark/spark
-sudo mv ~/sparkout.2-3-4.tgz /usr/local/spark/spark/
-cd /usr/local/spark/spark
-sudo tar -xvzf sparkout.2-3-4.tgz
-sh ~/spark-env.sh.setup.sh                        
-sh ~/spark-bashrc.sh
-```
-
-
-## Starting Spark
-
-Within the Master's spark directory and conf folder is a slaves file indicating
- the workers
-```lines
-sudo nano /usr/local/spark/spark/conf/slaves
-```
-
-add following lines to slaves file:
-
-```lines
-localhost
-yellow-001
-yellow-002
-yellow-003
-yellow-004
-```
-
-Start master and then slave from master command line
-
-```command lines
-$SPARK_HOME/sbin/start-master.sh
-$SPARK_HOME/sbin/start-slaves.sh
-```
-
-Run a test script on the cluster
-```bash
-$ cd /usr/local/spark/spark/bin 
-$ run-example SparkPi 4 10
-``` 
-
-Then stop master and slave
-```bash
-$SPARK_HOME/sbin/stop-master.sh
-$SPARK_HOME/sbin/stop-slaves.sh
-```
-### Setting up keys
-
-In order to get passwordless access to workers from master:
-
-spark-ssh-setup.sh
-```bash
-#!/usr/bin/env bash
-eval $(ssh-agent)
-ssh-add
+sh $SPARK_HOME/sbin/start-master.sh
+sh $SPARK_HOME/sbin/start-slaves.sh
+#Test program:
+$SPARK_HOME/bin/run-example SparkPi 4 10
+sh $SPARK_HOME/sbin/stop-all.sh
 ```
 
 
