@@ -31,7 +31,7 @@ class Bridge:
     ip_range = None
     workers = None
     dns=['8.8.8.8', '8.8.4.4']
-    lease_bookmark = '# ACTIVE LEASES #'
+    lease_bookmark = '# LEASE HISTORY #'
 
     @classmethod
     def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'], master=None, workers=None,
@@ -200,9 +200,60 @@ class Bridge:
     def list(cls, host=None):
         raise NotImplementedError
 
+
     @classmethod
-    def check(cls, host=None):
+    def check(cls, hosts=None):
         raise NotImplementedError
+
+    @classmethod
+    def test(cls, hosts=None):
+        """
+        Command to test the connectivity to specified hostnames. First checks to see if the device has even registered
+        with the bridge in ~/.cloudmesh/bridge/info which is a directory created when the bridge is first created.
+
+        :param host: List of hostnames to check for connectivity.
+        :return:
+        """
+        
+        try:
+            info = sudo_readfile('~/.cloudmesh/bridge/info')
+            index = info.index(cls.lease_bookmark)
+            leases = info[index + 1:]
+        except:
+            Console.error('Could not find information on bridge. Has the bridge been created yet?')
+            sys.exit(1)
+        
+        known_hosts = []
+        for lease in leases:
+            lease_info = lease.split()
+            host = lease_info[4]
+            known_hosts.append(host)
+
+        count = 0
+        hosts_to_check = len(hosts)
+        Console.info("Beginning ping checks...")
+        for host in hosts:
+            if host not in known_hosts:
+                Console.warning(f'{host} is not among the known devices of the bridge. No connection from {host} has been received before. Skipping test')
+                hosts_to_check -= 1
+            else:
+                Console.info(f'Pinging Host {host}. Please wait ...')
+                status, stdout = cls._system(f'ping -c 1 {host}', warnuser=False, both=True)
+                # I believe this is a sufficient check
+                if status != 0:
+                    message = textwrap.dedent(f"""
+                    Could not ping {host} successfuly.
+                    
+                    Rebooting {host} may fix the problem.
+
+                    Manually ping {host} for more details.
+                    """)
+                    Console.warning(message)
+                else:
+                    count += 1
+                    Console.ok(f"Successfuly pinged {host}")
+        
+        Console.ok(f'Completed checks. {count} out of {hosts_to_check} checks succeeded.')
 
     @classmethod
     def restart(cls, priv_iface='eth0', workers=None, user='pi', nohup=False):
@@ -470,7 +521,9 @@ class Bridge:
             """)
 
             StopWatch.start('install dnsmasq')
-            cls._system(f'sudo apt-get install -y dnsmasq')
+            # cls._system(f'sudo apt-get install -y dnsmasq')
+            # Use os.system to display the installation feedback
+            os.system('sudo apt-get install -y dnsmasq')
             StopWatch.stop('install dnsmasq')
             StopWatch.status('install dnsmasq', True)
 
@@ -482,7 +535,9 @@ class Bridge:
         Uses apt-get remove along with --purge and --auto-remove to remove dnsmasq.
         """
         Console.info("Purging dnsmasq. Please wait...")
-        cls._system('sudo apt-get --purge --auto-remove remove -y dnsmasq', warnuser=False)
+        # cls._system('sudo apt-get --purge --auto-remove remove -y dnsmasq', warnuser=False)
+        # We use os.system this time so that we can display the output as it is purged.
+        os.system('sudo apt-get --purge --auto-remove remove -y dnsmasq')
         Console.info("Removed dnsmasq")
 
     @classmethod
