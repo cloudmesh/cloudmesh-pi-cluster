@@ -95,7 +95,7 @@ Website with information <https://www.educba.com/how-to-install-spark/>
  To use the shell program approach:
  1) Create ~/spark-bashrc.txt
  2) Create /bin/spark-setup.sh
- 3) Create /bin/spark/spark-copy-spark-to-worker.sh
+ 3) Create /bin/spark-copy-spark-to-worker.sh
  4) Create /bin/spark-setup-worker.sh
  5) Create /bin/spark-run-cluster-test.sh
  6) Create /bin/spark-uninstall2.4.5.sh
