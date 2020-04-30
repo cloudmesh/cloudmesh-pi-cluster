@@ -142,7 +142,7 @@ class Spark:
             sudo cp ~/.bashrc ~/.bashrc-backup
         """
 
-        self.script["copy-spark-to-worker"] = """
+        self.script["copy.spark.to.worker"] = """
             scp /bin/spark-setup-worker.sh {user}@{worker}:
             scp ~/sparkout.tgz {user}@{worker}:
             ssh {user}@{worker} sh ~/spark-setup-worker.sh
@@ -168,22 +168,21 @@ class Spark:
 
         :return:
         """
-
         #
         # SETUP MASTER
         #
-
         if self.master:
             self.run_script(name="spark.setup", hosts=self.master)
-            update-bashrc(self)
+            update_bashrc(self)
 
         #
         # SETUP WORKER
         #
         if self.workers:
             create_spark.setup.worker(self)
-            self.run_script(name="spark.scp-setup-to-worker", hosts=self.workers)
-            update-slaves(self)
+            create_spark-bashrc.txt(self)
+            self.run_script(name="copy.spark.to.worker", hosts=self.workers)
+            update_slaves(self)
 
         raise NotImplementedError
         # Setup the master with the Spark applications
@@ -203,8 +202,12 @@ class Spark:
 
         # Update slaves file on master
 
+    def test(self):
+        if self.master:
+            self.run_script(name="spark.test", hosts=self.master)
+        raise NotImplementedError
 
-    def update-slaves(self):
+    def update_slaves(self):
         """
         Add new worker name to bottom of slaves file on master
         :return:
@@ -214,7 +217,7 @@ class Spark:
         """)
         Installer.add_script("$SPARK_HOME/conf/slaves", script)
 
-    def update-bashrc(self):
+    def update_bashrc(self):
         """
         Add the following lines to the bottom of the ~/.bashrc file
         :return:
@@ -279,7 +282,7 @@ class Spark:
         Installer.add_script("~/spark-setup-worker.sh", script)
 
 
-    def create-spark-bashrc.txt(self):
+    def create_spark-bashrc.txt(self):
         """
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
         :return:
