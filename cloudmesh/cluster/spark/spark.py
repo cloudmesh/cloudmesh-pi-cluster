@@ -10,9 +10,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import banner
 
-
-# see also: https://github.com/cloudmesh-community/sp20-516-246/tree/master/pi_spark
-
+# see also: https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/cluster/spark
 
 class Spark:
 
@@ -110,7 +108,7 @@ class Spark:
 
     def scripts(self):
 
-        version = "2.3.4"
+        version = "2.4.5"
 
         self.script["spark.check"] = """
             hostname
@@ -118,62 +116,45 @@ class Spark:
         """
 
         self.script["spark.test"] = """
-            cd /usr/local/spark/spark/bin 
-            run-example SparkPi 4 10
+            sh $SPARK_HOME/sbin/start-all.sh
+            $SPARK_HOME/bin/run-example SparkPi 4 10
+            sh $SPARK_HOME/sbin/stop-all.sh
         """
 
         self.script["spark.setup"] = """
-            sudo apt-get install openjdk-8-jre
+            sudo apt-get update
+            sudo apt-get install default-jdk
             sudo apt-get install scala
-            cd /usr/local/spark
-            sudo wget http://apache.osuosl.org/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout-{version}.tgz
-            sudo tar -xzf sparkout-{version}.tgz
+            cd ~
+            sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
+            sudo tar -xzf sparkout.tgz
+            sudo cp ~/.bashrc ~/.bashrc-backup
+            sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/conf
+            sudo cp /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves.template /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves
         """
 
-        self.script["spark.master.setup"] = """
-            cd /usr/share/scala-2.11
-            sudo tar -cvzf scalaout2-11.tar.gz *
-            cd /usr/lib/jvm/java-8-openjdk-armhf
-            sudo tar -cvzf javaout8.tgz *
-            cd /usr/local/spark/spark
-            sudo tar -cvzf sparkout-{version}.tgz *
+        self.script["spark.setup.worker"] = """
+            sudo apt-get update
+            sudo apt-get install default-jdk
+            sudo apt-get install scala
+            cd ~
+            sudo tar -xzf sparkout.tgz
+            sudo cp ~/.bashrc ~/.bashrc-backup
         """
 
-        self.script["spark.master.copy"] = """
-            scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:
-            scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:
-            scp -r /usr/local/spark/spark/sparkout-{version}.tgz {user}@{worker}:
-            scp -r ~/spark-setup-worker.sh {user}@{worker}:
+        self.script["copy-spark-to-worker"] = """
+            scp /bin/spark-setup-worker.sh {user}@{worker}:
+            scp ~/sparkout.tgz {user}@{worker}:
+            ssh {user}@{worker} sh ~/spark-setup-worker.sh
         """
 
-        self.script["spark.worker.setup"] = """
-            cd /usr/lib
-            sudo mkdir jvm
-            cd jvm
-            sudo mkdir java-8-openjdk-armhf
-            sudo mv ~/javaout8.tgz /usr/lib/jvm/java-8-openjdk-armhf/
-            cd /usr/lib/jvm/java-8-openjdk-armhf
-            sudo tar -xvzf javaout8.tgz
-            cd /usr/share
-            sudo mkdir /usr/share/scala-2.11
-            sudo mv ~/scalaout2-11.tar.gz /usr/share/scala-2.11/
-            cd /usr/share/scala-2.11
-            sudo tar -xvzf scalaout2-11.tar.gz
-            cd /usr/local
-            sudo mkdir spark
-            cd /usr/local/spark
-            sudo mkdir spark
-            cd /usr/local/spark/spark
-            sudo mv ~/sparkout-{version}.tgz /usr/local/spark/spark/
-            cd /usr/local/spark/spark
-            sudo tar -xvzf sparkout-{version}.tgz
-        """
-
-        self.script[f"spark.master.copy"] = """
-            scp -r $SCALA_HOME/scalaout2-11.tar.gz {user}@{worker}:.
-            scp -r /usr/lib/jvm/java-8-openjdk-armhf/javaout8.tgz {user}@{worker}:.
-            scp -r /usr/local/spark/spark/sparkout-{version}.tgz {user}@{worker}:.
-            scp -r ~/spark-setup-worker.sh {user}@{worker}:.
+        self.script["spark.uninstall2.4.5"] = """
+            sudo apt-get remove openjdk-11-jre
+            sudo apt-get remove scala
+            cd ~
+            sudo rm -rf spark-2.4.5-bin-hadoop2.7
+            sudo rm -f sparkout.tgz
+            sudo cp ~/.bashrc-backup ~/.bashrc
         """
 
         return self.script
@@ -194,18 +175,19 @@ class Spark:
 
         if self.master:
             self.run_script(name="spark.setup", hosts=self.master)
-            self.run_script(name="spark.master.setup", hosts=self.master)
+            update-bashrc(self)
 
         #
         # SETUP WORKER
         #
         if self.workers:
-            self.run_script(name="spark.master.copy", hosts=self.workers)
-            self.run_script(name="spark.worker.setup", hosts=self.workers)
+            create_spark.setup.worker(self)
+            self.run_script(name="spark.scp-setup-to-worker", hosts=self.workers)
+            update-slaves(self)
 
         raise NotImplementedError
         # Setup the master with the Spark applications
-        # master_code_setup(self)
+        # spark_setup(self)
 
         # Update the master's ~/.bashrc file
         # update_bashrc(self)
@@ -214,59 +196,115 @@ class Spark:
         # update_spark-env(self)
 
         # Copy Spark files to workers
-        #copy_spark_to_worker(self)
+        #copy-spark-to-worker(self)
 
         # Run setup on workers
         # setup_spark_workers(self)
 
-    #
-    # Bug: this is not yet done on the hosts.
-    # why not create it locally and scp ....
-    #
-    def update_bashrc(self):
-        """
+        # Update slaves file on master
 
+
+    def update-slaves(self):
+        """
+        Add new worker name to bottom of slaves file on master
         :return:
         """
         script = textwrap.dedent("""
-        
-            # ################################################
-            # SPARK BEGIN
-            #
-            
-            # SCALA_HOME
-            export SCALA_HOME=/usr/share/scala
-            export PATH=$PATH:$SCALA_HOME/bin
-            
-            # SPARK_HOME
-            export SPARK_HOME=/usr/local/spark/spark
-            export PATH=$PATH:$SPARK_HOME/bin
-            
-            #
-            # SPARK END
-            # ################################################
-            
+           {user}@{worker}
         """)
+        Installer.add_script("$SPARK_HOME/conf/slaves", script)
+
+    def update-bashrc(self):
+        """
+        Add the following lines to the bottom of the ~/.bashrc file
+        :return:
+        """
+        script = textwrap.dedent("""
+
+               # ################################################
+               # SPARK BEGIN
+               #
+               #JAVA_HOME
+               export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+               #SCALA_HOME
+               export SCALA_HOME=/usr/share/scala
+               export PATH=$PATH:$SCALA_HOME/bin
+               #SPARK_HOME
+               export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+               export PATH=$PATH:$SPARK_HOME/bin
+               #
+               # SPARK END
+               # ################################################
+
+           """)
         Installer.add_script("~/.bashrc", script)
 
-    #
-    # Bug: this is not yet done on the hosts.
-    # why not create it locally and scp ....
-    #
-    def spark_env(self, filename="/usr/local/spark/spark/conf/spark-env.sh"):
+    def spark_env(self, filename="$SPARK_HOME/conf/spark-env.sh"):
         #
-        # should this also not be in bashrc?
+        # This is extra and probably not needed as also set in ~/.bashrc
         #
         name = "spark."
         banner(name)
         script = textwrap.dedent("""
             #JAVA_HOME
-            export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
         """)
         # Q: IS THSI ADDED OR OVERWRITE?
         Installer.add_script(filename, script)
 
+    def create_spark.setup.worker(self):
+        """
+        This file is created on master and copied to worker, then executed from master
+        :return:
+        """
+        version = "2.4.5"
+        script = textwrap.dedent("""
+                    #!/usr/bin/env bash
+                    sudo apt-get update
+                    sudo apt-get install default-jdk
+                    sudo apt-get install scala
+                    cd ~
+                    sudo tar -xzf sparkout.tgz
+                    cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
+                    sudo cp ~/.bashrc ~/.bashrc-backup
+                    sudo cp ~/temp-bashrc ~/.bashrc
+                    sudo rm ~/temp-bashrc
+                    sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
+              """)
 
+
+        f = open("~/spark-setup-worker.sh", "x")
+        f.write("~/spark-setup-worker.sh has been created")
+        f.close()
+        Installer.add_script("~/spark-setup-worker.sh", script)
+
+
+    def create-spark-bashrc.txt(self):
+        """
+        Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
+        :return:
+        """
+        script = textwrap.dedent("""
+                        # ################################################
+                        # SPARK BEGIN
+                        #
+                        #JAVA_HOME
+                        export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+                        #SCALA_HOME
+                        export SCALA_HOME=/usr/share/scala
+                        export PATH=$PATH:$SCALA_HOME/bin
+                        #SPARK_HOME
+                        export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+                        export PATH=$PATH:$SPARK_HOME/bin
+                        #
+                        # SPARK END
+                        # ################################################
+                  """)
+
+        f = open("~/spark-bashrc.txt", "x")
+        f.write("~/spark-bashrc.txt has been created")
+        f.close()
+        Installer.add_script("~/spark-bashrc.txt", script)
 
     def ssh_add(self):
         # test if this works from within python
