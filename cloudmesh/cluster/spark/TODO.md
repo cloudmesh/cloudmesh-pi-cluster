@@ -2,6 +2,10 @@
 
 Questions on how pieces of spark.py fit together
 
+spark.py <https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/cluster/spark/spark.py>
+
+README.md <https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/cluster/spark/README.md>
+
 I very much appreciate you setting up the structure of the spark.py file
 .  However, I don't understand how the pieces fit together.
 
@@ -9,10 +13,10 @@ I very much appreciate you setting up the structure of the spark.py file
  separate?   An explanation with an opportunity to clarify on how the script is
   intended to work, could get me over a hump.
 
-2) Was "arguments" put into the function as a placeholder or does it being
+2) Was "arguments" put into the function as a placeholder or is it being
  used (examples in lines 32,34, 166)
  
- 3) How do I test it out when I'm ready?   If it's uploaded to cloudmesh
+ 3) How do I test it when I'm ready?   If it's uploaded to cloudmesh
  , will cms pi find it?
  
  Questions on how to wrap up the semester project
