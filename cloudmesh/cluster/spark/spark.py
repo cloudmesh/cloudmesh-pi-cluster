@@ -2,8 +2,8 @@ import os
 import textwrap
 from pprint import pprint
 
-from cloudmesh.cluster.Installer import Installer
-from cloudmesh.cluster.Installer import Script
+#from cloudmesh.cluster.k3.k3 import Installer
+#from cloudmesh.cluster.k3.k3 import Script
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.console import Console
@@ -13,6 +13,21 @@ from cloudmesh.common.util import banner
 # see also: https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/cluster/spark
 
 class Spark:
+
+    def __init__(self, master=None, workers=None):
+        """
+
+        :param master:
+        :param workers:
+        """
+        self.master = master
+        self.workers = workers
+        self.script = Script()
+        self.service = "spark"
+        self.scripts()
+        #self.execute()
+        #self.setup()
+
 
     def execute(self, arguments):
         """
@@ -27,47 +42,38 @@ class Spark:
         self.master = arguments.master
         self.workers = Parameter.expand(arguments.workers)
 
-        hosts = []
+        hosts = None
+        master = None
         if arguments.master:
-            hosts.append(arguments.master)
-        if arguments.workers:
-            hosts = hosts + Parameter.expand(arguments.workers)
+            master = arguments.master
 
-        if hosts is None:
-            Console.error("You need to specify at least one master or worker")
-            return ""
+        hosts = None
+        if arguments.workers:
+            hosts = Parameter.expand(arguments.workers)
+
+        #if hosts is None:
+            #Console.error("You need to specify at least one master or worker")
+            #return ""
 
         if arguments.setup:
-
-            self.run_script(name="spark.setup", hosts=hosts)
+            self.setup(master, hosts)
 
         elif arguments.start:
 
-            self.run_script(name="spark.start", hosts=hosts)
+            self.start(master)
 
         elif arguments.stop:
 
-            self.run_script(name="spark.stop", hosts=hosts)
+            self.stop(master)
 
         elif arguments.test:
 
-            self.run_script(name="spark.test", hosts=hosts)
+            self.test(master)
 
         elif arguments.check:
 
-            self.run_script(name="spark.check", hosts=hosts)
+            self.check(master,hosts)
 
-    def __init__(self, master=None, workers=None):
-        """
-
-        :param master:
-        :param workers:
-        """
-        self.master = master
-        self.workers = workers
-        self.script = Script()
-        self.service = "spark"
-        self.scripts()
 
     def run(self,
             script=None,
@@ -163,53 +169,46 @@ class Spark:
         banner(name)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    def setup(self, arguments):
-        """
+    def setup(self, master=None, hosts=None):
+        # Setup master
+        if master is None and hosts:
+            Console.error("You must specify a master to set up nodes")
+            raise ValueError
 
-        :return:
-        """
-        #
-        # SETUP MASTER
-        #
-        if self.master:
-            self.run_script(name="spark.setup", hosts=self.master)
+        # Install Spark on the master
+        if master is not None:
+
+            if type(master) != list:
+                master = Parameter.expand(master)
+            #
+            # TODO - bug I should be able to run this even if I am not on master
+            #
+            banner(f"Setup Master: {master[0]}")
+            self.run_script(name="spark.setup", hosts=master)
             update_bashrc(self)
-            #spark_env(self)
 
+
+        # Setup workers and update master's slaves file
         #
-        # SETUP WORKER
         #
-        if self.workers:
-            create_spark.setup.worker(self)
-            create_spark-bashrc.txt(self)
-            self.run_script(name="copy.spark.to.worker", hosts=self.workers)
-            update_slaves(self)
+        if hosts is not None:
+            if master is not None:
+                banner(f"Get files from {master[0]}")
+                create_spark_setup_worker(self)
+                create_spark_bashrc_txt(self)
+                self.run_script(name="copy.spark.to.worker", hosts=hosts)
+                update_slaves(self)
 
-        raise NotImplementedError
-        # Setup the master with the Spark applications
-        # spark_setup(self)
+        # Print created cluster
+        self.view()
 
-        # Update the master's ~/.bashrc file
-        # update_bashrc(self)
 
-        # Update the master's spark-env.sh file
-        # spark_env(self)
+        #raise NotImplementedError
 
-        # Create a shell file to run on worker
-        # create_spark.setup.worker(self)
-
-        # Create a file that will append to ~/.bashrc on worker
-        # create_spark-bashrc.txt(self)
-
-        # Copy Spark shell and bashrc change files to workers, execute shell file on worker
-        # copy.spark.to.worker(self)
-
-        # Update slaves file on master
-        # update_slaves(self)
 
     def test(self):
-        if self.master:
-            self.run_script(name="spark.test", hosts=self.master)
+        if master is not None:
+            self.run_script(name="spark.test", hosts=master)
         raise NotImplementedError
 
     def update_slaves(self):
@@ -262,13 +261,11 @@ class Spark:
         # Q: IS THSI ADDED OR OVERWRITE?
         Installer.add_script(filename, script)
 
-    def create_spark.setup.worker(self):
+    def create_spark_setup_worker(self):
         """
         This file is created on master and copied to worker, then executed from master
         :return:
         """
-
-
         banner("Creating the spark.setup.worker.sh file")
         version = "2.4.5"
         script = textwrap.dedent("""
@@ -292,7 +289,7 @@ class Spark:
         Installer.add_script("~/spark-setup-worker.sh", script)
 
 
-    def create_spark-bashrc.txt(self):
+    def create_spark_bashrc_txt(self):
         """
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
         :return:
