@@ -2,8 +2,9 @@ import os
 import textwrap
 from pprint import pprint
 
-#from cloudmesh.cluster.k3.k3 import Installer
-#from cloudmesh.cluster.k3.k3 import Script
+
+from cloudmesh.cluster.Installer import Installer
+#from cloudmesh.cluster.Installer import Script
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.console import Console
@@ -12,22 +13,46 @@ from cloudmesh.common.util import banner
 
 # see also: https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/cluster/spark
 
+def update_bashrc():
+    """
+            Add the following lines to the bottom of the ~/.bashrc file
+            :return:
+    """
+    banner("Updating ~/.bashrc file")
+    script = textwrap.dedent("""
+
+                   # ################################################
+                   # SPARK BEGIN
+                   #
+                   #JAVA_HOME
+                   export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+                   #SCALA_HOME
+                   export SCALA_HOME=/usr/share/scala
+                   export PATH=$PATH:$SCALA_HOME/bin
+                   #SPARK_HOME
+                   export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+                   export PATH=$PATH:$SPARK_HOME/bin
+                   #
+                   # SPARK END
+                   # ################################################
+
+               """)
+    Installer.add_script("~/.bashrc", script)
+
+
 class Spark:
 
     def __init__(self, master=None, workers=None):
         """
-
         :param master:
         :param workers:
         """
         self.master = master
         self.workers = workers
-        self.script = Script()
+        # self.script = Script()
         self.service = "spark"
-        self.scripts()
-        #self.execute()
-        #self.setup()
-
+        self.port = 6443
+        self.hostname = os.uname()[1]
 
     def execute(self, arguments):
         """
@@ -51,9 +76,9 @@ class Spark:
         if arguments.workers:
             hosts = Parameter.expand(arguments.workers)
 
-        #if hosts is None:
-            #Console.error("You need to specify at least one master or worker")
-            #return ""
+        # if hosts is None:
+        # Console.error("You need to specify at least one master or worker")
+        # return ""
 
         if arguments.setup:
             self.setup(master, hosts)
@@ -72,8 +97,60 @@ class Spark:
 
         elif arguments.check:
 
-            self.check(master,hosts)
+            self.check(master, hosts)
 
+    def scripts(self):
+
+        version = "2.4.5"
+
+        self.script["spark.check"] = """
+               hostname
+               uname -a
+           """
+
+        self.script["spark.test"] = """
+               sh $SPARK_HOME/sbin/start-all.sh
+               $SPARK_HOME/bin/run-example SparkPi 4 10
+               sh $SPARK_HOME/sbin/stop-all.sh
+           """
+
+        self.script["spark.setup"] = """
+               sudo apt-get update
+               sudo apt-get install default-jdk
+               sudo apt-get install scala
+               cd ~
+               sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
+               sudo tar -xzf sparkout.tgz
+               sudo cp ~/.bashrc ~/.bashrc-backup
+               sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/conf
+               sudo cp /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves.template /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves
+           """
+
+        self.script["spark.setup.worker"] = """
+               sudo apt-get update
+               sudo apt-get install default-jdk
+               sudo apt-get install scala
+               cd ~
+               sudo tar -xzf sparkout.tgz
+               sudo cp ~/.bashrc ~/.bashrc-backup
+           """
+
+        self.script["copy.spark.to.worker"] = """
+               scp /bin/spark-setup-worker.sh {user}@{worker}:
+               scp ~/sparkout.tgz {user}@{worker}:
+               ssh {user}@{worker} sh ~/spark-setup-worker.sh
+           """
+
+        self.script["spark.uninstall2.4.5"] = """
+               sudo apt-get remove openjdk-11-jre
+               sudo apt-get remove scala
+               cd ~
+               sudo rm -rf spark-2.4.5-bin-hadoop2.7
+               sudo rm -f sparkout.tgz
+               sudo cp ~/.bashrc-backup ~/.bashrc
+           """
+
+        return self.script
 
     def run(self,
             script=None,
@@ -87,15 +164,14 @@ class Spark:
         if type(hosts) != list:
             hosts = Parameter.expand(hosts)
 
-        hostname = os.uname()[1]
         for command in script.splitlines():
-            print (hosts, "->", command)
+            print(hosts, "->", command)
             if command.startswith("#") or command.strip() == "":
                 pass
                 # print (command)
-            elif len(hosts) == 1 and hosts[0] == hostname:
+            elif len(hosts) == 1 and hosts[0] == self.hostname:
                 os.system(command)
-            elif len(hosts) == 1 and hosts[0] != hostname:
+            elif len(hosts) == 1 and hosts[0] != self.hostname:
                 host = hosts[0]
                 os.system(f"ssh {host} {command}")
             else:
@@ -112,58 +188,6 @@ class Spark:
                 print(Printer.write(result, order=['host', 'stdout']))
         return results
 
-    def scripts(self):
-
-        version = "2.4.5"
-
-        self.script["spark.check"] = """
-            hostname
-            uname -a
-        """
-
-        self.script["spark.test"] = """
-            sh $SPARK_HOME/sbin/start-all.sh
-            $SPARK_HOME/bin/run-example SparkPi 4 10
-            sh $SPARK_HOME/sbin/stop-all.sh
-        """
-
-        self.script["spark.setup"] = """
-            sudo apt-get update
-            sudo apt-get install default-jdk
-            sudo apt-get install scala
-            cd ~
-            sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
-            sudo tar -xzf sparkout.tgz
-            sudo cp ~/.bashrc ~/.bashrc-backup
-            sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/conf
-            sudo cp /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves.template /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves
-        """
-
-        self.script["spark.setup.worker"] = """
-            sudo apt-get update
-            sudo apt-get install default-jdk
-            sudo apt-get install scala
-            cd ~
-            sudo tar -xzf sparkout.tgz
-            sudo cp ~/.bashrc ~/.bashrc-backup
-        """
-
-        self.script["copy.spark.to.worker"] = """
-            scp /bin/spark-setup-worker.sh {user}@{worker}:
-            scp ~/sparkout.tgz {user}@{worker}:
-            ssh {user}@{worker} sh ~/spark-setup-worker.sh
-        """
-
-        self.script["spark.uninstall2.4.5"] = """
-            sudo apt-get remove openjdk-11-jre
-            sudo apt-get remove scala
-            cd ~
-            sudo rm -rf spark-2.4.5-bin-hadoop2.7
-            sudo rm -f sparkout.tgz
-            sudo cp ~/.bashrc-backup ~/.bashrc
-        """
-
-        return self.script
 
     def run_script(self, name=None, hosts=None):
         banner(name)
@@ -175,7 +199,7 @@ class Spark:
             Console.error("You must specify a master to set up nodes")
             raise ValueError
 
-        # Install Spark on the master
+        # Setup Spark on the master
         if master is not None:
 
             if type(master) != list:
@@ -185,8 +209,7 @@ class Spark:
             #
             banner(f"Setup Master: {master[0]}")
             self.run_script(name="spark.setup", hosts=master)
-            update_bashrc(self)
-
+            print(update_bashrc())
 
         # Setup workers and update master's slaves file
         #
@@ -202,9 +225,7 @@ class Spark:
         # Print created cluster
         self.view()
 
-
-        #raise NotImplementedError
-
+        # raise NotImplementedError
 
     def test(self):
         if master is not None:
@@ -282,12 +303,10 @@ class Spark:
                     sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
               """)
 
-
         f = open("~/spark-setup-worker.sh", "x")
         f.write("~/spark-setup-worker.sh has been created")
         f.close()
         Installer.add_script("~/spark-setup-worker.sh", script)
-
 
     def create_spark_bashrc_txt(self):
         """
@@ -320,4 +339,3 @@ class Spark:
         # test if this works from within python
         os.system("eval $(ssh-agent)")
         os.system("ssh-add")
-
