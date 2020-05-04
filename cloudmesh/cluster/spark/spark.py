@@ -13,33 +13,6 @@ from cloudmesh.common.util import banner
 
 # see also: https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/cluster/spark
 
-def update_bashrc():
-    """
-            Add the following lines to the bottom of the ~/.bashrc file
-            :return:
-    """
-    banner("Updating ~/.bashrc file")
-    script = textwrap.dedent("""
-
-                   # ################################################
-                   # SPARK BEGIN
-                   #
-                   #JAVA_HOME
-                   export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
-                   #SCALA_HOME
-                   export SCALA_HOME=/usr/share/scala
-                   export PATH=$PATH:$SCALA_HOME/bin
-                   #SPARK_HOME
-                   export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
-                   export PATH=$PATH:$SPARK_HOME/bin
-                   #
-                   # SPARK END
-                   # ################################################
-
-               """)
-    Installer.add_script("~/.bashrc", script)
-
-
 class Spark:
 
     def __init__(self, master=None, workers=None):
@@ -209,7 +182,7 @@ class Spark:
             #
             banner(f"Setup Master: {master[0]}")
             self.run_script(name="spark.setup", hosts=master)
-            print(update_bashrc())
+            update_bashrc()
 
         # Setup workers and update master's slaves file
         #
@@ -232,6 +205,51 @@ class Spark:
             self.run_script(name="spark.test", hosts=master)
         raise NotImplementedError
 
+    def start(self, master=None, hosts=None):
+        # Setup master
+        if master is None and hosts:
+            Console.error("You must specify a master to start cluster")
+            raise ValueError
+
+        # Setup Spark on the master
+        if master is not None:
+
+            if type(master) != list:
+                master = Parameter.expand(master)
+            #
+            # TODO - bug I should be able to run this even if I am not on master
+            #
+            banner(f"Start Master: {master[0]}")
+            command = Installer.oneline(f"""
+                        sh $SPARK_HOME/sbin/start-all.sh -
+                        """)
+
+
+        # raise NotImplementedError
+
+    def stop(self, master=None, hosts=None):
+        # Setup master
+        if master is None and hosts:
+            Console.error("You must specify a master to stop cluster")
+            raise ValueError
+
+        # Setup Spark on the master
+        if master is not None:
+
+            if type(master) != list:
+                master = Parameter.expand(master)
+            #
+            # TODO - bug I should be able to run this even if I am not on master
+            #
+            banner(f"Start Master: {master[0]}")
+            command = Installer.oneline(f"""
+                        sh $SPARK_HOME/sbin/stop-all.sh -
+                        """)
+
+
+        # raise NotImplementedError
+
+    @staticmethod
     def update_slaves(self):
         """
         Add new worker name to bottom of slaves file on master
@@ -243,6 +261,7 @@ class Spark:
         """)
         Installer.add_script("$SPARK_HOME/conf/slaves", script)
 
+    @staticmethod
     def update_bashrc(self):
         """
         Add the following lines to the bottom of the ~/.bashrc file
@@ -269,6 +288,7 @@ class Spark:
            """)
         Installer.add_script("~/.bashrc", script)
 
+    @staticmethod
     def spark_env(self, filename="$SPARK_HOME/conf/spark-env.sh"):
         #
         # This is extra and probably not needed as also set in ~/.bashrc
@@ -282,6 +302,7 @@ class Spark:
         # Q: IS THSI ADDED OR OVERWRITE?
         Installer.add_script(filename, script)
 
+    @staticmethod
     def create_spark_setup_worker(self):
         """
         This file is created on master and copied to worker, then executed from master
@@ -308,6 +329,7 @@ class Spark:
         f.close()
         Installer.add_script("~/spark-setup-worker.sh", script)
 
+    @staticmethod
     def create_spark_bashrc_txt(self):
         """
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
@@ -335,7 +357,5 @@ class Spark:
         f.close()
         Installer.add_script("~/spark-bashrc.txt", script)
 
-    def ssh_add(self):
-        # test if this works from within python
-        os.system("eval $(ssh-agent)")
-        os.system("ssh-add")
+
+

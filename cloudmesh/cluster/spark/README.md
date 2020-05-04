@@ -14,7 +14,6 @@ cms pi spark setup --master=MASTER --workers=WORKERS
 cms pi spark start --master=MASTER --workers=WORKERS
 cms pi spark stop --master=MASTER --workers=WORKERS
 cms pi spark test --master=MASTER --workers=WORKERS
-cms pi spark check [--master=MASTER] [--workers=WORKERS]
 cms pi script list spark [--details]
 ```
 
@@ -31,28 +30,22 @@ Then the cluster can be set upi with
 cms pi spark setup --master=red --workers="red[01-03]"
 ```
 
-To make sure the setup succeded, use the command
+To make sure the setup succeeded, use the command
 
 ```
-cms pi spark check --master=red --workers="red[01-03]"
+cms pi spark test --master=red"
 ```
 
 To start the cluster use
 
 ```
-cms pi spark start --master=red --workers="red[01-03]"
-```
-
-Now you can run your spark programs. A simple test is available when you run
-
-```
-cms pi spark start --master=red --workers="red[01-03]"
+cms pi spark start --master=red"
 ```
 
 To stop the cluster you can use
 
 ```
-cms pi spark start --master=red --workers="red[01-03]"
+cms pi spark stop --master=red"
 ```
 
 
