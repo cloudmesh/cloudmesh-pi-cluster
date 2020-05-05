@@ -88,7 +88,7 @@ class Spark(Installer):
                sh $SPARK_HOME/sbin/stop-all.sh
            """
 
-        self.script["spark.setup"] = """
+        self.script["sparksetup"] = """
                sudo apt-get update
                sudo apt-get install default-jdk
                sudo apt-get install scala
@@ -142,7 +142,7 @@ class Spark(Installer):
             print(hosts, "->", command)
             if command.startswith("#") or command.strip() == "":
                 pass
-                # print (command)
+                print(command)
             elif len(hosts) == 1 and hosts[0] == self.hostname:
                 os.system(command)
             elif len(hosts) == 1 and hosts[0] != self.hostname:
@@ -165,6 +165,8 @@ class Spark(Installer):
 
     def run_script(self, name=None, hosts=None):
         banner(name)
+        print("self.script = ")
+        pprint(self.script)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
     def setup(self, master=None, hosts=None):
@@ -174,16 +176,18 @@ class Spark(Installer):
             raise ValueError
 
         # Setup Spark on the master
-        if master is not None:
+        if hosts is None:
+            if master is not None:
 
-            if type(master) != list:
-                master = Parameter.expand(master)
-            #
-            # TODO - bug I should be able to run this even if I am not on master
-            #
-            banner(f"Setup Master: {master[0]}")
-            self.run_script(name="spark.setup", hosts=master)
-            update_bashrc()
+                if type(master) != list:
+                    master = Parameter.expand(master)
+                #
+                # TODO - bug I should be able to run this even if I am not on master
+                #
+                banner(f"Setup Master: {master[0]}")
+                #self.run_script(name="sparksetup", hosts=master)
+                os.system("sudo apt-get update")
+                print(Spark.update_bashrc())
 
         # Setup workers and update master's slaves file
         #
@@ -191,10 +195,10 @@ class Spark(Installer):
         if hosts is not None:
             if master is not None:
                 banner(f"Get files from {master[0]}")
-                create_spark_setup_worker(self)
-                create_spark_bashrc_txt(self)
+                print(Spark.create_spark_setup_worker())
+                print(Spark.create_spark_bashrc_txt())
                 self.run_script(name="copy.spark.to.worker", hosts=hosts)
-                update_slaves(self)
+                print(Spark.update_slaves())
 
         # Print created cluster
         #self.view()
@@ -252,7 +256,7 @@ class Spark(Installer):
         # raise NotImplementedError
 
     @staticmethod
-    def update_slaves(self):
+    def update_slaves():
         """
         Add new worker name to bottom of slaves file on master
         :return:
@@ -264,7 +268,7 @@ class Spark(Installer):
         Installer.add_script("$SPARK_HOME/conf/slaves", script)
 
     @staticmethod
-    def update_bashrc(self):
+    def update_bashrc():
         """
         Add the following lines to the bottom of the ~/.bashrc file
         :return:
@@ -291,7 +295,7 @@ class Spark(Installer):
         Installer.add_script("~/.bashrc", script)
 
     @staticmethod
-    def spark_env(self, filename="$SPARK_HOME/conf/spark-env.sh"):
+    def spark_env(filename="$SPARK_HOME/conf/spark-env.sh"):
         #
         # This is extra and probably not needed as also set in ~/.bashrc
         #
@@ -305,7 +309,7 @@ class Spark(Installer):
         Installer.add_script(filename, script)
 
     @staticmethod
-    def create_spark_setup_worker(self):
+    def create_spark_setup_worker():
         """
         This file is created on master and copied to worker, then executed on worker from master
         :return:
@@ -326,13 +330,13 @@ class Spark(Installer):
                     sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
               """)
 
-        #f = open("~/spark-setup-worker.sh", "x")
-        #f.write("~/spark-setup-worker.sh has been created")
-        #f.close()
+        f = open("~/spark-setup-worker.sh", "w+")
+        f.write("~/spark-setup-worker.sh has been created")
+        f.close()
         Installer.add_script("~/spark-setup-worker.sh", script)
 
     @staticmethod
-    def create_spark_bashrc_txt(self):
+    def create_spark_bashrc_txt():
         """
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
         :return:
