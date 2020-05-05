@@ -114,13 +114,13 @@ class Hadoop:
             uname -a
         """
 
-        self.script["spark.test"] = """
-            sh $SPARK_HOME/sbin/start-all.sh
-            $SPARK_HOME/bin/run-example SparkPi 4 10
-            sh $SPARK_HOME/sbin/stop-all.sh
+        self.script["hadoop.test"] = """
+            sh cd $HADOOP_HOME/sbin/start-all.sh
+            hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
+            sh cd $HADOOP_HOME/sbin/stop-all.sh
         """
 
-        self.script["spark.setup"] = """
+        self.script["hadoop.setup"] = """
             sudo apt-get update
             sudo apt-get install default-jdk
             sudo apt-get install scala
