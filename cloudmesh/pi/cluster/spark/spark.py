@@ -13,7 +13,7 @@ from cloudmesh.common.util import banner
 
 # see also: https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/cluster/spark
 
-class Spark:
+class Spark(Installer):
 
     def __init__(self, master=None, workers=None):
         """
