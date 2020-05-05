@@ -26,9 +26,7 @@ Hadoop requires Java. Raspbian Desktop doesn't come with Java installed
 ### Install Java on master node
 
 ```
-cd ~
-git clone https://github.com/cloudmesh-community/sp20-516-252.git
-cd sp20-516-252/pi_hadoop/bin
+cd ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin
 echo "Y" | sh setup-master.sh
 ```
 
@@ -53,6 +51,9 @@ Since workers don't have access to network, java can be installed by master
  passing the installation package to workers.
  
  Ensure you can ssh into workers without password
+ 
+ ## (ENSURE YOU HAVE INPUT TAKE THE NUMBER OF WORKERS)
+ 
  ```buildoutcfg
 $ ssh red001
 $ ssh red002
@@ -107,7 +108,7 @@ if __name__ == '__main__':
 
  ```
  
- `python JobMultiHostScript.py ~/sp20-516-252/pi_hadoop/bin/worker-installation.sh red[001-002]`
+ `python JobMultiHostScript.py ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/worker-installation.sh red[001-002]`
 
 If it is installed successfully on workers, you should see returns similar to
  this. Basically, stdout shouldnt tell you there is any error.
@@ -132,10 +133,10 @@ If it is installed successfully on workers, you should see returns similar to
 ## Install Hadoop on Master Node (on file)
 
 ```buildoutcfg
-$ sh ~/sp20-516-252/pi_hadoop/bin/install-hadoop-master.sh
+$ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master.sh
 $ source ~/.bashrc
+$ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
 $ cd && hadoop version | grep Hadoop
-$ sh ~/sp20-516-252/pi_hadoop/bin/install-hadoop-master2.sh
 ```
 
 
@@ -185,10 +186,10 @@ You should expect `Hadoop 3.2.0`
 ## Starting Hadoop (below no on file)
 
 ```buildoutcfg
-$ sh ~/sp20-516-252/pi_hadoop/bin/master-start-hadoop.sh
+$ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
 $ source ~/.bashrc
 ```
---compile code below
+--compiled code below
 
 Set environment variables. Add to the end of `~/.bashrc`
 ```buildoutcfg
@@ -207,7 +208,7 @@ Then `source ~/.bashrc`
 
 Setup Hadoop Configuration Files
 ```
-$ sh ~/sp20-516-252/pi_hadoop/bin/master-hadoop-config.sh
+$ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
 ```
 
 --- Below compressed
