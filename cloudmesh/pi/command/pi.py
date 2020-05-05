@@ -2,8 +2,8 @@ from __future__ import print_function
 
 from getpass import getpass
 
-from cloudmesh.cluster.k3.k3 import K3
-from cloudmesh.cluster.Installer import Script
+from cloudmesh.pi.cluster.k3.k3 import K3
+from cloudmesh.pi.cluster.Installer import Script
 from cloudmesh.common.console import Console
 from cloudmesh.pi.board.free import Free
 from cloudmesh.pi.board.led import LED
@@ -121,12 +121,12 @@ class PiCommand(PluginCommand):
 
         elif arguments.spark:
 
-            from cloudmesh.cluster.spark.spark import Spark
+            from cloudmesh.pi.cluster.spark.spark import Spark
             spark = Spark()
             spark.execute(arguments)
 
         elif arguments.k3:
-            from cloudmesh.cluster.k3.k3 import K3
+            from cloudmesh.pi.cluster.k3.k3 import K3
             k3 = K3()
             k3.execute(arguments)
 

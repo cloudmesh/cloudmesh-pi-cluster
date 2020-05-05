@@ -3,7 +3,7 @@ import os
 import textwrap
 from pydoc import locate
 
-import cloudmesh.cluster
+import cloudmesh.pi.cluster
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import readfile
@@ -29,7 +29,7 @@ class Script(dict):
         def Service():
             mod = arguments.SERVICE
             cls = mod.capitalize()
-            imp = f'cloudmesh.cluster.{mod}.{mod}.{cls}'
+            imp = f'cloudmesh.pi.cluster.{mod}.{mod}.{cls}'
             _Service = locate(imp)
             service = _Service()
             return service
@@ -64,7 +64,7 @@ class Script(dict):
             print(f"Deployment Services")
             print()
 
-            directory =  os.path.dirname(cloudmesh.cluster.__file__)
+            directory =  os.path.dirname(cloudmesh.pi.cluster.__file__)
             entries = glob.glob(f"{directory}/*")
             for entry in entries:
                 if os.path.isdir(entry):

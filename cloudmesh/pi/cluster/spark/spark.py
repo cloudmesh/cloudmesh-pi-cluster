@@ -3,8 +3,8 @@ import textwrap
 from pprint import pprint
 
 
-from cloudmesh.cluster.Installer import Installer
-#from cloudmesh.cluster.Installer import Script
+from cloudmesh.pi.cluster.Installer import Installer
+#from cloudmesh.pi.cluster.Installer import Script
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.console import Console
