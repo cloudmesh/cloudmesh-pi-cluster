@@ -142,7 +142,7 @@ class Spark(Installer):
             print(hosts, "->", command)
             if command.startswith("#") or command.strip() == "":
                 pass
-                # print (command)
+                print(command)
             elif len(hosts) == 1 and hosts[0] == self.hostname:
                 os.system(command)
             elif len(hosts) == 1 and hosts[0] != self.hostname:
