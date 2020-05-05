@@ -308,6 +308,9 @@ cms bridge set red[003-005] 10.1.1.[3-5]
 
 ---
 
+**Other recommendations**
+* I find that this system works even better if this bridge is configured on a pi that is completely separate from any other pi in a cluster. That way, you can configure a single pi for general use similar to an internet modem and then develop several pi clusters through the use of it.
+
 **Dependencies**
 * [dnsmasq](https://wiki.archlinux.org/index.php/dnsmasq) - Installed upon first call to `create` and reinstalled when using `--purge`
 * [dhcpcd](https://wiki.archlinux.org/index.php/Dhcpcd) - Pre-installed with raspbian OS
