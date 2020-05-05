@@ -201,14 +201,6 @@ class Spark(Installer):
 
         # raise NotImplementedError
 
-    def test(self, master=None, hosts=None):
-        banner(f"Listing $SPARK_HOME from {master[0]}")
-        os.system("ls $SPARK_HOME")
-        #print("Test not yet implemented")
-        #if master is not None:
-        #   self.run_script(name="spark.test", hosts=master)
-        #raise NotImplementedError
-
     def start(self, master=None, hosts=None):
         # Setup master
         if master is None and hosts:
@@ -225,12 +217,16 @@ class Spark(Installer):
             #
             banner(f"Start Master: {master[0]}")
             os.system("sh $SPARK_HOME/sbin/start-all.sh")
-            #command = Installer.oneline(f"""
+            # command = Installer.oneline(f"""
             #           sh $SPARK_HOME/sbin/start-all.sh -
             #           """)
 
-
         # raise NotImplementedError
+
+    def test(self, master=None, hosts=None):
+        banner(f"Listing $SPARK_HOME from {master[0]}")
+        os.system("ls $SPARK_HOME")
+        os.system("$SPARK_HOME/bin/run-example SparkPi 4 10")
 
     def stop(self, master=None, hosts=None):
         # Stop Spark
