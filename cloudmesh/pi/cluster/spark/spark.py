@@ -202,7 +202,7 @@ class Spark(Installer):
         # raise NotImplementedError
 
     def test(self, master=None, hosts=None):
-        os.system("ls")
+        os.system("ls $SPARK_HOME")
         print("Test not yet implemented")
         #if master is not None:
         #   self.run_script(name="spark.test", hosts=master)
