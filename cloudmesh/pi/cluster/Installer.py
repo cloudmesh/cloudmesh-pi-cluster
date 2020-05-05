@@ -22,6 +22,7 @@ class Script(dict):
 
     def __getitem__(self, key):
         value = dict.__getitem__(self, key)
+        pprint(value)
         return value
 
     def execute(self, arguments):
