@@ -202,9 +202,11 @@ class Spark:
         # raise NotImplementedError
 
     def test(self, master=None, hosts=None):
-        if master is not None:
-            self.run_script(name="spark.test", hosts=master)
-        raise NotImplementedError
+        os.system("ls")
+        print("Test not yet implemented")
+        #if master is not None:
+        #   self.run_script(name="spark.test", hosts=master)
+        #raise NotImplementedError
 
     def start(self, master=None, hosts=None):
         # Setup master
@@ -359,6 +361,3 @@ class Spark:
         #f.write("~/spark-bashrc.txt has been created")
         #f.close()
         Installer.add_script("~/spark-bashrc.txt", script)
-
-
-
