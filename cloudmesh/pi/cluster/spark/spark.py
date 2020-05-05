@@ -176,16 +176,18 @@ class Spark(Installer):
             raise ValueError
 
         # Setup Spark on the master
-        if master is not None:
+        if hosts is None:
+            if master is not None:
 
-            if type(master) != list:
-                master = Parameter.expand(master)
-            #
-            # TODO - bug I should be able to run this even if I am not on master
-            #
-            banner(f"Setup Master: {master[0]}")
-            self.run_script(name="sparksetup", hosts=master)
-            update_bashrc()
+                if type(master) != list:
+                    master = Parameter.expand(master)
+                #
+                # TODO - bug I should be able to run this even if I am not on master
+                #
+                banner(f"Setup Master: {master[0]}")
+                #self.run_script(name="sparksetup", hosts=master)
+                os.system("sudo apt-get update")
+                update_bashrc()
 
         # Setup workers and update master's slaves file
         #
