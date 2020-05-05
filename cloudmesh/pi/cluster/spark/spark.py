@@ -223,9 +223,10 @@ class Spark(Installer):
             # TODO - bug I should be able to run this even if I am not on master
             #
             banner(f"Start Master: {master[0]}")
-            command = Installer.oneline(f"""
-                        sh $SPARK_HOME/sbin/start-all.sh -
-                        """)
+            os.system("sh $SPARK_HOME/sbin/start-all.sh")
+            #command = Installer.oneline(f"""
+            #           sh $SPARK_HOME/sbin/start-all.sh -
+            #           """)
 
 
         # raise NotImplementedError
@@ -245,9 +246,10 @@ class Spark(Installer):
             # TODO - bug I should be able to run this even if I am not on master
             #
             banner(f"Start Master: {master[0]}")
-            command = Installer.oneline(f"""
-                        sh $SPARK_HOME/sbin/stop-all.sh -
-                        """)
+            os.system("sh $SPARK_HOME/sbin/stop-all.sh")
+            #command = Installer.oneline(f"""
+            #           sh $SPARK_HOME/sbin/stop-all.sh -
+            #           """)
 
 
         # raise NotImplementedError
