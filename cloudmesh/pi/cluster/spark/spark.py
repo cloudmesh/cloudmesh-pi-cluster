@@ -165,6 +165,7 @@ class Spark(Installer):
 
     def run_script(self, name=None, hosts=None):
         banner(name)
+        print("self.script = ")
         pprint(self.script)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
