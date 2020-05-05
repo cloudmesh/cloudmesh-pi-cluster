@@ -167,7 +167,7 @@ class Spark(Installer):
         banner(name)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    def setup(self, master=None, [hosts=None]):
+    def setup(self, master=None, hosts=None):
         # Setup master
         if master is None and hosts:
             Console.error("You must specify a master to set up nodes")
@@ -201,14 +201,14 @@ class Spark(Installer):
 
         # raise NotImplementedError
 
-    def test(self, [master=None], [hosts=None]):
+    def test(self, master=None, hosts=None):
         os.system("ls")
         print("Test not yet implemented")
         #if master is not None:
         #   self.run_script(name="spark.test", hosts=master)
         #raise NotImplementedError
 
-    def start(self, [master=None], [hosts=None]):
+    def start(self, master=None, hosts=None):
         # Setup master
         if master is None and hosts:
             Console.error("You must specify a master to start cluster")
@@ -230,7 +230,7 @@ class Spark(Installer):
 
         # raise NotImplementedError
 
-    def stop(self, [master=None], [hosts=None]):
+    def stop(self, master=None, hosts=None):
         # Stop Spark
         if master is None and hosts:
             Console.error("You must specify a master to stop cluster")
