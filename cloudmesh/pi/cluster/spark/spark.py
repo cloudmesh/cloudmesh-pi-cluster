@@ -88,7 +88,7 @@ class Spark(Installer):
                sh $SPARK_HOME/sbin/stop-all.sh
            """
 
-        self.script["spark.setup"] = """
+        self.script["sparksetup"] = """
                sudo apt-get update
                sudo apt-get install default-jdk
                sudo apt-get install scala
@@ -183,7 +183,7 @@ class Spark(Installer):
             # TODO - bug I should be able to run this even if I am not on master
             #
             banner(f"Setup Master: {master[0]}")
-            self.run_script(name="spark.setup", hosts=master)
+            self.run_script(name="sparksetup", hosts=master)
             update_bashrc()
 
         # Setup workers and update master's slaves file
