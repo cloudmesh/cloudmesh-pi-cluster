@@ -256,7 +256,7 @@ class Spark(Installer):
         # raise NotImplementedError
 
     @staticmethod
-    def update_slaves(self):
+    def update_slaves():
         """
         Add new worker name to bottom of slaves file on master
         :return:
@@ -268,7 +268,7 @@ class Spark(Installer):
         Installer.add_script("$SPARK_HOME/conf/slaves", script)
 
     @staticmethod
-    def update_bashrc(self):
+    def update_bashrc():
         """
         Add the following lines to the bottom of the ~/.bashrc file
         :return:
@@ -295,7 +295,7 @@ class Spark(Installer):
         Installer.add_script("~/.bashrc", script)
 
     @staticmethod
-    def spark_env(self, filename="$SPARK_HOME/conf/spark-env.sh"):
+    def spark_env(filename="$SPARK_HOME/conf/spark-env.sh"):
         #
         # This is extra and probably not needed as also set in ~/.bashrc
         #
@@ -309,7 +309,7 @@ class Spark(Installer):
         Installer.add_script(filename, script)
 
     @staticmethod
-    def create_spark_setup_worker(self):
+    def create_spark_setup_worker():
         """
         This file is created on master and copied to worker, then executed on worker from master
         :return:
@@ -336,7 +336,7 @@ class Spark(Installer):
         Installer.add_script("~/spark-setup-worker.sh", script)
 
     @staticmethod
-    def create_spark_bashrc_txt(self):
+    def create_spark_bashrc_txt():
         """
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
         :return:
