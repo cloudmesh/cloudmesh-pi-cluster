@@ -197,13 +197,14 @@ class Spark(Installer):
                 update_slaves(self)
 
         # Print created cluster
-        self.view()
+        #self.view()
 
         # raise NotImplementedError
 
     def test(self, master=None, hosts=None):
+        banner(f"Listing $SPARK_HOME from {master[0]}")
         os.system("ls $SPARK_HOME")
-        print("Test not yet implemented")
+        #print("Test not yet implemented")
         #if master is not None:
         #   self.run_script(name="spark.test", hosts=master)
         #raise NotImplementedError
