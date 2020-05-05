@@ -2,7 +2,7 @@ import os
 import textwrap
 from pprint import pprint
 
-import cloudmesh.pi.cluster
+#import cloudmesh.pi.cluster
 from cloudmesh.pi.cluster.Installer import Installer
 from cloudmesh.pi.cluster.Installer import Script
 from cloudmesh.common.Host import Host
@@ -24,7 +24,7 @@ class Spark:
         self.workers = workers
         self.script = Script()
         self.service = "spark"
-        self.port = 6443
+        #self.port = 6443
         self.hostname = os.uname()[1]
 
     def execute(self, arguments):
@@ -33,6 +33,7 @@ class Spark:
         pi spark start --master=MASTER --workers=WORKER
         pi spark stop --master=MASTER --workers=WORKER
         pi spark test --master=MASTER --workers=WORKER
+        pi spark check --master=MASTER --worker=WORKER
 
         :param arguments:
         :return:
@@ -200,7 +201,7 @@ class Spark:
 
         # raise NotImplementedError
 
-    def test(self):
+    def test(self, master=None, hosts=None):
         if master is not None:
             self.run_script(name="spark.test", hosts=master)
         raise NotImplementedError
@@ -228,12 +229,12 @@ class Spark:
         # raise NotImplementedError
 
     def stop(self, master=None, hosts=None):
-        # Setup master
+        # Stop Spark
         if master is None and hosts:
             Console.error("You must specify a master to stop cluster")
             raise ValueError
 
-        # Setup Spark on the master
+        # Stop Spark on master and all workers
         if master is not None:
 
             if type(master) != list:
@@ -299,13 +300,13 @@ class Spark:
             #JAVA_HOME
             export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
         """)
-        # Q: IS THSI ADDED OR OVERWRITE?
+        # Q: IS THIS ADDED OR OVERWRITE?
         Installer.add_script(filename, script)
 
     @staticmethod
     def create_spark_setup_worker(self):
         """
-        This file is created on master and copied to worker, then executed from master
+        This file is created on master and copied to worker, then executed on worker from master
         :return:
         """
         banner("Creating the spark.setup.worker.sh file")
@@ -324,9 +325,9 @@ class Spark:
                     sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
               """)
 
-        f = open("~/spark-setup-worker.sh", "x")
-        f.write("~/spark-setup-worker.sh has been created")
-        f.close()
+        #f = open("~/spark-setup-worker.sh", "x")
+        #f.write("~/spark-setup-worker.sh has been created")
+        #f.close()
         Installer.add_script("~/spark-setup-worker.sh", script)
 
     @staticmethod
@@ -335,26 +336,28 @@ class Spark:
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
         :return:
         """
+        version = "2.4.5"
+        java_version = "11"
         script = textwrap.dedent("""
                         # ################################################
                         # SPARK BEGIN
                         #
                         #JAVA_HOME
-                        export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+                        export JAVA_HOME=/usr/lib/jvm/java-{java_version}-openjdk-armhf/
                         #SCALA_HOME
                         export SCALA_HOME=/usr/share/scala
                         export PATH=$PATH:$SCALA_HOME/bin
                         #SPARK_HOME
-                        export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+                        export SPARK_HOME=~/spark-{version}-bin-hadoop2.7
                         export PATH=$PATH:$SPARK_HOME/bin
                         #
                         # SPARK END
                         # ################################################
                   """)
 
-        f = open("~/spark-bashrc.txt", "x")
-        f.write("~/spark-bashrc.txt has been created")
-        f.close()
+        #f = open("~/spark-bashrc.txt", "x")
+        #f.write("~/spark-bashrc.txt has been created")
+        #f.close()
         Installer.add_script("~/spark-bashrc.txt", script)
 
 
