@@ -330,7 +330,7 @@ class Spark(Installer):
                     sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
               """)
 
-        f = open("~/spark-setup-worker.sh", "x")
+        f = open("~/spark-setup-worker.sh", "w+")
         f.write("~/spark-setup-worker.sh has been created")
         f.close()
         Installer.add_script("~/spark-setup-worker.sh", script)
