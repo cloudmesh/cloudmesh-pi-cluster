@@ -187,7 +187,7 @@ class Spark(Installer):
                 banner(f"Setup Master: {master[0]}")
                 #self.run_script(name="sparksetup", hosts=master)
                 os.system("sudo apt-get update")
-                update_bashrc()
+                print(Spark.update_bashrc())
 
         # Setup workers and update master's slaves file
         #
@@ -195,10 +195,10 @@ class Spark(Installer):
         if hosts is not None:
             if master is not None:
                 banner(f"Get files from {master[0]}")
-                create_spark_setup_worker(self)
-                create_spark_bashrc_txt(self)
+                print(Spark.create_spark_setup_worker())
+                print(Spark.create_spark_bashrc_txt())
                 self.run_script(name="copy.spark.to.worker", hosts=hosts)
-                update_slaves(self)
+                print(Spark.update_slaves())
 
         # Print created cluster
         #self.view()
