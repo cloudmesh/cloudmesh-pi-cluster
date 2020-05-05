@@ -15,7 +15,7 @@ from cloudmesh.common.util import banner
 
 class Spark(Installer):
 
-    def __init__(self, [master=None], [workers=None]):
+    def __init__(self, master=None, workers=None):
         """
         :param master:
         :param workers:
