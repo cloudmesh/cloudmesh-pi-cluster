@@ -2,9 +2,9 @@ import os
 import textwrap
 from pprint import pprint
 
-
+import cloudmesh.pi.cluster
 from cloudmesh.pi.cluster.Installer import Installer
-#from cloudmesh.pi.cluster.Installer import Script
+from cloudmesh.pi.cluster.Installer import Script
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.console import Console
@@ -22,7 +22,7 @@ class Spark:
         """
         self.master = master
         self.workers = workers
-        # self.script = Script()
+        self.script = Script()
         self.service = "spark"
         self.port = 6443
         self.hostname = os.uname()[1]
