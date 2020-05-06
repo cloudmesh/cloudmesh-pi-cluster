@@ -48,13 +48,13 @@ class Spark(Installer):
             hosts = hosts + Parameter.expand(arguments.workers)
 
         #hosts = None
-        #master = None
-        #if arguments.master:
-        #    master = arguments.master
+        master = None
+        if arguments.master:
+            master = arguments.master
 
         #hosts = None
-        #if arguments.workers:
-        #    hosts = Parameter.expand(arguments.workers)
+        if arguments.workers:
+            hosts = Parameter.expand(arguments.workers)
 
         if hosts is None:
             Console.error("You need to specify at least one master or worker")
