@@ -40,7 +40,7 @@ class Spark:
 
         if arguments.setup:
 
-            self.setup(self.master, self.workers)
+            self.setup(hosts)
             #self.run_script(name="spark.setup", hosts=hosts)
 
         elif arguments.start:
@@ -53,7 +53,7 @@ class Spark:
 
         elif arguments.test:
 
-            self.test(self.master, self.workers)
+            self.test(hosts)
             #self.run_script(name="spark.test", hosts=hosts)
 
         elif arguments.check:
