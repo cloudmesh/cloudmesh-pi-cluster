@@ -123,13 +123,11 @@ class Hadoop:
 # ?? at line 129, change bashrc requires password.
 # also need "source ~/.bashrc" in the end to take effect
 # cd && hadoop version | grep Hadoop
-# ?? Can master-start-hadoop.sh and master-hadoop-config.sh go before "source
-        # ~/.bashrc"?
+# might need to take out line install-hadoop-master2.sh before source ./bashrc
 
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
             echo "Y" | sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/setup-master.sh
-            
             cd ~
             wget https://archive.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
             sudo tar -xvzf hadoop-3.2.0.tar.gz -C /opt/
