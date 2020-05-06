@@ -31,6 +31,7 @@ class Spark:
         hosts = []
         if arguments.master:
             hosts.append(arguments.master)
+            master = arguments.master
         if arguments.workers:
             hosts = hosts + Parameter.expand(arguments.workers)
         if arguments.dryrun:
@@ -42,7 +43,7 @@ class Spark:
 
         if arguments.setup:
 
-            self.setup(hosts)
+            self.setup(master,hosts)
             #self.run_script(name="spark.setup", hosts=hosts)
 
         elif arguments.start:
@@ -219,7 +220,7 @@ class Spark:
         banner(name)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    def setup(self, arguments):
+    def setup(self,master,hosts):
         #
         # SETUP MASTER
         #
@@ -235,13 +236,13 @@ class Spark:
             banner("Setting up worker self.workers")
             self.create_spark_setup_worker()
             self.create_spark_bashrc_txt()
-            hosts=self.workers
-            #self.run_script(name="copy.spark.to.worker", hosts=self.workers)
-            command1 = "scp /bin/spark-setup-worker.sh pi@{hosts[0]}:"
+            # hosts=self.workers
+            # self.run_script(name="copy.spark.to.worker", hosts=self.workers)
+            command1 = f"scp /bin/spark-setup-worker.sh pi@{hosts[0]}:"
             os.system(f"ssh {hosts} {command1}")
-            command2 = "scp ~/sparkout.tgz pi@{hosts[0]}:"
+            command2 = f"scp ~/sparkout.tgz pi@{hosts[0]}:"
             os.system(f"ssh {hosts} {command2}")
-            command3 = "ssh pi@{hosts[0]} sh ~/spark-setup-worker.sh"
+            command3 = f"ssh pi@{hosts[0]} sh ~/spark-setup-worker.sh"
             os.system(f"ssh {hosts} {command3}")
             self.update_slaves()
         raise NotImplementedError
