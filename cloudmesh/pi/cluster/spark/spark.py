@@ -33,6 +33,8 @@ class Spark:
             hosts.append(arguments.master)
         if arguments.workers:
             hosts = hosts + Parameter.expand(arguments.workers)
+        if arguments.dryrun:
+            self.dryrun = True
 
         if hosts is None:
             Console.error("You need to specify at least one master or worker")
@@ -40,7 +42,8 @@ class Spark:
 
         if arguments.setup:
 
-            self.run_script(name="spark.setup", hosts=hosts)
+            self.setup(hosts)
+            #self.run_script(name="spark.setup", hosts=hosts)
 
         elif arguments.start:
 
@@ -52,7 +55,8 @@ class Spark:
 
         elif arguments.test:
 
-            self.run_script(name="spark.test", hosts=hosts)
+            self.test(hosts)
+            #self.run_script(name="spark.test", hosts=hosts)
 
         elif arguments.check:
 
@@ -171,13 +175,6 @@ class Spark:
                ssh pi@self.workers sh ~/spark-setup-worker.sh
         """
 
-        self.script["copy.spark.to.worker"] = """
-               scp /bin/spark-setup-worker.sh pi@self.workers:
-               scp ~/sparkout.tgz pi@self.workers:
-               ssh pi@self.workers sh ~/spark-setup-worker.sh
-        """
-
-
         # self.script["spark.uninstall2.4.5"] = """
         #     sudo apt-get remove openjdk-11-jre
         #     sudo apt-get remove scala
@@ -194,25 +191,23 @@ class Spark:
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
     def setup(self, arguments):
-        """
-
-        :return:
-        """
         #
         # SETUP MASTER
         #
         if self.master:
+            banner("Setting up master self.master")
             self.run_script(name="spark.setup.master", hosts=self.master)
-            # self.update_bashrc(self)
-            # self.spark_env(self)
+            self.update_bashrc(self)
+            #self.spark_env(self)
         #
         # SETUP WORKER
         #
         if self.workers:
-            self.create_spark.setup.worker(self)
-            self.create_spark-bashrc.txt(self)
+            banner("Setting up worker self.workers")
+            self.create_spark_setup_worker()
+            self.create_spark_bashrc_txt()
             self.run_script(name="copy.spark.to.worker", hosts=self.workers)
-            self.update_slaves(self)
+            self.update_slaves()
         raise NotImplementedError
     #
     #     # Setup Pi workflow
@@ -240,10 +235,6 @@ class Spark:
         raise NotImplementedError
 
     def update_slaves(self):
-        """
-        Add new worker name to bottom of slaves file on master
-        :return:
-        """
         if self.master:
             banner("Updating $SPARK_HOME/conf/slaves file")
             script = "pi@self.master"
@@ -252,23 +243,14 @@ class Spark:
         raise NotImplementedError
 
     def update_bashrc(self):
-        """
-        Add the following lines to the bottom of the ~/.bashrc file
-        :return:
-        """
         banner("Updating ~/.bashrc file")
         script = textwrap.dedent(self.script["spark.update.bashrc"])
         Installer.add_script("/home/pi/.bashrc", script)
 
     def create_spark_setup_worker(self):
-        """
-        This file is created on master and copied to worker, then executed on worker from master
-        :return:
-        """
         banner("Creating the spark.setup.worker.sh file")
-        script = self.script["spark.setup.worker.sh"]
-
-        if self.dryrun:
+        script = textwrap.dedent(self.script["spark.setup.worker.sh"])
+        if self.dryrun==True:
             print(script)
         else:
             f = open("/home/pi/spark-setup-worker.sh", "w+")
@@ -277,12 +259,7 @@ class Spark:
             Installer.add_script("~/spark-setup-worker.sh", script)
 
     def create_spark_bashrc_txt(self):
-        """
-        Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
-        :return:
-        """
-        script = self.script["update.bashrc"]
-
+        script = textwrap.dedent(self.script["update.bashrc"])
         if self.dryrun:
             print(script)
         else:
