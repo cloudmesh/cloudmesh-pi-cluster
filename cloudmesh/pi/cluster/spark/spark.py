@@ -243,8 +243,10 @@ class Spark:
             print(command1)
             os.system(f"ssh {hosts} {command1}")
             command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
+            print(command2)
             os.system(f"ssh {hosts} {command2}")
             command3 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
+            print(command3)
             os.system(f"ssh {hosts} {command3}")
             self.update_slaves(hosts)
         raise NotImplementedError
