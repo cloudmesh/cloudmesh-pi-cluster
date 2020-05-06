@@ -116,17 +116,17 @@ class Hadoop:
         """
 
         self.script["hadoop.test"] = """
+            hdfs namenode -format
             $HADOOP_HOME/sbin/start-all.sh
             hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
             $HADOOP_HOME/sbin/stop-all.sh
         """
-# ?? at line 129, change bashrc requires password.
-# also need "source ./bashrc"
+
+# also need "source ~/.bashrc" in the end to take effect
+# cd && hadoop version | grep Hadoop
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
-            cd ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin
-            echo "Y" | sh setup-master.sh
-            
+            echo "Y" | sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/setup-master.sh
             cd ~
             wget https://archive.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
             sudo tar -xvzf hadoop-3.2.0.tar.gz -C /opt/
@@ -136,10 +136,20 @@ class Hadoop:
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
             java -version
             jps
-            cd && hadoop version | grep Hadoop
         """
 
+# run
+# sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
+# ??? dont want to run the line above multiple times
+
+# ??? source ~/bashrc in script doesnt seem to work.
+
         self.script["hadoop.start"] = """
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
+            source ~/.bashrc
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
+            cat ~/.ssh/id_rsa.pub >> authorized_keys
+            hdfs namenode -format
             $HADOOP_HOME/sbin/start-all.sh
         """
 
@@ -190,7 +200,8 @@ class Hadoop:
         #
         if self.master:
             self.run_script(name="hadoop.setup", hosts=self.master)
-            self.update_bashrc(self)
+            # self.update_bashrc(self)  -?? Do I need this? Might have created
+            # bash twice
             self.hadoop_env(self)
             # self.run_script(name="source bashrc ", hosts=self.master) -
             # might need a line to do "source bashrc"
