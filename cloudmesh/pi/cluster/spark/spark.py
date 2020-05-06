@@ -260,8 +260,8 @@ class Spark:
             Installer.add_script("~/spark-setup-worker.sh", script)
 
     def create_spark_bashrc_txt(self):
-        script = textwrap.dedent(self.script["update.bashrc"])
-        if self.dryrun:
+        script = textwrap.dedent(self.script["spark.update.bashrc"])
+        if self.dryrun == True:
             print(script)
         else:
             f = open("/home/pi/spark-bashrc.txt", "w+")
