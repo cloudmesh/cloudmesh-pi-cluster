@@ -197,7 +197,7 @@ class Spark(Installer):
                 banner(f"Get files from {master[0]}")
                 print(Spark.create_spark_setup_worker())
                 print(Spark.create_spark_bashrc_txt())
-                self.run_script(name="copy.spark.to.worker", hosts=self.hosts)
+                self.run_script(name="copy.spark.to.worker", hosts=self.workers)
                 print(Spark.update_slaves())
 
         # Print created cluster
