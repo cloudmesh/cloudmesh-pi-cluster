@@ -185,8 +185,8 @@ class Spark(Installer):
                 # TODO - bug I should be able to run this even if I am not on master
                 #
                 banner(f"Setup Master: {master[0]}")
-                #self.run_script(name="sparksetup", hosts=master)
-                os.system("sudo apt-get update")
+                self.run_script(name="sparksetup", hosts=self.master)
+                #os.system("sudo apt-get update")
                 print(Spark.update_bashrc())
 
         # Setup workers and update master's slaves file
