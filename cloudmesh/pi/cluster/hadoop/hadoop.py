@@ -121,7 +121,9 @@ class Hadoop:
             $HADOOP_HOME/sbin/stop-all.sh
         """
 # ?? at line 129, change bashrc requires password.
-# also need "source ./bashrc"
+# also need "source ~/.bashrc" in the end to take effect
+# cd && hadoop version | grep Hadoop
+
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
             cd ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin
@@ -134,12 +136,17 @@ class Hadoop:
             sudo chown pi:pi -R /opt/hadoop
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-bashrc-env.sh
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
             java -version
             jps
-            cd && hadoop version | grep Hadoop
         """
 
         self.script["hadoop.start"] = """
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
+            hdfs namenode -format
+            cd ~/.ssh
+            cat id_rsa.pub >> authorized_keys
+            cd $HADOOP_HOME/sbin/
             $HADOOP_HOME/sbin/start-all.sh
         """
 
@@ -190,7 +197,8 @@ class Hadoop:
         #
         if self.master:
             self.run_script(name="hadoop.setup", hosts=self.master)
-            self.update_bashrc(self)
+            # self.update_bashrc(self)  -?? Do I need this? Might have created
+            # bash twice
             self.hadoop_env(self)
             # self.run_script(name="source bashrc ", hosts=self.master) -
             # might need a line to do "source bashrc"
