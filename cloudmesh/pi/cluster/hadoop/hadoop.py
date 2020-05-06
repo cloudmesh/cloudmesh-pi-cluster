@@ -114,9 +114,11 @@ class Hadoop:
             hostname
             uname -a
         """
+# ?? You need to change the config file.
+# org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /user/pi/QuasiMonteCarlo_1588746424064_1223575563/in/part0 could only be written to 0 of the 1 minReplication nodes. There are 0 datanode(s) running and 0 node(s) are excluded in this operation.
 
         self.script["hadoop.test"] = """
-            hdfs namenode -format
+            echo "Y" | hdfs namenode -format
             $HADOOP_HOME/sbin/start-all.sh
             hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
             $HADOOP_HOME/sbin/stop-all.sh
@@ -140,16 +142,17 @@ class Hadoop:
 
 # run
 # sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-# ??? dont want to run the line above multiple times
+# source ~ /.bashrc
+# sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
+# ??? dont want to run the lines above multiple times; esp not master-start-hadoop.sh
+# cat ~ /.ssh / id_rsa.pub >> authorized_keys
 
 # ??? source ~/bashrc in script doesnt seem to work.
 
         self.script["hadoop.start"] = """
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-            source ~/.bashrc
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
-            cat ~/.ssh/id_rsa.pub >> authorized_keys
-            hdfs namenode -format
+
+            
+            echo "Y" | hdfs namenode -format
             $HADOOP_HOME/sbin/start-all.sh
         """
 
