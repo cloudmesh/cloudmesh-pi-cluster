@@ -171,13 +171,6 @@ class Spark:
                ssh pi@self.workers sh ~/spark-setup-worker.sh
         """
 
-        self.script["copy.spark.to.worker"] = """
-               scp /bin/spark-setup-worker.sh pi@self.workers:
-               scp ~/sparkout.tgz pi@self.workers:
-               ssh pi@self.workers sh ~/spark-setup-worker.sh
-        """
-
-
         # self.script["spark.uninstall2.4.5"] = """
         #     sudo apt-get remove openjdk-11-jre
         #     sudo apt-get remove scala
@@ -194,23 +187,19 @@ class Spark:
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
     def setup(self, arguments):
-        """
-
-        :return:
-        """
         #
         # SETUP MASTER
         #
         if self.master:
             self.run_script(name="spark.setup.master", hosts=self.master)
-            # self.update_bashrc(self)
-            # self.spark_env(self)
+            self.update_bashrc(self)
+            #self.spark_env(self)
         #
         # SETUP WORKER
         #
         if self.workers:
-            self.create_spark.setup.worker(self)
-            self.create_spark-bashrc.txt(self)
+            self.create_spark_setup_worker(self)
+            self.create_spark_bashrc_txt(self)
             self.run_script(name="copy.spark.to.worker", hosts=self.workers)
             self.update_slaves(self)
         raise NotImplementedError
@@ -240,10 +229,6 @@ class Spark:
         raise NotImplementedError
 
     def update_slaves(self):
-        """
-        Add new worker name to bottom of slaves file on master
-        :return:
-        """
         if self.master:
             banner("Updating $SPARK_HOME/conf/slaves file")
             script = "pi@self.master"
@@ -252,22 +237,13 @@ class Spark:
         raise NotImplementedError
 
     def update_bashrc(self):
-        """
-        Add the following lines to the bottom of the ~/.bashrc file
-        :return:
-        """
         banner("Updating ~/.bashrc file")
         script = textwrap.dedent(self.script["spark.update.bashrc"])
         Installer.add_script("/home/pi/.bashrc", script)
 
     def create_spark_setup_worker(self):
-        """
-        This file is created on master and copied to worker, then executed on worker from master
-        :return:
-        """
         banner("Creating the spark.setup.worker.sh file")
         script = self.script["spark.setup.worker.sh"]
-
         if self.dryrun:
             print(script)
         else:
@@ -277,12 +253,7 @@ class Spark:
             Installer.add_script("~/spark-setup-worker.sh", script)
 
     def create_spark_bashrc_txt(self):
-        """
-        Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
-        :return:
-        """
         script = self.script["update.bashrc"]
-
         if self.dryrun:
             print(script)
         else:
