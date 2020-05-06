@@ -100,6 +100,7 @@ class Spark:
             if command.startswith("#") or command.strip() == "":
                 print(command)
             elif len(hosts) == 1 and hosts[0] == self.hostname:
+                host = hosts[0]
                 command = command.format(user=self.user, version=self.version, host=host, hostname=hostname)
                 print(hosts, "->", command)
                 if self.dryrun:
