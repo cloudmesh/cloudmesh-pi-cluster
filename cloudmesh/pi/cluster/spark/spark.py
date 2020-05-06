@@ -169,7 +169,7 @@ class Spark(Installer):
         pprint(self.script)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    def setup(self, master=None, hosts=None):
+    def setup(self):
         # Setup master
         if master is None and hosts:
             Console.error("You must specify a master to set up nodes")
