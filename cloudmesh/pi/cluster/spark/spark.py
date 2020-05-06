@@ -236,7 +236,7 @@ class Spark:
             self.create_spark_setup_worker()
             self.create_spark_bashrc_txt()
             #self.run_script(name="copy.spark.to.worker", hosts=self.workers)
-            command1 = "scp /bin/spark-setup-worker.sh pi@{host}:
+            command1 = "scp /bin/spark-setup-worker.sh pi@{host}:"
             os.system(f"ssh {host} {command1}")
             command2 = "scp ~/sparkout.tgz pi@{host}:"
             os.system(f"ssh {host} {command2}")
