@@ -91,7 +91,7 @@ $ cms pi hadoop stop --master=red
 
   - Test
  
-This command starts Hadoop, run a \pi calculation (2 maps, 5 samples per map
+This command starts Hadoop, run a $\pi$ calculation (2 maps, 5 samples per map
 ) and stop Hadoop. You should see output like this 
 
 ```
@@ -109,10 +109,10 @@ Stopping resourcemanager
 
 This command returns hostname, and hardware information of Pi.
 
-## Example: Calculation of \pi
+## Example: Calculation of $\pi$
 
 Hadoop comes with sample file for computation. Once you have started the cluster
-, you can run one of the examples to calculate the value of \pi.
+, you can run one of the examples to calculate the value of $\pi$.
 
 ```
 $ hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2
