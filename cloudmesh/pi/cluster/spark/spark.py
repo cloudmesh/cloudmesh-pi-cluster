@@ -41,21 +41,29 @@ class Spark(Installer):
         self.master = arguments.master
         self.workers = Parameter.expand(arguments.workers)
 
-        hosts = None
-        master = None
+        hosts = []
         if arguments.master:
-            master = arguments.master
-
-        hosts = None
+            hosts.append(arguments.master)
         if arguments.workers:
-            hosts = Parameter.expand(arguments.workers)
+            hosts = hosts + Parameter.expand(arguments.workers)
 
-        # if hosts is None:
-        # Console.error("You need to specify at least one master or worker")
-        # return ""
+        #hosts = None
+        #master = None
+        #if arguments.master:
+        #    master = arguments.master
+
+        #hosts = None
+        #if arguments.workers:
+        #    hosts = Parameter.expand(arguments.workers)
+
+        if hosts is None:
+            Console.error("You need to specify at least one master or worker")
+            return ""
 
         if arguments.setup:
-            self.setup(master, hosts)
+
+            #self.setup(master, hosts)
+            self.run_script(name="sparksetup", hosts=hosts)
 
         elif arguments.start:
 
