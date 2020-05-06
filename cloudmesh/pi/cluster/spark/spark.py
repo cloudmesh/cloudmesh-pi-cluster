@@ -143,7 +143,7 @@ class Spark:
                 print(Printer.write(result, order=['host', 'stdout']))
         return results
 
-    def scripts(self, hosts):
+    def scripts(self, hosts=None):
 
         version = "2.4.5"
         pi_name = hosts[0]
@@ -218,7 +218,7 @@ class Spark:
 
     def run_script(self, name=None, hosts=None):
         banner(name)
-        results = self.run(script=self.script[name], hosts=hosts, verbose=True)
+        results = self.run(script=self.script[name](hosts), hosts=hosts, verbose=True)
 
     def setup(self, arguments):
         #
