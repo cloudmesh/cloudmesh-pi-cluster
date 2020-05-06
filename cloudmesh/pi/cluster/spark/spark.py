@@ -77,7 +77,7 @@ class Spark:
         self.version = "2.4.5"
         self.user = "pi"
         self.hostname = os.uname()[1]
-        self.scripts(hosts=None)
+        self.scripts()
 
     def run(self,
             script=None,
@@ -143,10 +143,9 @@ class Spark:
                 print(Printer.write(result, order=['host', 'stdout']))
         return results
 
-    def scripts(self, hosts):
+    def scripts(self):
 
         version = "2.4.5"
-        pi_name = hosts
 
         self.script["spark.check"] = """
             hostname
@@ -218,7 +217,7 @@ class Spark:
 
     def run_script(self, name=None, hosts=None):
         banner(name)
-        results = self.run(script=self.script[name](hosts), hosts=hosts, verbose=True)
+        results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
     def setup(self, arguments):
         #
@@ -236,7 +235,13 @@ class Spark:
             banner("Setting up worker self.workers")
             self.create_spark_setup_worker()
             self.create_spark_bashrc_txt()
-            self.run_script(name="copy.spark.to.worker", hosts=self.workers)
+            #self.run_script(name="copy.spark.to.worker", hosts=self.workers)
+            command1 = "scp /bin/spark-setup-worker.sh pi@{host}:
+            os.system(f"ssh {host} {command1}")
+            command2 = "scp ~/sparkout.tgz pi@{host}:"
+            os.system(f"ssh {host} {command2}")
+            command3 = "ssh pi@{host} sh ~/spark-setup-worker.sh"
+            os.system(f"ssh {host} {command3}")
             self.update_slaves()
         raise NotImplementedError
     #
