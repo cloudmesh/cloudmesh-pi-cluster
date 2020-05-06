@@ -26,6 +26,7 @@ class Spark(Installer):
         self.service = "spark"
         #self.port = 6443
         self.hostname = os.uname()[1]
+        self.scripts()
 
     def execute(self, arguments):
         """
