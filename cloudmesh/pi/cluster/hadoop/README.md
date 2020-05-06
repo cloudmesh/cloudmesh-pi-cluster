@@ -109,7 +109,7 @@ Stopping resourcemanager
 
 This command returns hostname, and hardware information of Pi.
 
-## Example: Calculation of $\pi$
+## Example: Calculation of $pi$
 
 Hadoop comes with sample file for computation. Once you have started the cluster
 , you can run one of the examples to calculate the value of $\pi$.
