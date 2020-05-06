@@ -360,7 +360,7 @@ class Spark(Installer):
                         # ################################################
                   """)
 
-        #f = open("~/spark-bashrc.txt", "x")
-        #f.write("~/spark-bashrc.txt has been created")
-        #f.close()
+        f = open("~/spark-bashrc.txt", "x")
+        #f.write("test")
+        f.close()
         Installer.add_script("~/spark-bashrc.txt", script)
