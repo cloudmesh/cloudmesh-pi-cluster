@@ -70,6 +70,7 @@ class Spark:
         """
         self.master = master
         self.workers = workers
+        self.dryrun = False
         self.script = Script()
         self.service = "spark"
         self.java_version = "11"
