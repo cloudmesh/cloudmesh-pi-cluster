@@ -121,16 +121,22 @@ class Hadoop:
             $HADOOP_HOME/sbin/stop-all.sh
         """
 # ?? at line 129, change bashrc requires password.
+# also need "source ./bashrc"
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
-            sudo apt-get install openjdk-8-jre
-            sudo apt-get -y install openjdk-8-jdk-headless default-jre
+            cd ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin
+            echo "Y" | sh setup-master.sh
             
             cd ~
             wget https://archive.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
             sudo tar -xvzf hadoop-3.2.0.tar.gz -C /opt/
             sudo mv /opt/hadoop-3.2.0 /opt/hadoop
             sudo chown pi:pi -R /opt/hadoop
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-bashrc-env.sh
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
+            java -version
+            jps
+            cd && hadoop version | grep Hadoop
         """
 
         self.script["hadoop.start"] = """
