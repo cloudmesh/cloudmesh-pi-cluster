@@ -118,6 +118,8 @@ class Hadoop:
 # org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /user/pi/QuasiMonteCarlo_1588746424064_1223575563/in/part0 could only be written to 0 of the 1 minReplication nodes. There are 0 datanode(s) running and 0 node(s) are excluded in this operation.
 
         self.script["hadoop.test"] = """
+            rm -rf $HADOOP_HOME/hadoopdata/hdfs/datanode
+            rm -rf $HADOOP_HOME/hadoopdata/hdfs/namenode
             echo "Y" | hdfs namenode -format
             $HADOOP_HOME/sbin/start-dfs.sh
             $HADOOP_HOME/sbin/start-yarn.sh
@@ -151,8 +153,8 @@ class Hadoop:
 # ??? source ~/bashrc in script doesnt seem to work.
 
         self.script["hadoop.start"] = """
-
-            
+            rm -rf $HADOOP_HOME/hadoopdata/hdfs/datanode
+            rm -rf $HADOOP_HOME/hadoopdata/hdfs/namenode
             echo "Y" | hdfs namenode -format
             $HADOOP_HOME/sbin/start-dfs.sh
             $HADOOP_HOME/sbin/start-yarn.sh
