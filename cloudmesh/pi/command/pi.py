@@ -32,6 +32,11 @@ class PiCommand(PluginCommand):
             pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
             pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
             pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+            pi hadoop setup [--master=MASTER] [--workers=WORKERS]
+            pi hadoop start [--master=MASTER] [--workers=WORKERS]
+            pi hadoop stop [--master=MASTER] [--workers=WORKERS]
+            pi hadoop test [--master=MASTER] [--workers=WORKERS]
+            pi hadoop check [--master=MASTER] [--workers=WORKERS]
             pi spark setup [--master=MASTER] [--workers=WORKERS]
             pi spark start [--master=MASTER] [--workers=WORKERS]
             pi spark stop [--master=MASTER] [--workers=WORKERS]
@@ -124,6 +129,11 @@ class PiCommand(PluginCommand):
             from cloudmesh.pi.cluster.spark.spark import Spark
             spark = Spark()
             spark.execute(arguments)
+
+        elif arguments.hadoop:
+            from cloudmesh.pi.cluster.hadoop.hadoop import Hadoop
+            hadoop = Hadoop()
+            hadoop.execute(arguments)
 
         elif arguments.k3:
             from cloudmesh.pi.cluster.k3.k3 import K3
