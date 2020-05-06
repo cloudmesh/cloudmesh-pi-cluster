@@ -331,7 +331,7 @@ class Spark(Installer):
               """)
 
         f = open("/home/pi/spark-setup-worker.sh", "w+")
-        #f.write("~/spark-setup-worker.sh has been created")
+        f.write("test")
         f.close()
         Installer.add_script("~/spark-setup-worker.sh", script)
 
