@@ -92,22 +92,49 @@ class Spark:
 
         hostname = os.uname()[1]
         for command in script.splitlines():
-            print (hosts, "->", command)
+            if hosts == None:
+                hosts = ""
             if command.startswith("#") or command.strip() == "":
-                pass
-                # print (command)
-            elif len(hosts) == 1 and hosts[0] == hostname:
-                os.system(command)
-            elif len(hosts) == 1 and hosts[0] != hostname:
+                print(command)
+            elif len(hosts) == 1 and hosts[0] == self.hostname:
+                command = command.format(user=self.user, version=self.version, host=host, hostname=hostname)
+                print(hosts, "->", command)
+                if self.dryrun:
+                    Console.info(f"Executiong command >{command}<")
+                else:
+                    os.system(command)
+            elif len(hosts) == 1 and hosts[0] != self.hostname:
                 host = hosts[0]
-                os.system(f"ssh {host} {command}")
+                command = command.format(user=self.user, version=self.version, host=host, hostname=hostname)
+                print(hosts, "->", command, hosts)
+                if self.dryrun:
+                    Console.info(f"Executiong command >{command}<")
+                else:
+                    os.system(f"ssh {host} {command}")
             else:
+
+                #@staticmethod
+                #def run(hosts=None,
+                #        command=None,
+                #        execute=None,
+                #        processors=3,
+                #        shell=False,
+                #        **kwargs):
+
+                if self.dryrun:
+                    executor = print
+                else:
+                    executor = os.system
+
                 result = Host.ssh(hosts=hosts,
                                   command=command,
                                   username=username,
                                   key="~/.ssh/id_rsa.pub",
                                   processors=processors,
-                                  executor=os.system)
+                                  executor=executor,
+                                  version=self.version, # this was your bug, you did not pass this along
+                                  user=self.user  # this was your bug, you did not pass this along
+                                  )
                 results.append(result)
         if verbose:
             pprint(results)
