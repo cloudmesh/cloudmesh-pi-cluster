@@ -238,11 +238,16 @@ class Spark(Installer):
         self.run_script(name="sparksetup", hosts=self.master)
         #os.system("sudo apt-get update")
 
-        banner("Updating $SPARK_HOME/conf/slaves file")
+        if "SPARK_HOME" not in os.environ:
+            Console.error("$SPARK_HOME is not set")
+            return ""
+
+        spark_home = os.environ("SPARK_HOME")
+        filename =  "{spark_home}/conf/slaves"
+        banner(f"Updating file: {filename}")
         filename =
         if not self.dryrun:
-            Installer.add_script("$SPARK_HOME/conf/slaves", "{user}@{worker}")
-
+            Installer.add_script(fileanme, "{user}@{worker}")
 
         banner(f"Setup bashrc: {master}")
         print(Spark.update_bashrc())

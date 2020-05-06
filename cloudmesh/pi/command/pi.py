@@ -37,6 +37,8 @@ class PiCommand(PluginCommand):
             pi hadoop stop [--master=MASTER] [--workers=WORKERS]
             pi hadoop test [--master=MASTER] [--workers=WORKERS]
             pi hadoop check [--master=MASTER] [--workers=WORKERS]
+            pi spark worker add [--master=MASTER] [--workers=WORKERS] [--dryrun]
+            pi spark worker remove [--master=MASTER] [--workers=WORKERS] [--dryrun]
             pi spark setup [--master=MASTER] [--workers=WORKERS] [--dryrun]
             pi spark start [--master=MASTER] [--workers=WORKERS] [--dryrun]
             pi spark stop [--master=MASTER] [--workers=WORKERS] [--dryrun]
