@@ -198,11 +198,11 @@ class Spark:
              sudo cp ~/.bashrc ~/.bashrc-backup
          """
 
-        self.script["copy.spark.to.worker"] = f"""
-               scp /bin/spark-setup-worker.sh pi@{pi_name}:
-               scp ~/sparkout.tgz pi@{pi_name}:
-               ssh pi@{pi_name} sh ~/spark-setup-worker.sh
-        """
+        #self.script["copy.spark.to.worker"] = f"""
+        #       scp /bin/spark-setup-worker.sh pi@{pi_name}:
+        #       scp ~/sparkout.tgz pi@{pi_name}:
+        #       ssh pi@{pi_name} sh ~/spark-setup-worker.sh
+        #"""
 
         # self.script["spark.uninstall2.4.5"] = """
         #     sudo apt-get remove openjdk-11-jre
