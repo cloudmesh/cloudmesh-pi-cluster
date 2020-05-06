@@ -239,13 +239,13 @@ class Spark:
             self.create_spark_bashrc_txt()
             hosts=self.workers
             # self.run_script(name="copy.spark.to.worker", hosts=self.workers)
-            command1 = f"scp /bin/spark-setup-worker.sh pi@{hosts[0]}:"
-            os.system(f"ssh {hosts[0]} {command1}")
-            command2 = f"scp ~/sparkout.tgz pi@{hosts[0]}:"
-            os.system(f"ssh {hosts[0]} {command2}")
-            command3 = f"ssh pi@{hosts[0]} sh ~/spark-setup-worker.sh"
-            os.system(f"ssh {hosts[0]} {command3}")
-            self.update_slaves(hosts[0])
+            command1 = f"scp /bin/spark-setup-worker.sh pi@{hosts}:"
+            os.system(f"ssh {hosts} {command1}")
+            command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
+            os.system(f"ssh {hosts} {command2}")
+            command3 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
+            os.system(f"ssh {hosts} {command3}")
+            self.update_slaves(hosts)
         raise NotImplementedError
     #
     #     # Setup Pi workflow
@@ -275,7 +275,7 @@ class Spark:
     def update_slaves(self,hosts):
         if self.workers:
             banner("Updating $SPARK_HOME/conf/slaves file")
-            script = f"pi@{hosts[0]}"
+            script = f"pi@{hosts}"
             print(script)
             Installer.add_script("$SPARK_HOME/conf/slaves", script)
         raise NotImplementedError
