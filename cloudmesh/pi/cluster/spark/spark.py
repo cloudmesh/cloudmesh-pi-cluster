@@ -76,6 +76,7 @@ class Spark:
         self.java_version = "11"
         self.version = "2.4.5"
         self.user = "pi"
+        self.hostname = os.uname()[1]
         self.scripts()
 
     def run(self,
