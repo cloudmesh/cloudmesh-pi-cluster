@@ -191,6 +191,7 @@ class Spark:
         # SETUP MASTER
         #
         if self.master:
+            banner("Setting up master self.master")
             self.run_script(name="spark.setup.master", hosts=self.master)
             self.update_bashrc(self)
             #self.spark_env(self)
@@ -198,6 +199,7 @@ class Spark:
         # SETUP WORKER
         #
         if self.workers:
+            banner("Setting up worker self.workers")
             self.create_spark_setup_worker(self)
             self.create_spark_bashrc_txt(self)
             self.run_script(name="copy.spark.to.worker", hosts=self.workers)
