@@ -135,6 +135,17 @@ class Spark:
                sudo cp ~/.bashrc ~/.bashrc-backup
         """
 
+        self.script["spark.update.bashrc"] = """
+                #JAVA_HOME
+                export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+                #SCALA_HOME
+                export SCALA_HOME=/usr/share/scala
+                export PATH=$PATH:$SCALA_HOME/bin
+                #SPARK_HOME
+                export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+                export PATH=$PATH:$SPARK_HOME/bin
+        """
+
         self.script["spark.start"] = """
             cat $SPARK_HOME/conf/slaves
             sh $SPARK_HOME/sbin/start-all.sh
@@ -159,6 +170,13 @@ class Spark:
                scp ~/sparkout.tgz pi@self.workers:
                ssh pi@self.workers sh ~/spark-setup-worker.sh
         """
+
+        self.script["copy.spark.to.worker"] = """
+               scp /bin/spark-setup-worker.sh pi@self.workers:
+               scp ~/sparkout.tgz pi@self.workers:
+               ssh pi@self.workers sh ~/spark-setup-worker.sh
+        """
+
 
         # self.script["spark.uninstall2.4.5"] = """
         #     sudo apt-get remove openjdk-11-jre
@@ -195,21 +213,26 @@ class Spark:
             self.create_spark-bashrc.txt(self)
             self.run_script(name="copy.spark.to.worker", hosts=self.workers)
             self.update_slaves(self)
+        raise NotImplementedError
     #
-    #     raise NotImplementedError
-    #     # Setup the master with the Spark applications
+    #     # Setup Pi workflow
+    #     # Setup the Pi master with the Spark applications
+    #       script "spark.setup.master"
     #
-    #     # Update the master's ~/.bashrc file
+    #     # Update the Pi master's ~/.bashrc file
+    #       function update_bashrc(self)
     #
-    #     # Update the master's spark-env.sh file (optional)
+    #     # Create a shell file on Pi master to run on Pi worker
+    #       function create_spark_setup_worker(self)
     #
-    #     # Create a shell file on master to run on worker
+    #     # Create a file on Pi master that will be copied to and append to ~/.bashrc on Pi worker
+    #       function create_spark_bashrc_txt
     #
-    #     # Create a file on master that will be copied to and append to ~/.bashrc on worker
-    #
-    #     # Copy Spark shell and bashrc change files to workers, execute shell file on worker
+    #     # Copy shell and bashrc change files to Pi workers, execute shell file on Pi worker
+    #       script "copy.spark.to.worker"
     #
     #     # Update slaves file on master
+    #       function update_slaves(self)
 
     def test(self):
         if self.master:
@@ -221,11 +244,12 @@ class Spark:
         Add new worker name to bottom of slaves file on master
         :return:
         """
-        banner("Updating $SPARK_HOME/conf/slaves file")
-        script = textwrap.dedent("""
-           {user}@{worker}
-        """)
-        Installer.add_script("$SPARK_HOME/conf/slaves", script)
+        if self.master:
+            banner("Updating $SPARK_HOME/conf/slaves file")
+            script = "pi@self.master"
+            print(script)
+            Installer.add_script("$SPARK_HOME/conf/slaves", script)
+        raise NotImplementedError
 
     def update_bashrc(self):
         """
@@ -233,8 +257,8 @@ class Spark:
         :return:
         """
         banner("Updating ~/.bashrc file")
-        script = textwrap.dedent(self.script["update.bashrc"])
-        Installer.add_script("~/.bashrc", script)
+        script = textwrap.dedent(self.script["spark.update.bashrc"])
+        Installer.add_script("/home/pi/.bashrc", script)
 
     def create_spark_setup_worker(self):
         """
