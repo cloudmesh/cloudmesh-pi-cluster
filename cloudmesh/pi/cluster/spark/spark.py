@@ -30,65 +30,6 @@ class Spark(Installer):
         self.hostname = os.uname()[1]
         self.scripts()
 
-    def execute(self, arguments):
-        """
-        pi spark setup --master=MASTER --workers=WORKER
-        pi spark start --master=MASTER --workers=WORKER
-        pi spark stop --master=MASTER --workers=WORKER
-        pi spark test --master=MASTER --workers=WORKER
-        pi spark check --master=MASTER --worker=WORKER
-
-        :param arguments:
-        :return:
-        """
-        self.dryrun = arguments["--dryrun"]
-        master = arguments.master
-        workers = Parameter.expand(arguments.workers)
-
-
-        hosts = []
-        if arguments.master:
-            hosts.append(arguments.master)
-        if arguments.workers:
-            hosts = hosts + Parameter.expand(arguments.workers)
-
-        #hosts = None
-        master = None
-        if arguments.master:
-            master = arguments.master
-
-
-        #hosts = None
-        if arguments.workers:
-            hosts = Parameter.expand(arguments.workers)
-
-        if hosts is None:
-            Console.error("You need to specify at least one master or worker")
-            return ""
-
-        if arguments.setup:
-
-            #  pi hadoop setup [--master=MASTER] [--workers=WORKERS]
-
-            self.setup(master, workers)
-            #self.run_script(name="sparksetup", hosts=hosts)
-
-        elif arguments.start:
-
-            self.start(master)
-
-        elif arguments.stop:
-
-            self.stop(master)
-
-        elif arguments.test:
-
-            self.test(master)
-
-        elif arguments.check:
-
-            self.check(master, hosts)
-
     def scripts(self):
 
         self.script["spark.check"] = """
@@ -139,6 +80,46 @@ class Spark(Installer):
            """
 
         return self.script
+
+    def execute(self, arguments):
+        """
+        pi spark setup --master=MASTER --workers=WORKER
+        pi spark start --master=MASTER --workers=WORKER
+        pi spark stop --master=MASTER --workers=WORKER
+        pi spark test --master=MASTER --workers=WORKER
+        pi spark check --master=MASTER --worker=WORKER
+
+        :param arguments:
+        :return:
+        """
+        self.dryrun = arguments["--dryrun"]
+        master = arguments.master
+        workers = Parameter.expand(arguments.workers)
+
+        # find master and worker from arguments
+
+        if arguments.master:
+            hosts.append(arguments.master)
+
+        if arguments.workers:
+            hosts = Parameter.expand(arguments.workers)
+
+        if workers is not None and master is None:
+            Console.error("You need to specify at least one master or worker")
+            return ""
+
+        # do the action on master amd workers found
+        if arguments.setup:
+            self.setup(master, workers)
+        elif arguments.start:
+            self.start(master, workers)
+        elif arguments.stop:
+            self.stop(master, workers)
+        elif arguments.test:
+            self.test(master, workers)
+        elif arguments.check:
+            self.check(master, workers)
+
 
     def run(self,
             script=None,
