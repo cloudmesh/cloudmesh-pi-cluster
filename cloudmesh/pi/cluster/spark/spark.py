@@ -143,10 +143,10 @@ class Spark:
                 print(Printer.write(result, order=['host', 'stdout']))
         return results
 
-    def scripts(self, host):
+    def scripts(self, hosts):
 
         version = "2.4.5"
-        pi_name = host
+        pi_name = hosts[0]
 
         self.script["spark.check"] = """
             hostname
