@@ -76,6 +76,8 @@ class Spark(Installer):
     def scripts(self):
 
         version = "2.4.5"
+        user = "pi"
+
 
         self.script["spark.check"] = """
                hostname
@@ -110,7 +112,7 @@ class Spark(Installer):
            """
 
         self.script["copy.spark.to.worker"] = """
-               scp /bin/spark-setup-worker.sh {user}@{worker}:
+               scp /bin/spark-setup-worker.sh {user}@self.workers:
                scp ~/sparkout.tgz {user}@{worker}:
                ssh {user}@{worker} sh ~/spark-setup-worker.sh
            """
