@@ -33,6 +33,8 @@ class Spark:
             hosts.append(arguments.master)
         if arguments.workers:
             hosts = hosts + Parameter.expand(arguments.workers)
+        if arguments.dryrun:
+            self.dryrun = True
 
         if hosts is None:
             Console.error("You need to specify at least one master or worker")
@@ -248,7 +250,7 @@ class Spark:
     def create_spark_setup_worker(self):
         banner("Creating the spark.setup.worker.sh file")
         script = textwrap.dedent(self.script["spark.setup.worker.sh"])
-        if self.dryrun:
+        if self.dryrun==True:
             print(script)
         else:
             f = open("/home/pi/spark-setup-worker.sh", "w+")
