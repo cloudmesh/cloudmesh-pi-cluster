@@ -22,6 +22,7 @@ class Spark(Installer):
         """
         self.master = master
         self.workers = workers
+        self.java_version = "11"
         self.version = "2.4.5"
         self.user = "pi"
         self.script = Script()
@@ -79,6 +80,39 @@ class Spark(Installer):
                sudo cp ~/.bashrc-backup ~/.bashrc
            """
 
+        self.script["update.bashrc"] = """
+
+               # ################################################
+               # SPARK BEGIN
+               #
+               #JAVA_HOME
+               export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+               #SCALA_HOME
+               export SCALA_HOME=/usr/share/scala
+               export PATH=$PATH:$SCALA_HOME/bin
+               #SPARK_HOME
+               export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+               export PATH=$PATH:$SPARK_HOME/bin
+               #
+               # SPARK END
+               # ################################################
+
+           """
+
+        script["spark.setup.worker.sh"] = """
+                    #!/usr/bin/env bash
+                    sudo apt-get update
+                    sudo apt-get install default-jdk
+                    sudo apt-get install scala
+                    cd ~
+                    sudo tar -xzf sparkout.tgz
+                    cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
+                    sudo cp ~/.bashrc ~/.bashrc-backup
+                    sudo cp ~/temp-bashrc ~/.bashrc
+                    sudo rm ~/temp-bashrc
+                    sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
+              """
+
         return self.script
 
     def execute(self, arguments):
@@ -93,9 +127,12 @@ class Spark(Installer):
         :return:
         """
         self.dryrun = arguments["--dryrun"]
-        master = arguments.master
+        master = Parameter.expand(arguments.master)
         workers = Parameter.expand(arguments.workers)
 
+        if len(master) > 1:
+            Console.error("You can have only one master")
+        master = master[0]
         # find master and worker from arguments
 
         if arguments.master:
@@ -192,36 +229,38 @@ class Spark(Installer):
 
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    def setup(self, master= None, hosts=None):
-        # Setup master
-        if master is None and hosts:
-            Console.error("You must specify a master to set up nodes")
-            return ""
+    def setup(self, master= None, workers=None):
 
-        # Setup Spark on the master
-        if hosts is None:
-            if master is not None:
-
-                if type(master) != list:
-                    master = Parameter.expand(master)
-                #
-                # TODO - bug I should be able to run this even if I am not on master
-                #
-                banner(f"Setup Master: {master[0]}")
-                self.run_script(name="sparksetup", hosts=self.master)
-                #os.system("sudo apt-get update")
-                print(Spark.update_bashrc())
-
-        # Setup workers and update master's slaves file
         #
+        # SETUP THE MASTER
         #
-        if hosts is not None:
-            if master is not None:
-                banner(f"Get files from {master[0]}")
-                print(self.create_spark_setup_worker())
-                print(self.create_spark_bashrc_txt())
-                self.run_script(name="copy.spark.to.worker", hosts=self.master)
-                print(self.update_slaves())
+        banner(f"Setup Master: {master}")
+        self.run_script(name="sparksetup", hosts=self.master)
+        #os.system("sudo apt-get update")
+
+        banner("Updating $SPARK_HOME/conf/slaves file")
+        filename =
+        if not self.dryrun:
+            Installer.add_script("$SPARK_HOME/conf/slaves", "{user}@{worker}")
+
+
+        banner(f"Setup bashrc: {master}")
+        print(Spark.update_bashrc())
+
+        #
+        # SETUP THE WORKER. STEP 1: GET THE FILES FROM MASTER
+        #
+        banner(f"Get files from {master}")
+        print(self.create_spark_setup_worker())
+        self.run_script(name="copy.spark.to.worker", hosts=self.workers)
+
+        #
+        # SETUP THE WORKER. SETUP BASHRC ON WORKERS
+        #
+
+        print(self.create_spark_bashrc_txt())
+
+        print(self.update_slaves())
 
         # Print created cluster
         #self.view()
@@ -229,19 +268,14 @@ class Spark(Installer):
         # raise NotImplementedError
 
     def start(self, master=None, hosts=None):
-        # Setup master
-        if master is None and hosts:
-            Console.error("You must specify a master to start cluster")
-            raise ValueError
 
         # Setup Spark on the master
+
         if master is not None:
 
             if type(master) != list:
                 master = Parameter.expand(master)
-            #
-            # TODO - bug I should be able to run this even if I am not on master
-            #
+
             banner(f"Start Master: {master[0]}")
             os.system("sh $SPARK_HOME/sbin/start-all.sh")
             # command = Installer.oneline(f"""
@@ -256,10 +290,6 @@ class Spark(Installer):
         os.system("$SPARK_HOME/bin/run-example SparkPi 4 10")
 
     def stop(self, master=None, hosts=None):
-        # Stop Spark
-        if master is None and hosts:
-            Console.error("You must specify a master to stop cluster")
-            raise ValueError
 
         # Stop Spark on master and all workers
         if master is not None:
@@ -275,20 +305,8 @@ class Spark(Installer):
             #           sh $SPARK_HOME/sbin/stop-all.sh -
             #           """)
 
-
         # raise NotImplementedError
 
-    def update_slaves(self):
-        """
-        Add new worker name to bottom of slaves file on master
-        :return:
-        """
-        banner("Updating $SPARK_HOME/conf/slaves file")
-        script = textwrap.dedent("""
-           {user}@{worker}
-        """)
-        if not self.dryrun:
-            Installer.add_script("$SPARK_HOME/conf/slaves", script)
 
     def update_bashrc(self):
         """
@@ -296,38 +314,8 @@ class Spark(Installer):
         :return:
         """
         banner("Updating ~/.bashrc file")
-        script = textwrap.dedent("""
-
-               # ################################################
-               # SPARK BEGIN
-               #
-               #JAVA_HOME
-               export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
-               #SCALA_HOME
-               export SCALA_HOME=/usr/share/scala
-               export PATH=$PATH:$SCALA_HOME/bin
-               #SPARK_HOME
-               export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
-               export PATH=$PATH:$SPARK_HOME/bin
-               #
-               # SPARK END
-               # ################################################
-
-           """)
+        script = textwrap.dedent(self.script["update.bashrc"])
         Installer.add_script("~/.bashrc", script)
-
-    def spark_env(self, filename="$SPARK_HOME/conf/spark-env.sh"):
-        #
-        # This is extra and probably not needed as also set in ~/.bashrc
-        #
-        name = "spark."
-        banner(name)
-        script = textwrap.dedent("""
-            #JAVA_HOME
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
-        """)
-        # Q: IS THIS ADDED OR OVERWRITE?
-        Installer.add_script(filename, script)
 
     def create_spark_setup_worker(self):
         """
@@ -335,20 +323,7 @@ class Spark(Installer):
         :return:
         """
         banner("Creating the spark.setup.worker.sh file")
-        version = "2.4.5"
-        script = textwrap.dedent("""
-                    #!/usr/bin/env bash
-                    sudo apt-get update
-                    sudo apt-get install default-jdk
-                    sudo apt-get install scala
-                    cd ~
-                    sudo tar -xzf sparkout.tgz
-                    cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
-                    sudo cp ~/.bashrc ~/.bashrc-backup
-                    sudo cp ~/temp-bashrc ~/.bashrc
-                    sudo rm ~/temp-bashrc
-                    sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
-              """)
+        script = self.script["spark.setup.worker.sh"]
 
         if self.dryrun:
             print (script)
@@ -363,24 +338,7 @@ class Spark(Installer):
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
         :return:
         """
-        version = "2.4.5"
-        java_version = "11"
-        script = textwrap.dedent("""
-                        # ################################################
-                        # SPARK BEGIN
-                        #
-                        #JAVA_HOME
-                        export JAVA_HOME=/usr/lib/jvm/java-{java_version}-openjdk-armhf/
-                        #SCALA_HOME
-                        export SCALA_HOME=/usr/share/scala
-                        export PATH=$PATH:$SCALA_HOME/bin
-                        #SPARK_HOME
-                        export SPARK_HOME=~/spark-{version}-bin-hadoop2.7
-                        export PATH=$PATH:$SPARK_HOME/bin
-                        #
-                        # SPARK END
-                        # ################################################
-                  """)
+        script = self.script["update.bashrc"]
 
         if self.dryrun:
             print (script)
