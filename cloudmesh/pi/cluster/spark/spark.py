@@ -62,7 +62,7 @@ class Spark(Installer):
 
         if arguments.setup:
 
-            self.setup(master, workers)
+            self.setup(hosts)
             #self.run_script(name="sparksetup", hosts=hosts)
 
         elif arguments.start:
