@@ -229,7 +229,7 @@ class Spark:
         if self.master:
             banner(f"Setting up master {master}")
             self.run_script(name="spark.setup.master", hosts=master)
-            self.update_bashrc(self)
+            self.update_bashrc()
             #self.spark_env(self)
         #
         # SETUP WORKER
