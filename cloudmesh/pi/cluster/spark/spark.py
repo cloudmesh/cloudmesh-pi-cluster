@@ -241,13 +241,13 @@ class Spark:
             # self.run_script(name="copy.spark.to.worker", hosts=self.workers)
             command1 = f"scp /bin/spark-setup-worker.sh pi@{hosts}:"
             print(command1)
-            os.system(f"ssh {hosts} {command1}")
+            os.system(command1)
             command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
             print(command2)
-            os.system(f"ssh {hosts} {command2}")
+            os.system(command2)
             command3 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
             print(command3)
-            os.system(f"ssh {hosts} {command3}")
+            os.system(command3)
             self.update_slaves(hosts)
         raise NotImplementedError
     #
