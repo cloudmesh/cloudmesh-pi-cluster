@@ -143,17 +143,14 @@ class Hadoop:
 # then `source ~/.bashrc`
 
         self.script["hadoop.start"] = """
-                source ~/.bashrc
-            """
-
-        # self.script["hadoop.start"] = """
-        #
-        #     sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
-        #     cd ~/.ssh
-        #     cat id_rsa.pub >> authorized_keys
-        #     hdfs namenode -format
-        #     $HADOOP_HOME/sbin/start-all.sh
-        # """
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
+            source ~/.bashrc
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
+            cd ~/.ssh
+            cat id_rsa.pub >> authorized_keys
+            hdfs namenode -format
+            $HADOOP_HOME/sbin/start-all.sh
+        """
 
         self.script["hadoop.stop"] = """
             $HADOOP_HOME/sbin/stop-all.sh
