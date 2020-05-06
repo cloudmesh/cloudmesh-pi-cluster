@@ -246,9 +246,12 @@ class Spark:
             command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
             print(command2)
             os.system(command2)
-            command3 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
+            command3 = f"scp ~/spark-bashrc.txt pi@{hosts}"
             print(command3)
             os.system(command3)
+            command4 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
+            print(command4)
+            os.system(command4)
             self.update_slaves(hosts)
         raise NotImplementedError
     #
@@ -301,6 +304,7 @@ class Spark:
             Installer.add_script("~/spark-setup-worker.sh", script)
 
     def create_spark_bashrc_txt(self):
+        banner("Creating the spark-bashrc.txt file")
         script = textwrap.dedent(self.script["spark.update.bashrc"])
         if self.dryrun == True:
             print(script)
