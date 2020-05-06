@@ -237,7 +237,7 @@ class Spark:
             banner(f"Setting up worker {hosts}")
             self.create_spark_setup_worker()
             self.create_spark_bashrc_txt()
-            #hosts=self.workers
+            hosts=hosts[0]
             # self.run_script(name="copy.spark.to.worker", hosts=self.workers)
             command1 = f"scp /bin/spark-setup-worker.sh pi@{hosts}:"
             print(command1)
