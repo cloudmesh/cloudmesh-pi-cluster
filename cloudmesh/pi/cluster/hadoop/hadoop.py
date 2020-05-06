@@ -140,14 +140,15 @@ class Hadoop:
 
 # run
 # sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-# then `source ~/.bashrc`
+# ??? dont want to run the line above multiple times
+
+# ??? source ~/bashrc in script doesnt seem to work.
 
         self.script["hadoop.start"] = """
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
             source ~/.bashrc
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
-            cd ~/.ssh
-            cat id_rsa.pub >> authorized_keys
+            cat ~/.ssh/id_rsa.pub >> authorized_keys
             hdfs namenode -format
             $HADOOP_HOME/sbin/start-all.sh
         """
