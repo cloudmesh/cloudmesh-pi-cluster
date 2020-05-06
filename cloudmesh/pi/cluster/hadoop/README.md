@@ -56,7 +56,7 @@ $ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 
     --TODO: MORE FUNCTIONS ON WORKERS AS WELL
 
-  - Start
+  - **Start**
   
 ```
 $ cms pi hadoop start --master=red
@@ -83,13 +83,13 @@ You should see a web page showing resources. `http://red:8088` shows nodes of
 
 ![red:9870_on_web](images/resource-manager-web.png)
 
-  - Stop
+  - **Stop**
 
 ```
 $ cms pi hadoop stop --master=red
 ```
 
-  - Test
+  - **Test**
  
 This command starts Hadoop, run a π calculation (2 maps, 5 samples per map
 ) and stop Hadoop. You should see output like this 
@@ -105,7 +105,7 @@ Stopping resourcemanager
 []
 ```
 
-   - Check
+   - **Check**
 
 This command returns hostname, and hardware information of Pi.
 
