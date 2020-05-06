@@ -247,7 +247,7 @@ class Spark:
 
     def create_spark_setup_worker(self):
         banner("Creating the spark.setup.worker.sh file")
-        script = self.script["spark.setup.worker.sh"]
+        script = textwrap.dedent(self.script["spark.setup.worker.sh"])
         if self.dryrun:
             print(script)
         else:
@@ -257,7 +257,7 @@ class Spark:
             Installer.add_script("~/spark-setup-worker.sh", script)
 
     def create_spark_bashrc_txt(self):
-        script = self.script["update.bashrc"]
+        script = textwrap.dedent(self.script["update.bashrc"])
         if self.dryrun:
             print(script)
         else:
