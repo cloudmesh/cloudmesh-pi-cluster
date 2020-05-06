@@ -114,8 +114,6 @@ class Hadoop:
             hostname
             uname -a
         """
-# ?? You need to change the config file.
-# org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /user/pi/QuasiMonteCarlo_1588746424064_1223575563/in/part0 could only be written to 0 of the 1 minReplication nodes. There are 0 datanode(s) running and 0 node(s) are excluded in this operation.
 
         self.script["hadoop.test"] = """
             rm -rf $HADOOP_HOME/hadoopdata/hdfs/datanode
@@ -127,10 +125,6 @@ class Hadoop:
             $HADOOP_HOME/sbin/stop-all.sh
         """
 
-# also need "source ~/.bashrc" in the end to take effect
-# cd && hadoop version | grep Hadoop
-# java -version
-# jps
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
             echo "Y" | sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/setup-master.sh
@@ -142,15 +136,6 @@ class Hadoop:
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-bashrc-env.sh
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
         """
-
-# run
-# sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-# source ~ /.bashrc
-# sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
-# ??? dont want to run the lines above multiple times; esp not master-start-hadoop.sh
-# cat ~ /.ssh / id_rsa.pub >> authorized_keys
-
-# ??? source ~/bashrc in script doesnt seem to work.
 
         self.script["hadoop.start"] = """
             rm -rf $HADOOP_HOME/hadoopdata/hdfs/datanode
