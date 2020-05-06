@@ -34,6 +34,7 @@ class Spark:
             master = arguments.master
         if arguments.workers:
             hosts = hosts + Parameter.expand(arguments.workers)
+            master = []
         if arguments.dryrun:
             self.dryrun = True
 
