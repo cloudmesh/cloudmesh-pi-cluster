@@ -22,6 +22,8 @@ class Spark(Installer):
         """
         self.master = master
         self.workers = workers
+        self.version = "2.4.5"
+        self.user = "pi"
         self.script = Script()
         self.service = "spark"
         #self.port = 6443
@@ -39,8 +41,10 @@ class Spark(Installer):
         :param arguments:
         :return:
         """
-        self.master = arguments.master
-        self.workers = Parameter.expand(arguments.workers)
+        self.dryrun = arguments["--dryrun"]
+        master = arguments.master
+        workers = Parameter.expand(arguments.workers)
+
 
         hosts = []
         if arguments.master:
@@ -53,6 +57,7 @@ class Spark(Installer):
         if arguments.master:
             master = arguments.master
 
+
         #hosts = None
         if arguments.workers:
             hosts = Parameter.expand(arguments.workers)
@@ -63,7 +68,9 @@ class Spark(Installer):
 
         if arguments.setup:
 
-            self.setup(hosts)
+            #  pi hadoop setup [--master=MASTER] [--workers=WORKERS]
+
+            self.setup(master, workers)
             #self.run_script(name="sparksetup", hosts=hosts)
 
         elif arguments.start:
@@ -83,10 +90,6 @@ class Spark(Installer):
             self.check(master, hosts)
 
     def scripts(self):
-
-        version = "2.4.5"
-        user = "pi"
-
 
         self.script["spark.check"] = """
                hostname
@@ -150,22 +153,49 @@ class Spark(Installer):
             hosts = Parameter.expand(hosts)
 
         for command in script.splitlines():
-            print(hosts, "->", command)
+            if hosts == None:
+                hosts = ""
             if command.startswith("#") or command.strip() == "":
-                pass
                 print(command)
             elif len(hosts) == 1 and hosts[0] == self.hostname:
-                os.system(command)
+                command = command.format(user=self.user, version=self.version, host=host, hostname=hostname)
+                print(hosts, "->", command)
+                if self.dryrun:
+                    Console.info(f"Executiong command >{command}<")
+                else:
+                    os.system(command)
             elif len(hosts) == 1 and hosts[0] != self.hostname:
                 host = hosts[0]
-                os.system(f"ssh {host} {command}")
+                command = command.format(user=self.user, version=self.version, host=host, hostname=hostname)
+                print(hosts, "->", command, hosts)
+                if self.dryrun:
+                    Console.info(f"Executiong command >{command}<")
+                else:
+                    os.system(f"ssh {host} {command}")
             else:
+
+                #@staticmethod
+                #def run(hosts=None,
+                #        command=None,
+                #        execute=None,
+                #        processors=3,
+                #        shell=False,
+                #        **kwargs):
+
+                if self.dryrun:
+                    executor = print
+                else:
+                    executor = os.system
+
                 result = Host.ssh(hosts=hosts,
                                   command=command,
                                   username=username,
                                   key="~/.ssh/id_rsa.pub",
                                   processors=processors,
-                                  executor=os.system)
+                                  executor=executor,
+                                  version=self.version, # this was your bug, you did not pass this along
+                                  user=self.user  # this was your bug, you did not pass this along
+                                  )
                 results.append(result)
         if verbose:
             pprint(results)
@@ -178,13 +208,14 @@ class Spark(Installer):
         banner(name)
         print("self.script = ")
         pprint(self.script)
+
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
     def setup(self, master= None, hosts=None):
         # Setup master
         if master is None and hosts:
             Console.error("You must specify a master to set up nodes")
-            raise ValueError
+            return ""
 
         # Setup Spark on the master
         if hosts is None:
@@ -206,10 +237,10 @@ class Spark(Installer):
         if hosts is not None:
             if master is not None:
                 banner(f"Get files from {master[0]}")
-                print(Spark.create_spark_setup_worker())
-                print(Spark.create_spark_bashrc_txt())
+                print(self.create_spark_setup_worker())
+                print(self.create_spark_bashrc_txt())
                 self.run_script(name="copy.spark.to.worker", hosts=self.master)
-                print(Spark.update_slaves())
+                print(self.update_slaves())
 
         # Print created cluster
         #self.view()
@@ -266,8 +297,7 @@ class Spark(Installer):
 
         # raise NotImplementedError
 
-    @staticmethod
-    def update_slaves():
+    def update_slaves(self):
         """
         Add new worker name to bottom of slaves file on master
         :return:
@@ -276,10 +306,10 @@ class Spark(Installer):
         script = textwrap.dedent("""
            {user}@{worker}
         """)
-        Installer.add_script("$SPARK_HOME/conf/slaves", script)
+        if not self.dryrun:
+            Installer.add_script("$SPARK_HOME/conf/slaves", script)
 
-    @staticmethod
-    def update_bashrc():
+    def update_bashrc(self):
         """
         Add the following lines to the bottom of the ~/.bashrc file
         :return:
@@ -305,8 +335,7 @@ class Spark(Installer):
            """)
         Installer.add_script("~/.bashrc", script)
 
-    @staticmethod
-    def spark_env(filename="$SPARK_HOME/conf/spark-env.sh"):
+    def spark_env(self, filename="$SPARK_HOME/conf/spark-env.sh"):
         #
         # This is extra and probably not needed as also set in ~/.bashrc
         #
@@ -319,8 +348,7 @@ class Spark(Installer):
         # Q: IS THIS ADDED OR OVERWRITE?
         Installer.add_script(filename, script)
 
-    @staticmethod
-    def create_spark_setup_worker():
+    def create_spark_setup_worker(self):
         """
         This file is created on master and copied to worker, then executed on worker from master
         :return:
@@ -341,13 +369,15 @@ class Spark(Installer):
                     sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
               """)
 
-        f = open("/home/pi/spark-setup-worker.sh", "w+")
-        #f.write("test")
-        f.close()
-        Installer.add_script("~/spark-setup-worker.sh", script)
+        if self.dryrun:
+            print (script)
+        else:
+            f = open("/home/pi/spark-setup-worker.sh", "w+")
+            #f.write("test")
+            f.close()
+            Installer.add_script("~/spark-setup-worker.sh", script)
 
-    @staticmethod
-    def create_spark_bashrc_txt():
+    def create_spark_bashrc_txt(self):
         """
         Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
         :return:
@@ -371,7 +401,10 @@ class Spark(Installer):
                         # ################################################
                   """)
 
-        f = open("/home/pi/spark-bashrc.txt", "w+")
-        #f.write("test")
-        f.close()
-        Installer.add_script("~/spark-bashrc.txt", script)
+        if self.dryrun:
+            print (script)
+        else:
+            f = open("/home/pi/spark-bashrc.txt", "w+")
+            #f.write("test")
+            f.close()
+            Installer.add_script("~/spark-bashrc.txt", script)
