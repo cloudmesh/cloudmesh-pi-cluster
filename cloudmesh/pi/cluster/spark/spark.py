@@ -202,10 +202,10 @@ class Spark:
         #
         if self.workers:
             banner("Setting up worker self.workers")
-            self.create_spark_setup_worker(self)
-            self.create_spark_bashrc_txt(self)
+            self.create_spark_setup_worker()
+            self.create_spark_bashrc_txt()
             self.run_script(name="copy.spark.to.worker", hosts=self.workers)
-            self.update_slaves(self)
+            self.update_slaves()
         raise NotImplementedError
     #
     #     # Setup Pi workflow
