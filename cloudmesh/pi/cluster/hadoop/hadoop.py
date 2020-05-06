@@ -114,16 +114,21 @@ class Hadoop:
             hostname
             uname -a
         """
+# ?? You need to change the config file.
+# org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /user/pi/QuasiMonteCarlo_1588746424064_1223575563/in/part0 could only be written to 0 of the 1 minReplication nodes. There are 0 datanode(s) running and 0 node(s) are excluded in this operation.
 
         self.script["hadoop.test"] = """
-            hdfs namenode -format
-            $HADOOP_HOME/sbin/start-all.sh
+            echo "Y" | hdfs namenode -format
+            $HADOOP_HOME/sbin/start-dfs.sh
+            $HADOOP_HOME/sbin/start-yarn.sh
             hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
             $HADOOP_HOME/sbin/stop-all.sh
         """
 
 # also need "source ~/.bashrc" in the end to take effect
 # cd && hadoop version | grep Hadoop
+# java -version
+# jps
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
             echo "Y" | sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/setup-master.sh
@@ -134,23 +139,23 @@ class Hadoop:
             sudo chown pi:pi -R /opt/hadoop
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-bashrc-env.sh
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
-            java -version
-            jps
         """
 
 # run
 # sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-# ??? dont want to run the line above multiple times
+# source ~ /.bashrc
+# sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
+# ??? dont want to run the lines above multiple times; esp not master-start-hadoop.sh
+# cat ~ /.ssh / id_rsa.pub >> authorized_keys
 
 # ??? source ~/bashrc in script doesnt seem to work.
 
         self.script["hadoop.start"] = """
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-            source ~/.bashrc
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
-            cat ~/.ssh/id_rsa.pub >> authorized_keys
-            hdfs namenode -format
-            $HADOOP_HOME/sbin/start-all.sh
+
+            
+            echo "Y" | hdfs namenode -format
+            $HADOOP_HOME/sbin/start-dfs.sh
+            $HADOOP_HOME/sbin/start-yarn.sh
         """
 
         self.script["hadoop.stop"] = """
