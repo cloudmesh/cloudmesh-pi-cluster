@@ -116,15 +116,14 @@ class Hadoop:
         """
 
         self.script["hadoop.test"] = """
+            hdfs namenode -format
             $HADOOP_HOME/sbin/start-all.sh
             hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
             $HADOOP_HOME/sbin/stop-all.sh
         """
-# ?? at line 129, change bashrc requires password.
+
 # also need "source ~/.bashrc" in the end to take effect
 # cd && hadoop version | grep Hadoop
-# might need to take out line install-hadoop-master2.sh before source ./bashrc
-
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
             echo "Y" | sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/setup-master.sh
@@ -139,14 +138,22 @@ class Hadoop:
             jps
         """
 
+# run
+# sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
+# then `source ~/.bashrc`
+
         self.script["hadoop.start"] = """
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
-            cd ~/.ssh
-            cat id_rsa.pub >> authorized_keys
-            hdfs namenode -format
-            $HADOOP_HOME/sbin/start-all.sh
-        """
+                source ~/.bashrc
+            """
+
+        # self.script["hadoop.start"] = """
+        #
+        #     sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
+        #     cd ~/.ssh
+        #     cat id_rsa.pub >> authorized_keys
+        #     hdfs namenode -format
+        #     $HADOOP_HOME/sbin/start-all.sh
+        # """
 
         self.script["hadoop.stop"] = """
             $HADOOP_HOME/sbin/stop-all.sh

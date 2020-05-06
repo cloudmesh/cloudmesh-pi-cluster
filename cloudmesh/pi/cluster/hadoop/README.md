@@ -13,7 +13,7 @@ For the numpy issue:
 
 
 ```
-$ sudo apt install libatlas3-base libgfortran5
+$ echo "Y" | sudo apt install libatlas3-base libgfortran5
 $ sudo pip3 install numpy
 ```
 
