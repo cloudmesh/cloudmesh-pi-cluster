@@ -19,6 +19,7 @@ class Hadoop:
         pi hadoop start --master=MASTER --workers=WORKER
         pi hadoop stop --master=MASTER --workers=WORKER
         pi hadoop test --master=MASTER --workers=WORKER
+        pi hadoop check --master=MASTER --workers=WORKER
 
         :param arguments:
         :return:
@@ -107,7 +108,7 @@ class Hadoop:
 
     def scripts(self):
 
-        version = "2.4.5"
+        version = "3.2.0"
 
         self.script["hadoop.check"] = """
             hostname
@@ -119,19 +120,33 @@ class Hadoop:
             hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
             $HADOOP_HOME/sbin/stop-all.sh
         """
+# ?? at line 129, change bashrc requires password.
+# also need "source ./bashrc"
+        # install on master: java -> jps -> hadoop
+        self.script["hadoop.setup"] = """
+            cd ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin
+            echo "Y" | sh setup-master.sh
+            
+            cd ~
+            wget https://archive.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
+            sudo tar -xvzf hadoop-3.2.0.tar.gz -C /opt/
+            sudo mv /opt/hadoop-3.2.0 /opt/hadoop
+            sudo chown pi:pi -R /opt/hadoop
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-bashrc-env.sh
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
+            java -version
+            jps
+            cd && hadoop version | grep Hadoop
+        """
 
-        # self.script["hadoop.setup"] = """
-        #     sudo apt-get update
-        #     sudo apt-get install default-jdk
-        #     sudo apt-get install scala
-        #     cd ~
-        #     sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
-        #     sudo tar -xzf sparkout.tgz
-        #     sudo cp ~/.bashrc ~/.bashrc-backup
-        #     sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/conf
-        #     sudo cp /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves.template /home/pi/spark-{version}-bin-hadoop2.7/conf/slaves
-        # """
-        #
+        self.script["hadoop.start"] = """
+            $HADOOP_HOME/sbin/start-all.sh
+        """
+
+        self.script["hadoop.stop"] = """
+            $HADOOP_HOME/sbin/stop-all.sh
+        """
+
         # self.script["spark.setup.worker"] = """
         #     sudo apt-get update
         #     sudo apt-get install default-jdk
@@ -141,12 +156,15 @@ class Hadoop:
         #     sudo cp ~/.bashrc ~/.bashrc-backup
         # """
         #
-        # self.script["copy.spark.to.worker"] = """
-        #     scp /bin/spark-setup-worker.sh {user}@{worker}:
-        #     scp ~/sparkout.tgz {user}@{worker}:
-        #     ssh {user}@{worker} sh ~/spark-setup-worker.sh
-        # """
-        #
+
+        # for the line below, you havents send "worker-installation.sh" to
+        # workers.
+        self.script["copy.hadoop.to.worker"] = """
+            cd /usr/lib/jvm/java-8-openjdk-armhf
+            sudo tar -czf openjdkpkg.tgz *
+            scp -r /usr/lib/jvm/java-8-openjdk-armhf/openjdkpkg.tgz {user}@{worker}:
+        """
+
         # self.script["spark.uninstall2.4.5"] = """
         #     sudo apt-get remove openjdk-11-jre
         #     sudo apt-get remove scala
@@ -162,18 +180,20 @@ class Hadoop:
         banner(name)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    # def setup(self, arguments):
-    #     """
-    #
-    #     :return:
-    #     """
-    #     #
-    #     # SETUP MASTER
-    #     #
-    #     if self.master:
-    #         self.run_script(name="spark.setup", hosts=self.master)
-    #         update_bashrc(self)
-    #         #spark_env(self)
+    def setup(self, arguments):
+        """
+
+        :return:
+        """
+        #
+        # SETUP MASTER
+        #
+        if self.master:
+            self.run_script(name="hadoop.setup", hosts=self.master)
+            self.update_bashrc(self)
+            self.hadoop_env(self)
+            # self.run_script(name="source bashrc ", hosts=self.master) -
+            # might need a line to do "source bashrc"
     #
     #     #
     #     # SETUP WORKER
@@ -229,67 +249,51 @@ class Hadoop:
         """
         banner("Updating ~/.bashrc file")
         script = textwrap.dedent("""
-
-               # ################################################
-               # SPARK BEGIN
-               #
-               #JAVA_HOME
-               export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
-               #SCALA_HOME
-               export SCALA_HOME=/usr/share/scala
-               export PATH=$PATH:$SCALA_HOME/bin
-               #SPARK_HOME
-               export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
-               export PATH=$PATH:$SPARK_HOME/bin
-               #
-               # SPARK END
-               # ################################################
-
+                export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf
+                export HADOOP_HOME=/opt/hadoop
+                # export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+                export PATH=/home/pi/ENV3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/opt/hadoop/bin:/opt/hadoop/sbin:
            """)
         Installer.add_script("~/.bashrc", script)
 
-    def spark_env(self, filename="$SPARK_HOME/conf/spark-env.sh"):
-        #
-        # This is extra and probably not needed as also set in ~/.bashrc
-        #
-        name = "spark."
+    def hadoop_env(self, filename="/opt/hadoop/etc/hadoop/hadoop-env.sh"):
+        # set up hadoop env file
+        name = "Hadoop"
         banner(name)
         script = textwrap.dedent("""
-            #JAVA_HOME
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+            export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
         """)
-        # Q: IS THSI ADDED OR OVERWRITE?
         Installer.add_script(filename, script)
 
-    @staticmethod
-    def create_hadoop_setup_worker():
-        """
-        This file is created on master and copied to worker, then executed from master
-        :return:
-        """
-
-
-        banner("Creating the hadoop.setup.worker.sh file")
-        version = "3.2.0"
-        script = textwrap.dedent("""
-                    #!/usr/bin/env bash
-                    sudo apt-get update
-                    sudo apt-get install default-jdk
-                    sudo apt-get install scala
-                    cd ~
-                    sudo tar -xzf sparkout.tgz
-                    cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
-                    sudo cp ~/.bashrc ~/.bashrc-backup
-                    sudo cp ~/temp-bashrc ~/.bashrc
-                    sudo rm ~/temp-bashrc
-                    sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
-              """)
-
-
-        f = open("~/spark-setup-worker.sh", "x")
-        f.write("~/spark-setup-worker.sh has been created")
-        f.close()
-        Installer.add_script("~/spark-setup-worker.sh", script)
+    # @staticmethod
+    # def create_hadoop_setup_worker():
+    #     """
+    #     This file is created on master and copied to worker, then executed from master
+    #     :return:
+    #     """
+    #
+    #
+    #     banner("Creating the hadoop.setup.worker.sh file")
+    #     version = "3.2.0"
+    #     script = textwrap.dedent("""
+    #                 #!/usr/bin/env bash
+    #                 sudo apt-get update
+    #                 sudo apt-get install default-jdk
+    #                 sudo apt-get install scala
+    #                 cd ~
+    #                 sudo tar -xzf sparkout.tgz
+    #                 cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
+    #                 sudo cp ~/.bashrc ~/.bashrc-backup
+    #                 sudo cp ~/temp-bashrc ~/.bashrc
+    #                 sudo rm ~/temp-bashrc
+    #                 sudo chmod 777 ~/spark-{version}-bin-hadoop2.7/
+    #           """)
+    #
+    #
+    #     f = open("~/spark-setup-worker.sh", "x")
+    #     f.write("~/spark-setup-worker.sh has been created")
+    #     f.close()
+    #     Installer.add_script("~/spark-setup-worker.sh", script)
 
 
     # def create_hadoop-bashrc.txt(self):
