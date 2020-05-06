@@ -146,7 +146,7 @@ class Spark:
     def scripts(self, host):
 
         version = "2.4.5"
-        pi_name =
+        pi_name = host
 
         self.script["spark.check"] = """
             hostname
