@@ -119,13 +119,16 @@ class Hadoop:
 
         self.script["hadoop.test"] = """
             echo "Y" | hdfs namenode -format
-            $HADOOP_HOME/sbin/start-all.sh
+            $HADOOP_HOME/sbin/start-dfs.sh
+            $HADOOP_HOME/sbin/start-yarn.sh
             hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
             $HADOOP_HOME/sbin/stop-all.sh
         """
 
 # also need "source ~/.bashrc" in the end to take effect
 # cd && hadoop version | grep Hadoop
+# java -version
+# jps
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
             echo "Y" | sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/setup-master.sh
@@ -136,8 +139,6 @@ class Hadoop:
             sudo chown pi:pi -R /opt/hadoop
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-bashrc-env.sh
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
-            java -version
-            jps
         """
 
 # run
@@ -153,7 +154,8 @@ class Hadoop:
 
             
             echo "Y" | hdfs namenode -format
-            $HADOOP_HOME/sbin/start-all.sh
+            $HADOOP_HOME/sbin/start-dfs.sh
+            $HADOOP_HOME/sbin/start-yarn.sh
         """
 
         self.script["hadoop.stop"] = """
