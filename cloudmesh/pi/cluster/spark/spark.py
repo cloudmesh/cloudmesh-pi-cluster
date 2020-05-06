@@ -235,13 +235,14 @@ class Spark:
             banner("Setting up worker self.workers")
             self.create_spark_setup_worker()
             self.create_spark_bashrc_txt()
+            hosts=self.workers
             #self.run_script(name="copy.spark.to.worker", hosts=self.workers)
             command1 = "scp /bin/spark-setup-worker.sh pi@{host}:"
-            os.system(f"ssh {host} {command1}")
+            os.system(f"ssh {hosts} {command1}")
             command2 = "scp ~/sparkout.tgz pi@{host}:"
-            os.system(f"ssh {host} {command2}")
+            os.system(f"ssh {hosts} {command2}")
             command3 = "ssh pi@{host} sh ~/spark-setup-worker.sh"
-            os.system(f"ssh {host} {command3}")
+            os.system(f"ssh {hosts} {command3}")
             self.update_slaves()
         raise NotImplementedError
     #
