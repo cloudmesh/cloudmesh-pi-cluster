@@ -226,7 +226,7 @@ class Spark:
         # SETUP MASTER
         #
         if self.master:
-            banner("Setting up master self.master")
+            banner(f"Setting up master {master}")
             self.run_script(name="spark.setup.master", hosts=master)
             self.update_bashrc(self)
             #self.spark_env(self)
@@ -234,12 +234,13 @@ class Spark:
         # SETUP WORKER
         #
         if self.workers:
-            banner("Setting up worker self.workers")
+            banner(f"Setting up worker {hosts}")
             self.create_spark_setup_worker()
             self.create_spark_bashrc_txt()
             #hosts=self.workers
             # self.run_script(name="copy.spark.to.worker", hosts=self.workers)
             command1 = f"scp /bin/spark-setup-worker.sh pi@{hosts}:"
+            print(command1)
             os.system(f"ssh {hosts} {command1}")
             command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
             os.system(f"ssh {hosts} {command2}")
