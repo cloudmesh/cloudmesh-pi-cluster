@@ -118,6 +118,7 @@ class Spark:
     def scripts(self):
 
         version = "2.4.5"
+        pi_name = self.workers
 
         self.script["spark.check"] = """
             hostname
@@ -171,9 +172,9 @@ class Spark:
          """
 
         self.script["copy.spark.to.worker"] = """
-               scp /bin/spark-setup-worker.sh pi@self.workers:
-               scp ~/sparkout.tgz pi@self.workers:
-               ssh pi@self.workers sh ~/spark-setup-worker.sh
+               scp /bin/spark-setup-worker.sh pi@{pi_name}:
+               scp ~/sparkout.tgz pi@{pi_name}:
+               ssh pi@{pi_name} sh ~/spark-setup-worker.sh
         """
 
         # self.script["spark.uninstall2.4.5"] = """
