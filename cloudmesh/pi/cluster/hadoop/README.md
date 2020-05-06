@@ -83,13 +83,13 @@ You should see a web page showing resources. `http://red:8088` shows nodes of
 
 ![red:9870_on_web](images/resource-manager-web.png)
 
-  - Stop
+  - *Stop*
 
 ```
 $ cms pi hadoop stop --master=red
 ```
 
-  - Test
+  - *Test*
  
 This command starts Hadoop, run a π calculation (2 maps, 5 samples per map
 ) and stop Hadoop. You should see output like this 
