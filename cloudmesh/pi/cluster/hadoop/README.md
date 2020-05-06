@@ -12,6 +12,11 @@ For the numpy issue:
 <https://github.com/numpy/numpy/issues/14348>
 
 
+```
+$ sudo apt install libatlas3-base libgfortran5
+$ sudo pip3 install numpy
+```
+
 Master and workers are burnt using `cloudmesh-pi-cluster`.
     master: pi@red
     workers: red[001 - 002]

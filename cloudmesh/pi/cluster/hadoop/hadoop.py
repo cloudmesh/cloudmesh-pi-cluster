@@ -128,8 +128,7 @@ class Hadoop:
 
         # install on master: java -> jps -> hadoop
         self.script["hadoop.setup"] = """
-            cd ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin
-            echo "Y" | sh setup-master.sh
+            echo "Y" | sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/setup-master.sh
             
             cd ~
             wget https://archive.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
@@ -138,15 +137,15 @@ class Hadoop:
             sudo chown pi:pi -R /opt/hadoop
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-bashrc-env.sh
             sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/install-hadoop-master2.sh
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
-            cd ~/.ssh
-            cat id_rsa.pub >> authorized_keys
             java -version
             jps
         """
 
         self.script["hadoop.start"] = """
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
+            cd ~/.ssh
+            cat id_rsa.pub >> authorized_keys
             hdfs namenode -format
             $HADOOP_HOME/sbin/start-all.sh
         """
