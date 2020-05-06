@@ -91,7 +91,7 @@ $ cms pi hadoop stop --master=red
 
   - Test
  
-This command starts Hadoop, run a $\pi$ calculation (2 maps, 5 samples per map
+This command starts Hadoop, run a π calculation (2 maps, 5 samples per map
 ) and stop Hadoop. You should see output like this 
 
 ```
@@ -109,10 +109,10 @@ Stopping resourcemanager
 
 This command returns hostname, and hardware information of Pi.
 
-## Example: Calculation of $\pi$
+## Example: Calculation of π
 
 Hadoop comes with sample file for computation. Once you have started the cluster
-, you can run one of the examples to calculate the value of $\pi$.
+, you can run one of the examples to calculate the value of π.
 
 ```
 $ hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2
@@ -126,7 +126,7 @@ A returned result would be close to
 Job Finished in 35.558 seconds
 Estimated value of Pi is 3.60000000000000000000
 ```
-You can change Hadoop parameters to get a value with a higher precision \pi
+You can change Hadoop parameters to get a value with a higher precision π
 . This time we have set `number of maps` = 16 and `samples per map` = 1000.
 
 ```
