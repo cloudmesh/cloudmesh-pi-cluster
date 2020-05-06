@@ -249,7 +249,7 @@ class Spark:
 
     def create_spark_setup_worker(self):
         banner("Creating the spark.setup.worker.sh file")
-        script = textwrap.dedent(self.script["spark.setup.worker.sh"])
+        script = textwrap.dedent(self.script["spark.setup.worker"])
         if self.dryrun==True:
             print(script)
         else:
