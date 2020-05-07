@@ -231,7 +231,7 @@ class Spark:
         if self.master:
             banner(f"Setting up master {master}")
             self.run_script(name="spark.setup.master", hosts=master)
-            self.update_bashrc()
+            #self.update_bashrc()
             #self.spark_env(self)
         #
         # SETUP WORKER
@@ -292,7 +292,6 @@ class Spark:
 
     def update_bashrc(self):
         banner("Updating ~/.bashrc file")
-        sh self.spark_bin / spark - master - bashrc.sh
         script = textwrap.dedent(self.script["spark.update.bashrc"])
         Installer.add_script("/home/pi/.bashrc", script)
 
