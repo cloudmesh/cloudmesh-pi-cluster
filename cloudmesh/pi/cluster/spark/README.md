@@ -40,64 +40,85 @@ We'll use the word *red* as the prefix to the hostnames. We assume you
 
 ##  Pi Spark Cluster Setup workflow
 
-Below are the automated workflow steps and scripts integrated into cms
- commands for installing and testing a Spark installation with one master and
-  one worker on a Pi
-  Cluster.
 
-
-    #     # Setup the Pi master with Spark (Java & Scala) applications
-    #       script "spark.setup.master"
-    #
-    #     # Update the Pi master's ~/.bashrc file
-    #       function update_bashrc()
-    #
-    #     # Create a shell file on Pi master to run on Pi worker
-    #       function create_spark_setup_worker()
-    #
-    #     # Create a file on Pi master that will be copied to and append to ~/.bashrc on Pi worker
-    #       function create_spark_bashrc_txt()
-    #
-    #     # Copy shell and bashrc change files to Pi workers, execute shell file on Pi worker
-    #       script "copy.spark.to.worker"
-    #
-    #     # Update slaves file on master
-    #       function update_slaves()
-
-Setting up multiple workers and one master in one command is an objective, not yet
- implemented
-
-Master is setup with
+Step 1:  Setup master
 
 ```
 cms pi spark setup --master=red 
 ```
 
-To ensure setup succeeded, use command
+Step 2: Ensure master setup succeeded, use command
 
 ```
-cms pi spark test --master=red"
+cms pi spark test --master=red
 ```
 
-To start the cluster use
-
-```
-cms pi spark start --master=red"
-```
-
-To stop the cluster use
-
-```
-cms pi spark stop --master=red"
-```
-
-Individual workers are setup using:
+Step 3: Setup individual workers using:
 
 ```
 cms pi spark setup --workers=red001 
 ```
 
 Work in progress setting up multiple workers automatically from cms command
+
+Step 4: Confirm worker added 
+by repeating Step 2
+
+```
+cms pi spark test --master=red"
+```
+Step 5: Start the cluster
+
+```
+cms pi spark start --master=red"
+```
+
+Step 6: Stop the cluster
+
+```
+cms pi spark stop --master=red"
+```
+Behind the cms commands are automated workflow steps and scripts integrated
+ into cms
+ commands for installing and testing a Spark installation with one master and
+  one worker on a Pi
+  Cluster.  
+  
+  The shell scripts and functions described next are housed in cloudmesh-pi
+  -cluster/cloudmesh/pi/cluster/spark/spark.py
+
+
+    #     # Setup the Pi master with Spark (Java & Scala) applications
+    #       shell script "spark.setup.master"
+    #
+    #     # Update the Pi master's ~/.bashrc file
+    #       python function update_bashrc()
+    #
+    #     # Create a shell file on Pi master to run on Pi worker
+    #       python function create_spark_setup_worker()
+    #
+    #     # Create a file on Pi master that will be copied to and append to ~/.bashrc on Pi worker
+    #       python function create_spark_bashrc_txt()
+    #
+    #     # Copy shell and bashrc change files to Pi workers, execute shell file on Pi worker
+    #       shell script "copy.spark.to.worker"
+    #
+    #     # Update slaves file on master
+    #       python function update_slaves()
+    #
+    #     # Test Spark cluster
+    #       shell script "spark.test"
+    #
+    #     # Start Spark cluster
+    #       shell script "spark.start"
+    #
+    #     # Stop Spark cluster
+    #       shell script "spark.stop"
+    #
+           
+
+Setting up multiple workers and one master in one command is an objective, not yet
+ implemented
 
 ## Script details
 
