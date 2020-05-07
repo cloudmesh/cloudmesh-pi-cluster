@@ -156,21 +156,34 @@ class Spark:
             uname -a
         """
 
+        self.script["spark.prereqs"] = """
+            sudo apt-get update
+            sudo apt-get install default-jdk
+            sudo apt-get install scala
+        """
+
+        self.script["spark.download.spark"] = """
+            cd ~
+            sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
+            sudo tar -xzf sparkout.tgz
+        """
+
+        self.script["spark.install"] = """
+            cd ~
+            sudo tar -xzf sparkout.tgz
+            sudo cp ~/.bashrc ~/.bashrc-backup
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
+         """
+
+        self.script["spark.bashrc.master"] = """
+            sudo cp ~/.bashrc ~/.bashrc-backup
+            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
+         """
+
         self.script["spark.test"] = """
             sh $SPARK_HOME/sbin/start-all.sh
             $SPARK_HOME/bin/run-example SparkPi 4 10
             sh $SPARK_HOME/sbin/stop-all.sh
-        """
-
-        self.script["spark.setup.master"] = """
-               sudo apt-get update
-               sudo apt-get install default-jdk
-               sudo apt-get install scala
-               cd ~
-               sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
-               sudo tar -xzf sparkout.tgz
-               sudo cp ~/.bashrc ~/.bashrc-backup
-               sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
         """
 
         self.script["spark.update.bashrc"] = """
@@ -194,14 +207,6 @@ class Spark:
             sh $SPARK_HOME/sbin/stop-all.sh
         """
 
-        self.script["spark.setup.worker"] = """
-             sudo apt-get update
-             sudo apt-get install default-jdk
-             sudo apt-get install scala
-             cd ~
-             sudo tar -xzf sparkout.tgz
-             sudo cp ~/.bashrc ~/.bashrc-backup
-         """
 
         #self.script["copy.spark.to.worker"] = f"""
         #       scp /bin/spark-setup-worker.sh pi@{pi_name}:
@@ -230,25 +235,25 @@ class Spark:
         #
         if self.master:
             banner(f"Setting up master {master}")
-            self.run_script(name="spark.setup.master", hosts=master)
+            self.run_script(name="spark.prereqs", hosts=master)
+            self.run_script(name="spark.download.spark", hosts=master)
+            self.run_script(name="spark.install", hosts=master)
+            self.run_script(name="spark.bashrc.master", hosts=master)
             #self.update_bashrc()
             #self.spark_env(self)
         #
         # SETUP WORKER
         #
         if self.workers:
-            banner(f"Setting up worker {hosts}")
-            self.create_spark_setup_worker()
-            self.create_spark_bashrc_txt()
             hosts=hosts[0]
-            # self.run_script(name="copy.spark.to.worker", hosts=self.workers)
-            command1 = f"scp /bin/spark-setup-worker.sh pi@{hosts}:"
+            banner(f"Setting up worker {hosts}")
+            command1 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-setup-worker.sh pi@{hosts:}"
             print(command1)
             os.system(command1)
             command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
             print(command2)
             os.system(command2)
-            command3 = f"scp ~/spark-bashrc.txt pi@{hosts}"
+            command3 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt pi@{hosts}"
             print(command3)
             os.system(command3)
             command4 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
