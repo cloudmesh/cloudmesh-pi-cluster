@@ -234,13 +234,13 @@ class Spark:
         if self.workers:
             hosts=hosts[0]
             banner(f"Setting up worker {hosts}")
-            command1 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-setup-worker.sh pi@{hosts:}"
+            command1 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-setup-worker.sh pi@{hosts}:"
             print(command1)
             os.system(command1)
             command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
             print(command2)
             os.system(command2)
-            command3 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt pi@{hosts}"
+            command3 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt pi@{hosts}:"
             print(command3)
             os.system(command3)
             command4 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
