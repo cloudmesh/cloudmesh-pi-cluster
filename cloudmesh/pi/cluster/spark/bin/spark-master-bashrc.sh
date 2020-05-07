@@ -4,8 +4,8 @@ cat >> ~/.bashrc << EOF
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
 #SCALA_HOME
 export SCALA_HOME=/usr/share/scala
-export PATH=$PATH:$SCALA_HOME/bin
 #SPARK_HOME
 export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
-export PATH=$PATH:$SPARK_HOME/bin
+export PATH=/home/pi/ENV3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:$SPARK_HOME/bin:$SCALA_HOME/bin
+EOF
 EOF
