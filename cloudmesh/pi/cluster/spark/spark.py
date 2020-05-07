@@ -45,7 +45,6 @@ class Spark:
         if arguments.setup:
 
             self.setup(master,hosts)
-            #self.run_script(name="spark.setup", hosts=hosts)
 
         elif arguments.start:
 
@@ -58,7 +57,6 @@ class Spark:
         elif arguments.test:
 
             self.test(hosts)
-            #self.run_script(name="spark.test", hosts=hosts)
 
         elif arguments.check:
 
@@ -165,14 +163,11 @@ class Spark:
         self.script["spark.download.spark"] = """
             cd ~
             sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
-            sudo tar -xzf sparkout.tgz
         """
 
         self.script["spark.install"] = """
             cd ~
             sudo tar -xzf sparkout.tgz
-            sudo cp ~/.bashrc ~/.bashrc-backup
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
          """
 
         self.script["spark.bashrc.master"] = """
@@ -207,13 +202,6 @@ class Spark:
             sh $SPARK_HOME/sbin/stop-all.sh
         """
 
-
-        #self.script["copy.spark.to.worker"] = f"""
-        #       scp /bin/spark-setup-worker.sh pi@{pi_name}:
-        #       scp ~/sparkout.tgz pi@{pi_name}:
-        #       ssh pi@{pi_name} sh ~/spark-setup-worker.sh
-        #"""
-
         # self.script["spark.uninstall2.4.5"] = """
         #     sudo apt-get remove openjdk-11-jre
         #     sudo apt-get remove scala
@@ -239,8 +227,6 @@ class Spark:
             self.run_script(name="spark.download.spark", hosts=master)
             self.run_script(name="spark.install", hosts=master)
             self.run_script(name="spark.bashrc.master", hosts=master)
-            #self.update_bashrc()
-            #self.spark_env(self)
         #
         # SETUP WORKER
         #
