@@ -173,7 +173,13 @@ class Spark:
 
         self.script["spark.bashrc.master"] = """
             sudo cp ~/.bashrc ~/.bashrc-backup
-            sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
+            sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves ~/spark-2.4.5-bin-hadoop2.7/conf/slaves-backup
+            #sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves.template ~/spark-2.4.5-bin-hadoop2.7/conf/slaves
+            sudo chmod 777 ~/spark-2.4.5-bin-hadoop2.7/conf/
+            cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
+            sudo cp ~/temp-bashrc ~/.bashrc
+            sudo rm ~/temp-bashrc
+            #sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
          """
 
         self.script["spark.test"] = """
@@ -279,7 +285,11 @@ class Spark:
     def update_slaves(self,hosts):
         if self.workers:
             banner("Updating $SPARK_HOME/conf/slaves file")
-            script = f"pi@{hosts}"
+            #script = f"pi@{hosts}"
+            command5 = f"cat >> $SPARK_HOME/conf/slaves pi@{hosts}"
+            print(command5)
+            os.system(command5)
+
             print(script)
             Installer.add_script("$SPARK_HOME/conf/slaves", script)
         raise NotImplementedError

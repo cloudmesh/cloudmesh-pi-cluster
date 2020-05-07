@@ -46,6 +46,7 @@ Step 1:  Setup master
 ```
 cms pi spark setup --master=red 
 ```
+** Logout of master and log back in to run ~/bashrc and set system parameters **
 
 Step 2: Ensure master setup succeeded, use command
 
