@@ -56,7 +56,8 @@ class Spark:
 
         elif arguments.test:
 
-            self.test(hosts)
+            #self.test(hosts)
+            self.run_script(name="spark.test", hosts=self.master)
 
         elif arguments.check:
 
@@ -271,6 +272,8 @@ class Spark:
     def test(self):
         if self.master:
             self.run_script(name="spark.test", hosts=self.master)
+        if self.workers:
+            print("cms pi spark test intended for master only")
         raise NotImplementedError
 
     def update_slaves(self,hosts):
