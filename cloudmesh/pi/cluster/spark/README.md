@@ -38,7 +38,7 @@ We'll use the word *red* as the prefix to the hostnames. We assume you
  burned them with cms pi burn create command and the hostnames are
 *red*, *red001*, *red002*, *red003*.
 
-##     # Spark Setup Pi workflow
+##  Pi Spark Cluster Setup workflow
 
 Below are the automated workflow steps and scripts integrated into cms
  commands for installing and testing a Spark installation with one master and
