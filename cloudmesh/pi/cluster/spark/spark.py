@@ -313,3 +313,4 @@ class Spark:
             # f.write("test")
             f.close()
             Installer.add_script("~/spark-bashrc.txt", script)
+        # spark-bashrc.txt is being created but it's empty
