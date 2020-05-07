@@ -253,7 +253,8 @@ class Spark:
             print(command4)
             os.system(command4)
             self.update_slaves(hosts)
-        raise NotImplementedError
+        return
+    #    #raise NotImplementedError
     #
     #     # Setup Pi workflow
     #     # Setup the Pi master with the Spark applications
