@@ -50,19 +50,19 @@ Below are the automated workflow steps and scripts integrated into cms
     #       script "spark.setup.master"
     #
     #     # Update the Pi master's ~/.bashrc file
-    #       function update_bashrc(self)
+    #       function update_bashrc()
     #
     #     # Create a shell file on Pi master to run on Pi worker
-    #       function create_spark_setup_worker(self)
+    #       function create_spark_setup_worker()
     #
     #     # Create a file on Pi master that will be copied to and append to ~/.bashrc on Pi worker
-    #       function create_spark_bashrc_txt
+    #       function create_spark_bashrc_txt()
     #
     #     # Copy shell and bashrc change files to Pi workers, execute shell file on Pi worker
     #       script "copy.spark.to.worker"
     #
     #     # Update slaves file on master
-    #       function update_slaves(self)
+    #       function update_slaves()
 
 Setting up multiple workers and one master in one command is an objective, not yet
  implemented
