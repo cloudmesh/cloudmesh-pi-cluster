@@ -24,10 +24,10 @@ TODO: **This is under testing**
 The list of spark related commands are:
 
 ```
-cms pi spark setup --master=MASTER --workers=WORKERS
-cms pi spark start --master=MASTER --workers=WORKERS
-cms pi spark stop --master=MASTER --workers=WORKERS
-cms pi spark test --master=MASTER --workers=WORKERS
+cms pi spark setup [--master=MASTER] [--workers=WORKERS]
+cms pi spark start --master=MASTER
+cms pi spark stop --master=MASTER
+cms pi spark test --master=MASTER
 cms pi script list spark [--details]
 ```
 
