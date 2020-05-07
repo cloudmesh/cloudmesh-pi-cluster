@@ -79,6 +79,7 @@ class Spark:
         self.version = "2.4.5"
         self.user = "pi"
         self.hostname = os.uname()[1]
+        self.spark_bin = "~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin"
         self.scripts()
 
     def run(self,
@@ -169,6 +170,7 @@ class Spark:
                sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
                sudo tar -xzf sparkout.tgz
                sudo cp ~/.bashrc ~/.bashrc-backup
+               sh ~/cm/cloudmesh-pi-cluster/pi/cluster/spark/bin/spark-master-bashrc.sh
         """
 
         self.script["spark.update.bashrc"] = """
@@ -290,6 +292,7 @@ class Spark:
 
     def update_bashrc(self):
         banner("Updating ~/.bashrc file")
+        sh self.spark_bin / spark - master - bashrc.sh
         script = textwrap.dedent(self.script["spark.update.bashrc"])
         Installer.add_script("/home/pi/.bashrc", script)
 
@@ -313,7 +316,8 @@ class Spark:
                 sudo chmod 777 ~/spark-2.4.5-bin-hadoop2.7/""")
             f.close()
             #Installer.add_script("~/spark-setup-worker.sh", script)
-
+    # #Don't want to repeat .bashrc text twice -
+    # this file is for copying to worker and then appended to worke bashrc
     def create_spark_bashrc_txt(self):
         banner("Creating the spark-bashrc.txt file")
         script = textwrap.dedent(self.script["spark.update.bashrc"])
