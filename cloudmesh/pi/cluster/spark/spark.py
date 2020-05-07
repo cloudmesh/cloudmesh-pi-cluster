@@ -170,7 +170,7 @@ class Spark:
                sudo wget http://mirror.metrocast.net/apache/spark/spark-{version}/spark-{version}-bin-hadoop2.7.tgz -O sparkout.tgz
                sudo tar -xzf sparkout.tgz
                sudo cp ~/.bashrc ~/.bashrc-backup
-               sh ~/cm/cloudmesh-pi-cluster/pi/cluster/spark/bin/spark-master-bashrc.sh
+               sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
         """
 
         self.script["spark.update.bashrc"] = """
