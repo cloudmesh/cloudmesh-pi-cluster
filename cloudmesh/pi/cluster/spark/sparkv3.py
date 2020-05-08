@@ -187,7 +187,7 @@ class Spark:
             cat ~/.bashrc /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt > ~/temp-bashrc
             sudo cp ~/temp-bashrc ~/.bashrc
             sudo rm ~/temp-bashrc
-            #sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
+            source ~/.bashrc
          """
 
         self.script["spark.test"] = """
