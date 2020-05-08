@@ -232,7 +232,7 @@ class Hadoop:
     def test(self):
         if self.master:
             self.run_script(name="hadoop.test", hosts=self.master)
-        raise NotImplementedError
+        # raise NotImplementedError
 
     def update_slaves(self):
         """

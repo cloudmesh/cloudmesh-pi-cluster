@@ -47,7 +47,7 @@ Now set up passwordless ssh on the localhost and configure Hadoop properly by
 
 ```
 $ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
-$ source ~ /.bashrc
+$ source ~/.bashrc
 $ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-config.sh
 $ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 ```
@@ -109,14 +109,17 @@ Stopping resourcemanager
 
 This command returns hostname, and hardware information of Pi.
 
+```
+$ cms pi hadoop check --master=red
+```
+
 ## Example: Calculation of π
 
 Hadoop comes with sample file for computation. Once you have started the cluster
 , you can run one of the examples to calculate the value of π.
 
 ```
-$ hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2
-.0.jar pi 2 5
+$ hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
 ```
 Here we have set `number of maps` = 2 and `samples per map` = 5.
 
