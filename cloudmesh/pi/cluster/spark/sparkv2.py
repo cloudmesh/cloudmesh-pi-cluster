@@ -51,11 +51,11 @@ class Spark:
 
         elif arguments.start:
 
-            self.run_script(name="spark.start", hosts=hosts)
+            self.run_script(name="spark.start", hosts=master)
 
         elif arguments.stop:
 
-            self.run_script(name="spark.stop", hosts=hosts)
+            self.run_script(name="spark.stop", hosts=master)
 
         elif arguments.test:
 
