@@ -68,15 +68,7 @@ class Spark:
 
         elif arguments.uninstall:
 
-            banner(f"Uninstall Master: {master}")
-            self.run_script(name="spark.uninstall.master", hosts=hosts)
-            banner(f"Uninstall Workers: {workers}")
-            command7 = "sh ~/spark-uninstall-worker.sh"
-            jobSet = JobSet("spark_worker_uninstall", executor=JobSet.ssh)
-            for host in workers_only:
-                jobSet.add({"name": host, "host": host, "command": command7})
-            jobSet.run(parallel=len(workers_only))
-            jobSet.Print()
+            self.uninstall(master, workers_only)
 
     def __init__(self, master=None, workers=None):
         """
@@ -314,3 +306,23 @@ class Spark:
         #script = f"pi@{hosts}"
         #print(script)
         #Installer.add_script("$SPARK_HOME/conf/slaves", script)
+
+    def uninstall(self,master,hosts):
+        #
+        # Uninstall MASTER
+        #
+        if self.master:
+            banner(f"Uninstall Master: {master}")
+            self.run_script(name="spark.uninstall.master", hosts=hosts)
+        #
+        # Uninstall WORKER(S)
+        #
+        if self.workers:
+            banner(f"Uninstall Workers: {workers}")
+            command7 = "sh ~/spark-uninstall-worker.sh"
+            jobSet = JobSet("spark_worker_uninstall", executor=JobSet.ssh)
+            for host in hosts:
+                jobSet.add({"name": host, "host": host, "command": command7})
+            jobSet.run(parallel=len(hosts))
+            jobSet.Print()
+        return
