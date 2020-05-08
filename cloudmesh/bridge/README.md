@@ -1,4 +1,4 @@
-## A simple command to setup a network bridge between raspberry pi workers and master utilizing dnsmasq
+## A simple command to setup a network bridge between raspberry pi's and a manager pi utilizing dnsmasq
 WARNING: This program is designed for Raspberry Pi and must not be executed on your laptop
 
 
@@ -15,40 +15,44 @@ WARNING: This program is designed for Raspberry Pi and must not be executed on y
 ##  Quick Start
 ---
 For reference, we will use the following setup:
-* Master Pi has hostname `red` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
-* Master Pi uses interface `eth0` as the private interface to communicate with the workers.
+* Router Pi has hostname `manager` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
+* Router Pi uses interface `eth0` as the private interface to communicate with the workers.
 * Cloudmesh is installed using `curl -Ls http://cloudmesh.github.io/get/pi | sh`
 * If you choose to use WiFi `wlan0` I do not recommend using ssh to set this up as your ssh pipe may break on step 3 and you will need to wait for the command to complete before you are allowed back in. I recommend using a desktop setup in this case as the command will most likely result in an error. If this is not an option, see the `--background` option in Step 3.
-* It is recommended that the master be connected to the active network hub on the private interface. This will allow the restart process to be even quicker.
+* It is recommended that the manager be connected to the active network hub on the private interface. This will allow the restart process to be even quicker.
+
+* We recommend you have the following network layout for your Pi's. (Note that this program is not specific to kubernetes. It is just a placeholder example)
+
+![Network Layout](images/layout.png)
 
 ---
 **Step 1. Create necessary workers**
 
 Utilize [cmburn](https://github.com/cloudmesh/cloudmesh-pi-burn) to create the workers
 ```
-(ENV3) pi@red:$ cms burn create --hostname=red[003-004]
+(ENV3) pi@manager:$ cms burn create --hostname=red[003-004]
 ```
 Connect them to the private interface (network switch) via ethernet.
 
-We do not need to boot them up yet as if we connect them to the master now, we will need to reboot them later. (It doesn't hurt though)
+We do not need to boot them up yet as if we connect them to the manager now, we will need to reboot them later. (It doesn't hurt though)
 
 *Note* 
-Notice how we are not setting the `--ipaddr` option. This is intentional as we want to handle static IPs in a centralized manner now. The program will still work if you configure the Pis with static IPs, but you just won't be able to change them from the master.
+Notice how we are not setting the `--ipaddr` option. This is intentional as we want to handle static IPs in a centralized manner now. The program will still work if you configure the Pis with static IPs, but you just won't be able to change them from the manager.
 
 ---
 
 **Step 2 Create Bridge.**
 
-Plug the master Pi into the private interface (network switch) via the built-in ethernet port (eth0)
+Plug the manager Pi into the private interface (network switch) via the built-in ethernet port (eth0)
 
 We can configure our network bridge as follows:
 ```
-(ENV3) pi@red:$ cms bridge create --interface='eth1'
+(ENV3) pi@manager:$ cms bridge create --interface='eth1'
 ```
 
 Wait for the program to finish. If no errors, occured, we have successfuly configured the bridge. Check details on the configuration using 
 ```
-(ENV3) pi@red:$ cms bridge info
+(ENV3) pi@manager:$ cms bridge info
 ```
 
 This will display the following important information (note this is the default setup):
@@ -56,13 +60,13 @@ This will display the following important information (note this is the default 
 # ----------------------------------------------------------------------
 # 
 # IP range: 10.1.1.2 - 10.1.1.122
-# Master IP: 10.1.1.1
+# Manager IP: 10.1.1.1
 # 
 # # LEASE HISTORY #
 # ----------------------------------------------------------------------
 ```
 
-The `Master IP` tells us the IP address of the master on the private interface (eth0).
+The `Manager IP` tells us the IP address of the manager on the private interface (eth0).
 The `IP Range` tells us the range of suitable IPs we can give to the workers.
 
 In the future, a command will be added to expand the `IP range` dynamically.
@@ -74,7 +78,7 @@ In the future, a command will be added to expand the `IP range` dynamically.
 We can now restart the bridge to reflect these changes:
 
 ```
-(ENV3) pi@red:$ cms bridge restart
+(ENV3) pi@manager:$ cms bridge restart
 ```
 
 *Note*
@@ -98,17 +102,17 @@ INFO: dhcpcd is done starting
 Verified dhcpcd status successfuly
 INFO: Restarting dnsmasq please wait...
 Restarted dnsmasq successfuly
-Restarted bridge service on master
+Restarted bridge service on manager
 ```
 *Note*
 
 This process may take up to 10 attempts. This can be attributed to a slow network, or if the private interface is not connected to an active network hub.
 
-At this point, our bridge is ready and the master is configured with dhcp services.
+At this point, our bridge is ready and the manager is configured with dhcp services.
 
 We can check to verify the bridge is working by calling
 ```
-(ENV3) pi@red:$ cms bridge status
+(ENV3) pi@manager:$ cms bridge status
 
 # ----------------------------------------------------------------------
 # 
@@ -129,11 +133,11 @@ We can check to verify the bridge is working by calling
 
 We can set a static IP for hostnames as follows:
 ```
-(ENV3) pi@red:$ cms bridge set red003 10.1.1.3
+(ENV3) pi@manager:$ cms bridge set red003 10.1.1.3
 ```
 for individual workers and/or
 ```
-(ENV3) pi@red:$ cms bridge set red[003-004] 10.1.1.[3-4]
+(ENV3) pi@manager:$ cms bridge set red[003-004] 10.1.1.[3-4]
 ```
 for multiple workers. We will see a message similar to the following displayed:
 ```
@@ -177,7 +181,7 @@ In addition to the information displayed in step 2, we will also have informatio
 # ----------------------------------------------------------------------
 # 
 # IP range: 10.1.1.2 - 10.1.1.122
-# Master IP: 10.1.1.1
+# Manager IP: 10.1.1.1
 # 
 # # ACTIVE LEASES #
 # 2020-04-22 07:08:26 {MAC_ADDRESS} 10.1.1.3 red003 {CLIENT_ID}
@@ -212,7 +216,7 @@ The create command is used for configurating the given raspberry pi as a dhcp se
 | Option        | Description      |
 | :-------------: |-------------|
 | `--interface`    | The network interface with access to the internet. Usually one of `eth1`, or `wlan0` for most uses. Default `eth1`.|
-| `--ip`     | The IP address to give the master Pi on the private interface. See note below. Default `10.1.1.1`     |
+| `--ip`     | The IP address to give the manager on the private interface. See note below. Default `10.1.1.1`     |
 | `--range` | The range of IPs that the server is allowed to give out. Cannot overlap with `--ip`. See note below. Default `10.1.1.2-10.1.1.122` |
 | `--purge` | Used in the case that dnsmasq is inexplicably failing after the initial install. Does a complete reinstallation and reconfiguration of dnsmasq. Requires `cms bridge restart` afterwrads for effect. |
 
@@ -235,7 +239,7 @@ cms bridge restart [--nohup] [--background]
 Restarts the bridge and its services. Used when there is a modification to the bridge configuration. Note that the restart command must be called at least once before using the `--nohup` command.
 | Option    | Description  |
 | :-------: | ----------|
-|`--nohup` | Restarts only the `dnsmasq` service and not the `dhcpcd` service (which is the default behavior). This is useful for when simply assigning a static IP to a host or refreshing the lease history. This is particularly of interest for those that are ssh'd into the master during this process. This option guarantees that the ssh pipe will not be broken after restarting. |
+|`--nohup` | Restarts only the `dnsmasq` service and not the `dhcpcd` service (which is the default behavior). This is useful for when simply assigning a static IP to a host or refreshing the lease history. This is particularly of interest for those that are ssh'd into the manager during this process. This option guarantees that the ssh pipe will not be broken after restarting. |
 |`--background` | Used for when a user wishes to run the command in the background. Usage for this option is mostly for when users are ssh'd through WiFi and experience broken pipelines. Using `--background` will prevent the command from terminating in the case that a pipeline is broken. The output of the command will be stored in the current working directory on the Pi in a file called `bridge_restart.log` |
 
 ---
@@ -249,13 +253,13 @@ Use the status command to check on the status of the bridge itself. If all servi
 ```
 cms bridge info
 ```
-The info command displays information about the current configuration of the bridge. Information includes details like the IP address of the master, the IP range, and the lease history of the bridge. The following is a sample output with the default configuration.
+The info command displays information about the current configuration of the bridge. Information includes details like the IP address of the manager, the IP range, and the lease history of the bridge. The following is a sample output with the default configuration.
 
 ```
 # ----------------------------------------------------------------------
 # 
 # IP range: 10.1.1.2 - 10.1.1.122
-# Master IP: 10.1.1.1
+# Manager IP: 10.1.1.1
 # 
 # # LEASE HISTORY #
 # 2020-04-28 14:21:40 b8:27:eb:57:f6:65 10.1.1.9 red002 01:b8:27:eb:57:f6:65
