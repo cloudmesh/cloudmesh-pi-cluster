@@ -218,14 +218,19 @@ class Spark:
         """
 
         self.script["spark.uninstall.master"] = """
+            echo "removing Java"
             sudo apt-get remove openjdk-11-jre
+            echo "removing Scala"
             sudo apt-get remove scala
+            echo "removing Spark"
             cd ~
             sudo rm -rf spark-2.4.5-bin-hadoop2.7
             sudo rm -f sparkout.tgz
+            echo "restoring .bashrc"
             sudo cp ~/.bashrc-backup ~/.bashrc
+            echo "removing workers from slaves file"
             sudo cp $SPARK_HOME/conf/slaves-backup $SPARK_HOME/conf/slaves
-        # """
+        """
 
         return self.script
 
