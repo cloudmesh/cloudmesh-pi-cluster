@@ -23,7 +23,7 @@ For reference, we will use the following setup:
 
 * We recommend you have the following network layout for your Pi's. (Note that this program is not specific to kubernetes. It is just a placeholder example)
 
-![Network Layout](images/layout.png)
+![Network Layout](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/images/layout.png)
 
 ---
 **Step 1. Create necessary workers**
