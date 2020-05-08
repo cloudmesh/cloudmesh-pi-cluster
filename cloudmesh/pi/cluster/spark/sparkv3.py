@@ -315,7 +315,7 @@ class Spark:
         #
         if self.master:
             banner(f"Uninstall Master: {master}")
-            self.run_script(name="spark.uninstall.master", hosts=hosts)
+            self.run_script(name="spark.uninstall.master", hosts=master)
         #
         # Uninstall WORKER(S)
         #
