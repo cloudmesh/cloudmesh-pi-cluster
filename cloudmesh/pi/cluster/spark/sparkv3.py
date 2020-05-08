@@ -66,6 +66,18 @@ class Spark:
 
             self.run_script(name="spark.check", hosts=hosts)
 
+        elif arguments.uninstall:
+
+            banner(f"Uninstall Master: {master}")
+            self.run_script(name="spark.uninstall", hosts=hosts)
+            banner(f"Uninstall Workers: {workers}")
+            command7 = "sh ~/spark-uninstall-worker.sh"
+            jobSet = JobSet("spark_worker_uninstall", executor=JobSet.ssh)
+            for host in workers_only:
+                jobSet.add({"name": host, "host": host, "command": command7})
+            jobSet.run(parallel=len(workers_only))
+            jobSet.Print()
+
     def __init__(self, master=None, workers=None):
         """
 
@@ -213,13 +225,14 @@ class Spark:
             sh $SPARK_HOME/sbin/stop-all.sh
         """
 
-        # self.script["spark.uninstall2.4.5"] = """
-        #     sudo apt-get remove openjdk-11-jre
-        #     sudo apt-get remove scala
-        #     cd ~
-        #     sudo rm -rf spark-2.4.5-bin-hadoop2.7
-        #     sudo rm -f sparkout.tgz
-        #     sudo cp ~/.bashrc-backup ~/.bashrc
+        self.script["spark.uninstall.master"] = """
+            sudo apt-get remove openjdk-11-jre
+            sudo apt-get remove scala
+            cd ~
+            sudo rm -rf spark-2.4.5-bin-hadoop2.7
+            sudo rm -f sparkout.tgz
+            sudo cp ~/.bashrc-backup ~/.bashrc
+            sudo cp $SPARK_HOME/conf/slaves-backup $SPARK_HOME/conf/slaves
         # """
 
         return self.script
@@ -258,6 +271,9 @@ class Spark:
                 command3 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt pi@{host}:"
                 print(command3)
                 os.system(command3)
+                command4 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-uninstall-worker.sh pi@{host}:"
+                print(command4)
+                os.system(command4)
                 jobSet.add({"name": host, "host": host, "command": command})
                 self.update_slaves(host)
             jobSet.run(parallel=len(hosts))
