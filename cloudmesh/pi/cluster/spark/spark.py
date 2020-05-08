@@ -189,14 +189,14 @@ class Spark:
         """
 
         self.script["spark.update.bashrc"] = """
-                #JAVA_HOME
-                export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
-                #SCALA_HOME
-                export SCALA_HOME=/usr/share/scala
-                export PATH=$PATH:$SCALA_HOME/bin
-                #SPARK_HOME
-                export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
-                export PATH=$PATH:$SPARK_HOME/bin
+            #JAVA_HOME
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+            #SCALA_HOME
+            export SCALA_HOME=/usr/share/scala
+            export PATH=$PATH:$SCALA_HOME/bin
+            #SPARK_HOME
+            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+            export PATH=$PATH:$SPARK_HOME/bin
         """
 
         self.script["spark.start"] = """
@@ -283,7 +283,7 @@ class Spark:
         raise NotImplementedError
 
     def update_slaves(self,hosts):
-        if self.workers:
+        if self.master:
             banner("Updating $SPARK_HOME/conf/slaves file")
             command5 = f"echo 'pi@{hosts}' >> $SPARK_HOME/conf/slaves "
             print(command5)
