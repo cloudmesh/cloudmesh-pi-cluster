@@ -223,9 +223,7 @@ class Spark:
             cd ~
             sudo rm -rf spark-2.4.5-bin-hadoop2.7
             sudo rm -f sparkout.tgz
-            echo "restoring .bashrc"
             sudo cp ~/.bashrc-backup ~/.bashrc
-            echo "removing workers from slaves file"
             sudo cp $SPARK_HOME/conf/slaves-backup $SPARK_HOME/conf/slaves
         """
 
