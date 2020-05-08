@@ -9,7 +9,6 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import banner
-from cloudmesh.common.JobSet import JobSet
 
 class Spark:
 
@@ -29,15 +28,13 @@ class Spark:
         self.master = arguments.master
         self.workers = Parameter.expand(arguments.workers)
 
-        master =[]
         hosts = []
-        workers_only =[]
         if arguments.master:
             hosts.append(arguments.master)
             master = arguments.master
         if arguments.workers:
             hosts = hosts + Parameter.expand(arguments.workers)
-            workers_only = Parameter.expand(arguments.workers)
+            master = []
         if arguments.dryrun:
             self.dryrun = True
 
@@ -47,15 +44,15 @@ class Spark:
 
         if arguments.setup:
 
-            self.setup(master,workers_only)
+            self.setup(master,hosts)
 
         elif arguments.start:
 
-            self.run_script(name="spark.start", hosts=master)
+            self.run_script(name="spark.start", hosts=hosts)
 
         elif arguments.stop:
 
-            self.run_script(name="spark.stop", hosts=master)
+            self.run_script(name="spark.stop", hosts=hosts)
 
         elif arguments.test:
 
@@ -178,7 +175,6 @@ class Spark:
             sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves ~/spark-2.4.5-bin-hadoop2.7/conf/slaves-backup
             sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves.template ~/spark-2.4.5-bin-hadoop2.7/conf/slaves
             sudo chmod -R 777 ~/spark-2.4.5-bin-hadoop2.7/conf/
-            echo '' >> $SPARK_HOME/conf/slaves
             sudo cp ~/.bashrc ~/.bashrc-backup
             cat ~/.bashrc /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt > ~/temp-bashrc
             sudo cp ~/temp-bashrc ~/.bashrc
@@ -192,7 +188,7 @@ class Spark:
             sh $SPARK_HOME/sbin/stop-all.sh
         """
 
-        self.script["spark.bashrc.additions"] = """
+        self.script["spark.update.bashrc"] = """
             #JAVA_HOME
             export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
             #SCALA_HOME
@@ -242,26 +238,21 @@ class Spark:
         # SETUP WORKER
         #
         if self.workers:
-            # Copy setup files to each worker and execute the shell program in parallel
-            workers = ', '.join(hosts)
-            banner(f"Setup Workers: {workers}")
-            command = "sh ~/spark-setup-worker.sh"
-            jobSet = JobSet("spark_worker_install", executor=JobSet.ssh)
-            for host in hosts:
-                banner(f"Setting up worker {host}")
-                command1 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-setup-worker.sh pi@{host}:"
-                print(command1)
-                os.system(command1)
-                command2 = f"scp ~/sparkout.tgz pi@{host}:"
-                print(command2)
-                os.system(command2)
-                command3 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt pi@{host}:"
-                print(command3)
-                os.system(command3)
-                jobSet.add({"name": host, "host": host, "command": command})
-                self.update_slaves(host)
-            jobSet.run(parallel=len(hosts))
-            jobSet.Print()
+            hosts=hosts[0]
+            banner(f"Setting up worker {hosts}")
+            command1 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-setup-worker.sh pi@{hosts}:"
+            print(command1)
+            os.system(command1)
+            command2 = f"scp ~/sparkout.tgz pi@{hosts}:"
+            print(command2)
+            os.system(command2)
+            command3 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt pi@{hosts}:"
+            print(command3)
+            os.system(command3)
+            command4 = f"ssh pi@{hosts} sh ~/spark-setup-worker.sh"
+            print(command4)
+            os.system(command4)
+            self.update_slaves(hosts)
         return
     #    #raise NotImplementedError
     #
