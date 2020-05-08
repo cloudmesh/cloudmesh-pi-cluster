@@ -166,6 +166,8 @@ class Spark:
             sudo apt-get update
             sudo apt-get install default-jdk
             sudo apt-get install scala
+            echo "Y" | sudo apt install libatlas3-base libgfortran5
+            sudo pip3 install numpy 
         """
 
         self.script["spark.download.spark"] = """
