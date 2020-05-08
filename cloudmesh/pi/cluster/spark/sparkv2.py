@@ -29,15 +29,15 @@ class Spark:
         self.master = arguments.master
         self.workers = Parameter.expand(arguments.workers)
 
+        master =[]
         hosts = []
+        workers_only =[]
         if arguments.master:
             hosts.append(arguments.master)
             master = arguments.master
         if arguments.workers:
-            workers_only = []
             hosts = hosts + Parameter.expand(arguments.workers)
             workers_only = Parameter.expand(arguments.workers)
-            #master = []
         if arguments.dryrun:
             self.dryrun = True
 
