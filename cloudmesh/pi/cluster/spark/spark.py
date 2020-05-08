@@ -283,15 +283,13 @@ class Spark:
         raise NotImplementedError
 
     def update_slaves(self,hosts):
-        if self.master:
-            banner("Updating $SPARK_HOME/conf/slaves file")
-            command5 = f"echo 'pi@{hosts}' >> $SPARK_HOME/conf/slaves "
-            print(command5)
-            os.system(command5)
-            #script = f"pi@{hosts}"
-            #print(script)
-            #Installer.add_script("$SPARK_HOME/conf/slaves", script)
-        raise NotImplementedError
+        banner("Updating $SPARK_HOME/conf/slaves file")
+        command5 = f"echo 'pi@{hosts}' >> $SPARK_HOME/conf/slaves "
+        print(command5)
+        os.system(command5)
+        #script = f"pi@{hosts}"
+        #print(script)
+        #Installer.add_script("$SPARK_HOME/conf/slaves", script)
 
     def update_bashrc(self):
         banner("Updating ~/.bashrc file")
