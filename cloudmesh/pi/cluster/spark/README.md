@@ -19,11 +19,10 @@ Cloudmesh system (cms) commands are used to burn the Raspberry Pi Master and Pi
 
 Shell scripts are automated and integrated into the following cms commands
 
-TODO: **This is under testing**
-
 The list of spark related commands are:
 
 ```
+cms pi spark check [--master=MASTER] [--workes=WORKERS]
 cms pi spark setup [--master=MASTER] [--workers=WORKERS]
 cms pi spark start --master=MASTER
 cms pi spark stop --master=MASTER
@@ -41,6 +40,20 @@ We'll use the word *red* as the prefix to the hostnames. We assume you
 ##  Pi Spark Cluster Setup workflow
 
 
+Optional: Perform a check step on Pis
+```
+cms pi spark check --master=red --workers="red[001-003]" 
+```
+
+You can setup the master and all your workers in one step or individually
+
+One step setup approach
+
+```
+cms pi spark setup --master=red --workers="red[001-003]" 
+```
+
+Multi-step approach
 Step 1:  Setup master
 
 ```
@@ -49,38 +62,37 @@ cms pi spark setup --master=red
 ** After running above command, exit master and log back in to run ~/bashrc
  and set system parameters **
 
-Step 2: Ensure master setup succeeded, use command
-```
-cms pi spark test --master=red
-```
-If your master has a password, you'll be asked to enter it, but the command
- may not be easily seen, due to other messages.
 
-
-Step 3: Add individual workers to the Spark cluster using:
+Step 2: Add individual workers to the Spark cluster using:
 
 ```
 cms pi spark setup --workers=red001 
 ```
 
-Work in progress setting up multiple workers automatically from cms command.  For now, repeat the above command for each worker name.
+To test the Spark setup, use command
+```
+cms pi spark test --master=red
+```
+If your master has a password, you'll be asked to enter it, but the command
+ may not be easily seen, due to other messages.
+ 
+ There are many messages that scroll by look for something along the lines of
+ 
+ Job 0 finished: reduce at SparkPi.scala:38, took 1.971870 s
+ 
+Pi is roughly 3.1469378673446684
 
-Step 4: Confirm worker(s) added 
-by repeating Step 2
+
+To start the cluster
 
 ```
-cms pi spark test --master=red"
-```
-Step 5: Start the cluster
-
-```
-cms pi spark start --master=red"
+cms pi spark start --master=red
 ```
 
-Step 6: Stop the cluster
+To stop the cluster
 
 ```
-cms pi spark stop --master=red"
+cms pi spark stop --master=red
 ```
 Behind the cms commands are automated workflow steps and scripts integrated
  into cms
@@ -110,10 +122,7 @@ Behind the cms commands are automated workflow steps and scripts integrated
     #     # Update slaves file on master
     #       function update_slaves(self)
 
-           
 
-Setting up multiple workers and one master in one command is an objective, not yet
- implemented
 
 ## Script details
 
