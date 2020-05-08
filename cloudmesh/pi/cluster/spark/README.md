@@ -47,13 +47,13 @@ cms pi spark check --master=red --workers="red[001-003]"
 
 You can setup the master and all your workers in one step or individually
 
-One step setup approach
+### One step setup approach
 
 ```
 cms pi spark setup --master=red --workers="red[001-003]" 
 ```
 
-Multi-step approach
+### Multi-step approach
 Step 1:  Setup master
 
 ```
@@ -69,27 +69,30 @@ Step 2: Add individual workers to the Spark cluster using:
 cms pi spark setup --workers=red001 
 ```
 
-To test the Spark setup, use command
+### Test the Spark setup
+
+Following command starts the cluster, runs an example Spark script and then
+ stops the cluster.
 ```
 cms pi spark test --master=red
 ```
-If your master has a password, you'll be asked to enter it, but the command
+If your master has a **password**, you'll be asked to enter it, but the command
  may not be easily seen, due to other messages.
  
- There are many messages that scroll by look for something along the lines of
+ There are many messages that scroll by; look for something along the lines of
  
  Job 0 finished: reduce at SparkPi.scala:38, took 1.971870 s
  
 Pi is roughly 3.1469378673446684
 
 
-To start the cluster
+### To start the cluster
 
 ```
 cms pi spark start --master=red
 ```
 
-To stop the cluster
+### To stop the cluster
 
 ```
 cms pi spark stop --master=red
