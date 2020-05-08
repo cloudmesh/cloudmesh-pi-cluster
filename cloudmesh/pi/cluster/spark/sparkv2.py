@@ -9,6 +9,7 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import banner
+from cloudmesh.common.JobSet import JobSet
 
 class Spark:
 
