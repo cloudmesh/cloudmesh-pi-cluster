@@ -175,7 +175,7 @@ class Spark:
             sudo cp ~/.bashrc ~/.bashrc-backup
             sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves ~/spark-2.4.5-bin-hadoop2.7/conf/slaves-backup
             #sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves.template ~/spark-2.4.5-bin-hadoop2.7/conf/slaves
-            sudo chmod 777 ~/spark-2.4.5-bin-hadoop2.7/conf/
+            sudo chmod -R 777 ~/spark-2.4.5-bin-hadoop2.7/conf/
             cat ~/.bashrc ~/spark-bashrc.txt > ~/temp-bashrc
             sudo cp ~/temp-bashrc ~/.bashrc
             sudo rm ~/temp-bashrc
@@ -285,13 +285,12 @@ class Spark:
     def update_slaves(self,hosts):
         if self.workers:
             banner("Updating $SPARK_HOME/conf/slaves file")
-            #script = f"pi@{hosts}"
-            command5 = f"cat >> $SPARK_HOME/conf/slaves pi@{hosts}"
+            command5 = f"echo 'pi@{hosts}' >> $SPARK_HOME/conf/slaves "
             print(command5)
             os.system(command5)
-
-            print(script)
-            Installer.add_script("$SPARK_HOME/conf/slaves", script)
+            #script = f"pi@{hosts}"
+            #print(script)
+            #Installer.add_script("$SPARK_HOME/conf/slaves", script)
         raise NotImplementedError
 
     def update_bashrc(self):
