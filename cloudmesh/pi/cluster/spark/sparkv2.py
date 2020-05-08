@@ -34,8 +34,10 @@ class Spark:
             hosts.append(arguments.master)
             master = arguments.master
         if arguments.workers:
+            workers_only = []
             hosts = hosts + Parameter.expand(arguments.workers)
-            master = []
+            workers_only = Parameter.expand(arguments.workers)
+            #master = []
         if arguments.dryrun:
             self.dryrun = True
 
@@ -45,7 +47,7 @@ class Spark:
 
         if arguments.setup:
 
-            self.setup(master,hosts)
+            self.setup(master,workers_only)
 
         elif arguments.start:
 
