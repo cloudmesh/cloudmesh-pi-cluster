@@ -2,6 +2,5 @@
 sudo apt-get remove openjdk-11-jre
 sudo apt-get remove scala
 cd ~
-sudo rm -rf spark-2.4.5-bin-hadoop2.7
-sudo rm -f sparkout.tgz
+sudo rm -rf spark*
 sudo cp ~/.bashrc-backup ~/.bashrc
