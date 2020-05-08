@@ -192,7 +192,7 @@ class Spark:
             sh $SPARK_HOME/sbin/stop-all.sh
         """
 
-        self.script["spark.update.bashrc"] = """
+        self.script["spark.bashrc.additions"] = """
             #JAVA_HOME
             export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
             #SCALA_HOME
@@ -248,7 +248,7 @@ class Spark:
             command = "sh ~/spark-setup-worker.sh"
             jobSet = JobSet("spark_worker_install", executor=JobSet.ssh)
             for host in hosts:
-                banner(f"Setting up worker {hosts}")
+                banner(f"Setting up worker {host}")
                 command1 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-setup-worker.sh pi@{host}:"
                 print(command1)
                 os.system(command1)
