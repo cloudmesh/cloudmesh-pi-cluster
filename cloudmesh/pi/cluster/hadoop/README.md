@@ -26,6 +26,7 @@ $ cms pi hadoop setup --master=red
 $ source ~/.bashrc
 ```
 
+
 If the installation is successful, you should see the versions of each
  returned by running these commands below. The number in front of jps can be
   different.
