@@ -303,9 +303,7 @@ class Spark:
         command5 = f"echo 'pi@{hosts}' >> ~/spark-2.4.5-bin-hadoop2.7/conf/slaves "
         print(command5)
         os.system(command5)
-        #script = f"pi@{hosts}"
-        #print(script)
-        #Installer.add_script("$SPARK_HOME/conf/slaves", script)
+
 
     def uninstall(self,master,hosts):
         #
