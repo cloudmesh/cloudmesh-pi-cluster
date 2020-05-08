@@ -320,7 +320,7 @@ class Spark:
         # Uninstall WORKER(S)
         #
         if self.workers:
-            banner(f"Uninstall Workers: {workers}")
+            banner(f"Uninstall Workers: {hosts}")
             command7 = "sh ~/spark-uninstall-worker.sh"
             jobSet = JobSet("spark_worker_uninstall", executor=JobSet.ssh)
             for host in hosts:
