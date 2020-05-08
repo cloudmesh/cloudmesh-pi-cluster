@@ -76,7 +76,9 @@ Following command starts the cluster, runs an example Spark script and then
 ```
 cms pi spark test --master=red
 ```
-If your master has a **password**, you'll be asked to enter it, but the command
+If your master has a **password**, you'll be asked to enter it both in
+ starting and stopping the cluster, but
+ the requests
  may not be easily seen, due to other messages.
  
  There are many messages that scroll by; look for something along the lines of
