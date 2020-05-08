@@ -69,7 +69,7 @@ class Spark:
         elif arguments.uninstall:
 
             banner(f"Uninstall Master: {master}")
-            self.run_script(name="spark.uninstall", hosts=hosts)
+            self.run_script(name="spark.uninstall.master", hosts=hosts)
             banner(f"Uninstall Workers: {workers}")
             command7 = "sh ~/spark-uninstall-worker.sh"
             jobSet = JobSet("spark_worker_uninstall", executor=JobSet.ssh)
