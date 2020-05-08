@@ -300,7 +300,7 @@ class Spark:
 
     def update_slaves(self,hosts):
         banner("Updating $SPARK_HOME/conf/slaves file")
-        command5 = f"echo 'pi@{hosts}' >> $SPARK_HOME/conf/slaves "
+        command5 = f"echo 'pi@{hosts}' >> ~/spark-2.4.5-bin-hadoop2.7/conf/slaves "
         print(command5)
         os.system(command5)
         #script = f"pi@{hosts}"
