@@ -53,16 +53,20 @@ Step 2: Ensure master setup succeeded, use command
 ```
 cms pi spark test --master=red
 ```
+If your master has a password, you'll be asked to enter it, but the command
+ may not be easily seen, due to following messages.
 
-Step 3: Setup individual workers using:
+
+Step 3: Add individual workers to the Spark cluster using:
 
 ```
 cms pi spark setup --workers=red001 
 ```
 
 Work in progress setting up multiple workers automatically from cms command
+.  For now, repeat the above commands for each worker name.
 
-Step 4: Confirm worker added 
+Step 4: Confirm worker(s) added 
 by repeating Step 2
 
 ```
