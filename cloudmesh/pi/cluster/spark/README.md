@@ -46,10 +46,10 @@ Step 1:  Setup master
 ```
 cms pi spark setup --master=red 
 ```
-** Logout of master and log back in to run ~/bashrc and set system parameters **
+** After running above command, exit master and log back in to run ~/bashrc
+ and set system parameters **
 
 Step 2: Ensure master setup succeeded, use command
-
 ```
 cms pi spark test --master=red
 ```
@@ -89,33 +89,24 @@ Behind the cms commands are automated workflow steps and scripts integrated
   -cluster/cloudmesh/pi/cluster/spark/spark.py
 
 
-    #     # Setup the Pi master with Spark (Java & Scala) applications
-    #       shell script "spark.setup.master"
+  
+    #     # Setup the Pi master with the prerequisite applications
+    #       shell script "spark.prereqs"
     #
-    #     # Update the Pi master's ~/.bashrc file
-    #       python function update_bashrc()
+    #     # Download Spark on the Pi master
+    #       shell script "spark.download.spark"
     #
-    #     # Create a shell file on Pi master to run on Pi worker
-    #       python function create_spark_setup_worker()
+    #     # Install spark on Pi master
+    #       shell script "spark.install"
     #
-    #     # Create a file on Pi master that will be copied to and append to ~/.bashrc on Pi worker
-    #       python function create_spark_bashrc_txt()
+    #     # Update Pi master's ~/.bashrc file and prepare environment for workers
+    #       shell script "spark.bashrc.master"
     #
-    #     # Copy shell and bashrc change files to Pi workers, execute shell file on Pi worker
-    #       shell script "copy.spark.to.worker"
+    #     # Setup a Pi worker by copying files from Pi master to Pi worker & executing a shell file on worker
     #
     #     # Update slaves file on master
-    #       python function update_slaves()
-    #
-    #     # Test Spark cluster
-    #       shell script "spark.test"
-    #
-    #     # Start Spark cluster
-    #       shell script "spark.start"
-    #
-    #     # Stop Spark cluster
-    #       shell script "spark.stop"
-    #
+    #       function update_slaves(self)
+
            
 
 Setting up multiple workers and one master in one command is an objective, not yet

@@ -257,20 +257,19 @@ class Spark:
     #    #raise NotImplementedError
     #
     #     # Setup Pi workflow
-    #     # Setup the Pi master with the Spark applications
-    #       script "spark.setup.master"
+    #     # Setup the Pi master with the prerequisite applications
+    #       shell script "spark.prereqs"
     #
-    #     # Update the Pi master's ~/.bashrc file
-    #       function update_bashrc(self)
+    #      # Download Spark on the Pi master
+    #       shell script "spark.download.spark"
     #
-    #     # Create a shell file on Pi master to run on Pi worker
-    #       function create_spark_setup_worker(self)
+    #      # Install spark on Pi master
+    #       shell script "spark.install"
     #
-    #     # Create a file on Pi master that will be copied to and append to ~/.bashrc on Pi worker
-    #       function create_spark_bashrc_txt
+    #      # Update Pi master's ~/.bashrc file and prepare environment for workers
+    #       shell script "spark.bashrc.master"
     #
-    #     # Copy shell and bashrc change files to Pi workers, execute shell file on Pi worker
-    #       script "copy.spark.to.worker"
+    #     # Setup a Pi worker by copying files from Pi master to Pi worker & executing a shell file on worker
     #
     #     # Update slaves file on master
     #       function update_slaves(self)
