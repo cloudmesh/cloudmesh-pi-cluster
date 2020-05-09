@@ -192,7 +192,7 @@ class Spark:
             export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
             export SCALA_HOME=/usr/share/scala
             export PATH=$PATH:$SCALA_HOME/bin
-            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+gi            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
             export PATH=$PATH:$SPARK_HOME/bin
          """
 
@@ -274,8 +274,10 @@ class Spark:
                 os.system(command4)
                 jobSet.add({"name": host, "host": host, "command": command})
                 self.update_slaves(host)
+            banner("Updating workers in parallel")
             jobSet.run(parallel=len(hosts))
             jobSet.Print()
+            banner("Spark setup complete")
         return
     #    #raise NotImplementedError
     #
@@ -299,7 +301,7 @@ class Spark:
 
     def test(self):
         if self.master:
-            banner("Be prepared to enter your Master Pi password TWICE, once on start and also for stop")
+            banner("Master Pi password needed TWICE - for start and stop")
             self.run_script(name="spark.test", hosts=self.master)
         if self.workers:
             print("cms pi spark test intended for master only")
@@ -330,4 +332,5 @@ class Spark:
                 jobSet.add({"name": host, "host": host, "command": command7})
             jobSet.run(parallel=len(hosts))
             jobSet.Print()
+            banner("Successfully uninstalled workers")
         return
