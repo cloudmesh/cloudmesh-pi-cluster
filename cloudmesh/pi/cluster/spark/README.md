@@ -73,10 +73,15 @@ cms pi spark setup --workers=red001
 
 Following command starts the cluster, runs an example Spark script and then
  stops the cluster.
+ 
+ ***Prior to starting Spark test, exit from your master and log back in to
+  ensure
+  system variables are set correctly***
+ 
 ```
 cms pi spark test --master=red
 ```
-If your master has a **password**, you'll be asked to enter it both in
+NOTE: If your master has a **password**, you'll be asked to enter it both in
  starting and stopping the cluster, but
  the requests
  may not be easily seen, due to other messages.
