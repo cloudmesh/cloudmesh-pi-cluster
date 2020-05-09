@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 sudo apt-get update
-sudo apt-get install default-jdk
+echo "Y" | sudo apt-get install default-jdk
 sudo apt-get install scala
 cd ~
 sudo tar -xzf sparkout.tgz

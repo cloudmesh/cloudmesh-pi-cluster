@@ -19,7 +19,7 @@ from cloudmesh.common.util import writefile, readfile
 
 class Bridge:
     """
-    A simple Bridge to connect workers to the internet through a port on the master
+    A simple Bridge to connect workers to the internet through a port on the manager
     """
 
     dryrun = False
@@ -41,8 +41,8 @@ class Bridge:
 
         :param master: expected to be a single string
         :param workers:
-        :param ext_interface: The external interface through which the master connects to the internet
-        :param priv_interface: The private interface through which the master and workers communicate
+        :param ext_interface: The external interface through which the manager connects to the internet
+        :param priv_interface: The private interface through which the manager and workers communicate
         :param dryrun:
         :return:
         """
@@ -56,7 +56,7 @@ class Bridge:
 
 
         # Master configuration
-        StopWatch.start('Master Configuration')
+        StopWatch.start('Manager Configuration')
 
         # Configure dhcpcd.conf of master. No restart
         StopWatch.start('dhcpcd.conf configuration')
@@ -98,10 +98,10 @@ class Bridge:
         StopWatch.stop('iptables configuration')
         StopWatch.status('iptables configuration', True)
 
-        StopWatch.stop('Master Configuration')
-        StopWatch.status('Master Configuration', True)
+        StopWatch.stop('Manager Configuration')
+        StopWatch.status('Manager Configuration', True)
 
-        Console.info("Finished configuration of master")
+        Console.info("Finished configuration of manager")
 
         cls._completion_message()
 
@@ -262,7 +262,7 @@ class Bridge:
         :return:
         """
 
-        banner("Restarting bridge on master...", color='CYAN')
+        banner("Restarting bridge on manager...", color='CYAN')
         # Clear lease log
         if Path('/var/lib/misc/dnsmasq.leases').is_file():
             Console.info("Clearing leases file...")
@@ -274,7 +274,7 @@ class Bridge:
 
             status = cls._system('sudo service dhcpcd restart', exitcode=True)
             if status != 0:
-                Console.error(f'Did not restart master networking service correctly')
+                Console.error(f'Did not restart manager networking service correctly')
                 sys.exit(1)
             Console.info("Restarted dhcpcd")
             Console.info("Verifying dhcpcd status...")
@@ -289,11 +289,11 @@ class Bridge:
         Console.info("Restarting dnsmasq please wait...")
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
-            Console.error(f'Did not restart master dnsmasq service correctly')
+            Console.error(f'Did not restart manager dnsmasq service correctly')
             sys.exit(1)
         Console.ok("Restarted dnsmasq successfuly")
 
-        Console.ok("Restarted bridge service on master")
+        Console.ok("Restarted bridge service on manager")
 
         if workers is not None:
             banner("Restart networking service on workers...", color='CYAN')
@@ -431,7 +431,7 @@ class Bridge:
         """
         info = textwrap.dedent(f"""
         IP range: {cls.ip_range[0]} - {cls.ip_range[1]}
-        Master IP: {cls.masterIP}
+        Manager IP: {cls.masterIP}
 
         {cls.lease_bookmark}
 
@@ -441,7 +441,7 @@ class Bridge:
         Successfuly configured a dhcp server on the hostname {cls.master}
         Details:
           * IP range of connected devices is {cls.ip_range[0]} - {cls.ip_range[1]}. 
-          * Master Pi has ip {cls.masterIP} on interface {cls.priv_interface}
+          * Manager Pi has ip {cls.masterIP} on interface {cls.priv_interface}
 
         Before connecting to devices, run:
 
@@ -553,7 +553,7 @@ class Bridge:
     @classmethod
     def _dhcpcd_conf(cls):
         """
-        Configures master with static ip masterIP on interface priv_interface in dhcpcd.conf.
+        Configures manager with static ip masterIP on interface priv_interface in dhcpcd.conf.
         Considered as the IP address of the "default gateway" for the cluster network
         Note: Does not restart dhcpcd.service
 
@@ -564,7 +564,7 @@ class Bridge:
         else:
             banner(f"""
             
-            Writing to dhcpcd.conf. Setting static IP of master to {cls.masterIP} on {cls.priv_interface}
+            Writing to dhcpcd.conf. Setting static IP of manager to {cls.masterIP} on {cls.priv_interface}
 
             """)
 

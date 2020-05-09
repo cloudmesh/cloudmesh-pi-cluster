@@ -28,6 +28,7 @@ cms pi spark start --master=MASTER
 cms pi spark stop --master=MASTER
 cms pi spark test --master=MASTER
 cms pi script list spark [--details]
+cms pi spark uninstall --master=MASTER [--workers=WORKERS]
 ```
 
 ## Usage
@@ -53,6 +54,28 @@ You can setup the master and all your workers in one step or individually
 cms pi spark setup --master=red --workers="red[001-003]" 
 ```
 
+To-do:  eliminate the following warning commands.   They are a
+ result of
+ the program controlling the code in parallel across the worker Pis not liking
+  the 'Y' pipe to
+  install Java and Scala; however, without the 'Y' pipe, code freezes waiting
+   for
+   a reply.  These commands will likely repeat several times; if you wait, the
+    command
+    line
+    will come back and
+    install will be
+    complete.
+   
+    debconf: unable to initialize frontend: Dialog
+    debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+    debconf: falling back to frontend: Readline
+    debconf: unable to initialize frontend: Readline
+    debconf: (This frontend requires a controlling tty.)
+    debconf: falling back to frontend: Teletype
+    dpkg-preconfigure: unable to re-open stdin:
+    debconf: unable to initialize frontend: Dialog
+
 ### Multi-step approach
 Step 1:  Setup master
 
@@ -73,19 +96,37 @@ cms pi spark setup --workers=red001
 
 Following command starts the cluster, runs an example Spark script and then
  stops the cluster.
+ 
+ ***Prior to starting Spark test, exit from your master and log back in to
+  ensure
+  system variables are set correctly***
+ 
 ```
 cms pi spark test --master=red
 ```
-If your master has a **password**, you'll be asked to enter it both in
+NOTE: If your master has a **password**, you'll be asked to enter it both in
  starting and stopping the cluster, but
  the requests
  may not be easily seen, due to other messages.
  
+    ['red'] -> sh $SPARK_HOME/sbin/start-all.sh
+    starting org.apache.spark.deploy.master.Master, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy.master.Master-1-green.out
+    pi@localhost's password: pi@red001: starting org.apache.spark.deploy
+    .worker
+    .Worker, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org
+    .apache.spark.deploy.worker.Worker-1-red001.out
+    pi@red002: starting org.apache.spark.deploy.worker.Worker, logging to /home
+    /pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy
+    .worker.Worker-1-red002.out
+    pi@red003: starting org.apache.spark.deploy.worker.Worker, logging to /home
+    /pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy
+    .worker.Worker-1-red003.out
+ 
  There are many messages that scroll by; look for something along the lines of
  
- Job 0 finished: reduce at SparkPi.scala:38, took 1.971870 s
+    Job 0 finished: reduce at SparkPi.scala:38, took 1.971870 s
  
-Pi is roughly 3.1469378673446684
+    Pi is roughly 3.1469378673446684
 
 
 ### To start the cluster
@@ -99,6 +140,13 @@ cms pi spark start --master=red
 ```
 cms pi spark stop --master=red
 ```
+
+### Uninstall Spark
+
+```
+cms pi spark uninstall --master=red --workers="red[001-003]"
+```
+
 Behind the cms commands are automated workflow steps and scripts integrated
  into cms
  commands for installing and testing a Spark installation with one master and
@@ -147,6 +195,29 @@ cms pi script list spark --details
 
 
 # Appendix details
+
+## Spark console for executing command
+
+$ spark-shell
+
+    Spark context Web UI available at http://10.1.1.1:4040
+    Spark context available as 'sc' (master = local[*], app id = local-1589031487342).
+    Spark session available as 'spark'.
+    Welcome to
+          ____              __
+        / __/__  ___ _____/ /__
+        _\ \/ _ \/ _ `/ __/  '_/
+        /___/ .__/\_,_/_/ /_/\_\   version 2.4.5
+        /_/
+
+    Using Scala version 2.11.12 (OpenJDK Server VM, Java 11.0.7)
+    Type in expressions to have them evaluated.
+    Type :help for more information.
+
+    scala> 2+2
+    res0: Int = 4
+
+    scala> :q
 
 ## Pi Spark setup with shell programs as precursor to above
 

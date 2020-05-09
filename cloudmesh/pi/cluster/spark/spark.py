@@ -15,13 +15,12 @@ class Spark:
 
     def execute(self, arguments):
         """
-        pi spark worker add [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark worker remove [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark setup [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark start [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark stop [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark test [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark check [--master=MASTER] [--workers=WORKERS] [--dryrun]
+        pi spark check [--master=MASTER] [--workers=WORKERS]
+        pi spark setup [--master=MASTER] [--workers=WORKERS]
+        pi spark start --master=MASTER
+        pi spark stop --master=MASTER
+        pi spark test --master=MASTER
+        pi spark uninstall --master=MASTER [--workers=WORKERS]
 
         :param arguments:
         :return:
@@ -59,12 +58,16 @@ class Spark:
 
         elif arguments.test:
 
-            #self.test(hosts)
-            self.run_script(name="spark.test", hosts=self.master)
+            self.test(master)
+            #self.run_script(name="spark.test", hosts=self.master)
 
         elif arguments.check:
 
             self.run_script(name="spark.check", hosts=hosts)
+
+        elif arguments.uninstall:
+
+            self.uninstall(master, workers_only)
 
     def __init__(self, master=None, workers=None):
         """
@@ -160,8 +163,10 @@ class Spark:
 
         self.script["spark.prereqs"] = """
             sudo apt-get update
-            sudo apt-get install default-jdk
+            echo "Y" | sudo apt-get install default-jdk
             sudo apt-get install scala
+            echo "Y" | sudo apt install libatlas3-base libgfortran5
+            sudo pip3 install numpy 
         """
 
         self.script["spark.download.spark"] = """
@@ -178,12 +183,16 @@ class Spark:
             sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves ~/spark-2.4.5-bin-hadoop2.7/conf/slaves-backup
             sudo cp ~/spark-2.4.5-bin-hadoop2.7/conf/slaves.template ~/spark-2.4.5-bin-hadoop2.7/conf/slaves
             sudo chmod -R 777 ~/spark-2.4.5-bin-hadoop2.7/conf/
-            echo '' >> $SPARK_HOME/conf/slaves
+            echo '' >> ~/spark-2.4.5-bin-hadoop2.7/conf/slaves
             sudo cp ~/.bashrc ~/.bashrc-backup
             cat ~/.bashrc /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt > ~/temp-bashrc
             sudo cp ~/temp-bashrc ~/.bashrc
             sudo rm ~/temp-bashrc
-            #sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-master-bashrc.sh
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+            export SCALA_HOME=/usr/share/scala
+            export PATH=$PATH:$SCALA_HOME/bin
+            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+            export PATH=$PATH:$SPARK_HOME/bin
          """
 
         self.script["spark.test"] = """
@@ -213,14 +222,15 @@ class Spark:
             sh $SPARK_HOME/sbin/stop-all.sh
         """
 
-        # self.script["spark.uninstall2.4.5"] = """
-        #     sudo apt-get remove openjdk-11-jre
-        #     sudo apt-get remove scala
-        #     cd ~
-        #     sudo rm -rf spark-2.4.5-bin-hadoop2.7
-        #     sudo rm -f sparkout.tgz
-        #     sudo cp ~/.bashrc-backup ~/.bashrc
-        # """
+        self.script["spark.uninstall.master"] = """
+            echo "Y" | sudo apt-get remove openjdk-11-jre
+            echo "Y" | sudo apt-get remove scala
+            cd ~
+            sudo rm -rf spark-2.4.5-bin-hadoop2.7
+            sudo rm -f sparkout.tgz
+            sudo cp ~/.bashrc-backup ~/.bashrc
+            sudo cp $SPARK_HOME/conf/slaves-backup $SPARK_HOME/conf/slaves
+        """
 
         return self.script
 
@@ -258,10 +268,15 @@ class Spark:
                 command3 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt pi@{host}:"
                 print(command3)
                 os.system(command3)
+                command4 = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-uninstall-worker.sh pi@{host}:"
+                print(command4)
+                os.system(command4)
                 jobSet.add({"name": host, "host": host, "command": command})
                 self.update_slaves(host)
+            banner("Updating workers in parallel")
             jobSet.run(parallel=len(hosts))
-            jobSet.Print()
+            #jobSet.Print()
+            banner("Spark setup complete")
         return
     #    #raise NotImplementedError
     #
@@ -283,18 +298,38 @@ class Spark:
     #     # Update slaves file on master
     #       function update_slaves(self)
 
-    def test(self):
+    def test(self,master):
         if self.master:
-            self.run_script(name="spark.test", hosts=self.master)
+            banner("Master Pi password needed TWICE - for start and stop")
+            self.run_script(name="spark.test", hosts=master)
         if self.workers:
-            print("cms pi spark test intended for master only")
-        raise NotImplementedError
+            banner("cms pi spark test intended for master only")
+        return
 
     def update_slaves(self,hosts):
         banner("Updating $SPARK_HOME/conf/slaves file")
-        command5 = f"echo 'pi@{hosts}' >> $SPARK_HOME/conf/slaves "
+        command5 = f"echo 'pi@{hosts}' >> ~/spark-2.4.5-bin-hadoop2.7/conf/slaves "
         print(command5)
         os.system(command5)
-        #script = f"pi@{hosts}"
-        #print(script)
-        #Installer.add_script("$SPARK_HOME/conf/slaves", script)
+
+
+    def uninstall(self,master,hosts):
+        #
+        # Uninstall MASTER
+        #
+        if self.master:
+            banner(f"Uninstall Master: {master}")
+            self.run_script(name="spark.uninstall.master", hosts=master)
+        #
+        # Uninstall WORKER(S)
+        #
+        if self.workers:
+            banner(f"Uninstall Workers: {hosts}")
+            command7 = "sh ~/spark-uninstall-worker.sh"
+            jobSet = JobSet("spark_worker_uninstall", executor=JobSet.ssh)
+            for host in hosts:
+                jobSet.add({"name": host, "host": host, "command": command7})
+            jobSet.run(parallel=len(hosts))
+            #jobSet.Print()
+            banner("Successfully uninstalled workers")
+        return
