@@ -232,7 +232,8 @@ Lastly, on each node `/etc/hosts` should look like below
 
 ### Run Hadoop Cluster 
 
-Clean all the old data, and format Namenode
+Clean all the old data, and format Namenode. This step needs to be done
+ everytime before starting the cluster.
 
 ```
 $ cd /opt/hadoop/hadoopdata/hdfs
@@ -255,14 +256,15 @@ HADOOP_HOME/bin/hadoop dfsadmin -safemode leave
 ```
 
 Currently the online web is unavailable to monitor cluster activities
-. However, you can still check them, especially ensure that ALL nodes have
- been started, by running the line
+. However, you can still check the activities of each node. Especially ensure
+ that ALL nodes are alive, by running the line below
 
 ```
 hdfs dfsadmin -report
 ```
 
 --- currently unavaialble
+
 Check the node online, type in `http://red:9870` on your web browser
 You should see a web page showing resources.
 `http://red:8088` shows nodes of the cluster. 
