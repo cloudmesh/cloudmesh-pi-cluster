@@ -59,8 +59,8 @@ class Spark:
 
         elif arguments.test:
 
-            #self.test(hosts)
-            self.run_script(name="spark.test", hosts=self.master)
+            self.test(master)
+            #self.run_script(name="spark.test", hosts=self.master)
 
         elif arguments.check:
 
@@ -192,7 +192,7 @@ class Spark:
             export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
             export SCALA_HOME=/usr/share/scala
             export PATH=$PATH:$SCALA_HOME/bin
-gi            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
             export PATH=$PATH:$SPARK_HOME/bin
          """
 
@@ -304,7 +304,7 @@ gi            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
             banner("Master Pi password needed TWICE - for start and stop")
             self.run_script(name="spark.test", hosts=self.master)
         if self.workers:
-            print("cms pi spark test intended for master only")
+            banner("cms pi spark test intended for master only")
         raise NotImplementedError
 
     def update_slaves(self,hosts):
