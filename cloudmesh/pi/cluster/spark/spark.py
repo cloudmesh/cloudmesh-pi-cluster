@@ -197,6 +197,7 @@ class Spark:
          """
 
         self.script["spark.test"] = """
+            exec bash
             sh $SPARK_HOME/sbin/start-all.sh
             $SPARK_HOME/bin/run-example SparkPi 4 10
             sh $SPARK_HOME/sbin/stop-all.sh
