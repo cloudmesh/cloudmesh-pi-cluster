@@ -109,11 +109,24 @@ NOTE: If your master has a **password**, you'll be asked to enter it both in
  the requests
  may not be easily seen, due to other messages.
  
+    ['red'] -> sh $SPARK_HOME/sbin/start-all.sh
+    starting org.apache.spark.deploy.master.Master, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy.master.Master-1-green.out
+    pi@localhost's password: pi@red001: starting org.apache.spark.deploy
+    .worker
+    .Worker, logging to /home/pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org
+    .apache.spark.deploy.worker.Worker-1-red001.out
+    pi@red002: starting org.apache.spark.deploy.worker.Worker, logging to /home
+    /pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy
+    .worker.Worker-1-red002.out
+    pi@red003: starting org.apache.spark.deploy.worker.Worker, logging to /home
+    /pi/spark-2.4.5-bin-hadoop2.7/logs/spark-pi-org.apache.spark.deploy
+    .worker.Worker-1-red003.out
+ 
  There are many messages that scroll by; look for something along the lines of
  
- Job 0 finished: reduce at SparkPi.scala:38, took 1.971870 s
+    Job 0 finished: reduce at SparkPi.scala:38, took 1.971870 s
  
-Pi is roughly 3.1469378673446684
+    Pi is roughly 3.1469378673446684
 
 
 ### To start the cluster
