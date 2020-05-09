@@ -164,7 +164,7 @@ class Spark:
 
         self.script["spark.prereqs"] = """
             sudo apt-get update
-            sudo apt-get install default-jdk
+            echo "Y" | sudo apt-get install default-jdk
             sudo apt-get install scala
             echo "Y" | sudo apt install libatlas3-base libgfortran5
             sudo pip3 install numpy 
@@ -189,7 +189,11 @@ class Spark:
             cat ~/.bashrc /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt > ~/temp-bashrc
             sudo cp ~/temp-bashrc ~/.bashrc
             sudo rm ~/temp-bashrc
-            exec bash
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+            export SCALA_HOME=/usr/share/scala
+            export PATH=$PATH:$SCALA_HOME/bin
+            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
+            export PATH=$PATH:$SPARK_HOME/bin
          """
 
         self.script["spark.test"] = """
@@ -295,6 +299,7 @@ class Spark:
 
     def test(self):
         if self.master:
+            banner("Be prepared to enter your Master Pi password TWICE, once on start and also for stop")
             self.run_script(name="spark.test", hosts=self.master)
         if self.workers:
             print("cms pi spark test intended for master only")
