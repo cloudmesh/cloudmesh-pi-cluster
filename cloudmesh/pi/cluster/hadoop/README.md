@@ -2,7 +2,8 @@
 
 # Hadoop with Raspberry Pi Jessica Zhu sp20-516-252
 
-** This manual is for Hadoop single node set up. For cluster setup, go to [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/hadoop/README_cluster.md)
+** This manual is for Hadoop single node set up. For cluster setup, go to
+ [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/hadoop/README_cluster.md) ** 
 
 Reference for Pi cluster setup:
 
