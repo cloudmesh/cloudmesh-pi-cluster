@@ -59,7 +59,7 @@ class Spark:
 
         elif arguments.test:
 
-            self.test()
+            self.test(master)
             #self.run_script(name="spark.test", hosts=self.master)
 
         elif arguments.check:
@@ -300,10 +300,10 @@ class Spark:
     #     # Update slaves file on master
     #       function update_slaves(self)
 
-    def test(self):
+    def test(self,master):
         if self.master:
             banner("Master Pi password needed TWICE - for start and stop")
-            self.run_script(name="spark.test", hosts=self.master)
+            self.run_script(name="spark.test", hosts=master)
         if self.workers:
             banner("cms pi spark test intended for master only")
         raise NotImplementedError
