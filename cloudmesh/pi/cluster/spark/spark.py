@@ -157,7 +157,7 @@ class Spark:
 
         version = "2.4.5"
 
-        self.script["spark.csusheck"] = """
+        self.script["spark.check"] = """
             hostname
             uname -a
         """
