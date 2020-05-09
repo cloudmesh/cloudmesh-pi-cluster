@@ -17,10 +17,10 @@ class Spark:
         """
         pi spark check [--master=MASTER] [--workers=WORKERS]
         pi spark setup [--master=MASTER] [--workers=WORKERS]
-        pi spark start [--master=MASTER]
-        pi spark stop [--master=MASTER]
-        pi spark test [--master=MASTER]
-        pi spark uninstall [--master=MASTER] [--workers=WORKERS]
+        pi spark start --master=MASTER
+        pi spark stop --master=MASTER
+        pi spark test --master=MASTER
+        pi spark uninstall --master=MASTER [--workers=WORKERS]
 
         :param arguments:
         :return:
