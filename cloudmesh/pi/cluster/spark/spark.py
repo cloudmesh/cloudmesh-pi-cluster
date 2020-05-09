@@ -15,13 +15,12 @@ class Spark:
 
     def execute(self, arguments):
         """
-        pi spark worker add [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark worker remove [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark setup [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark start [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark stop [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark test [--master=MASTER] [--workers=WORKERS] [--dryrun]
-        pi spark check [--master=MASTER] [--workers=WORKERS] [--dryrun]
+        pi spark check [--master=MASTER] [--workers=WORKERS]
+        pi spark setup [--master=MASTER] [--workers=WORKERS]
+        pi spark start [--master=MASTER]
+        pi spark stop [--master=MASTER]
+        pi spark test [--master=MASTER]
+        pi spark uninstall [--master=MASTER] [--workers=WORKERS]
 
         :param arguments:
         :return:
