@@ -54,6 +54,28 @@ You can setup the master and all your workers in one step or individually
 cms pi spark setup --master=red --workers="red[001-003]" 
 ```
 
+To-do:  eliminate the following warning commands.   They are a
+ result of
+ the program controlling the code in parallel across the worker Pis not liking
+  the 'Y' pipe to
+  install Java and Scala; however, without the 'Y' pipe, code freezes waiting
+   for
+   a reply.  These commands will likely repeat several times; if you wait, the
+    command
+    line
+    will come back and
+    install will be
+    complete.
+   
+    debconf: unable to initialize frontend: Dialog
+    debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+    debconf: falling back to frontend: Readline
+    debconf: unable to initialize frontend: Readline
+    debconf: (This frontend requires a controlling tty.)
+    debconf: falling back to frontend: Teletype
+    dpkg-preconfigure: unable to re-open stdin:
+    debconf: unable to initialize frontend: Dialog
+
 ### Multi-step approach
 Step 1:  Setup master
 
@@ -160,6 +182,29 @@ cms pi script list spark --details
 
 
 # Appendix details
+
+## Spark console for executing command
+
+$ spark-shell
+
+    Spark context Web UI available at http://10.1.1.1:4040
+    Spark context available as 'sc' (master = local[*], app id = local-1589031487342).
+    Spark session available as 'spark'.
+    Welcome to
+          ____              __
+        / __/__  ___ _____/ /__
+        _\ \/ _ \/ _ `/ __/  '_/
+        /___/ .__/\_,_/_/ /_/\_\   version 2.4.5
+        /_/
+
+    Using Scala version 2.11.12 (OpenJDK Server VM, Java 11.0.7)
+    Type in expressions to have them evaluated.
+    Type :help for more information.
+
+    scala> 2+2
+    res0: Int = 4
+
+    scala> :q
 
 ## Pi Spark setup with shell programs as precursor to above
 
