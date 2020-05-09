@@ -28,6 +28,7 @@ cms pi spark start --master=MASTER
 cms pi spark stop --master=MASTER
 cms pi spark test --master=MASTER
 cms pi script list spark [--details]
+cms pi spark uninstall --master=MASTER [--workers=WORKERS]
 ```
 
 ## Usage
@@ -104,6 +105,13 @@ cms pi spark start --master=red
 ```
 cms pi spark stop --master=red
 ```
+
+### Uninstall Spark
+
+```
+cms pi spark uninstall --master=red --workers="red[001-003]"
+```
+
 Behind the cms commands are automated workflow steps and scripts integrated
  into cms
  commands for installing and testing a Spark installation with one master and
