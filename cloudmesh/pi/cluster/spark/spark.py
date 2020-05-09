@@ -276,7 +276,7 @@ gi            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
                 self.update_slaves(host)
             banner("Updating workers in parallel")
             jobSet.run(parallel=len(hosts))
-            jobSet.Print()
+            #jobSet.Print()
             banner("Spark setup complete")
         return
     #    #raise NotImplementedError
@@ -331,6 +331,6 @@ gi            export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
             for host in hosts:
                 jobSet.add({"name": host, "host": host, "command": command7})
             jobSet.run(parallel=len(hosts))
-            jobSet.Print()
+            #jobSet.Print()
             banner("Successfully uninstalled workers")
         return
