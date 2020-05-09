@@ -157,7 +157,7 @@ class Spark:
 
         version = "2.4.5"
 
-        self.script["spark.check"] = """
+        self.script["spark.csusheck"] = """
             hostname
             uname -a
         """
@@ -189,7 +189,7 @@ class Spark:
             cat ~/.bashrc /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt > ~/temp-bashrc
             sudo cp ~/temp-bashrc ~/.bashrc
             sudo rm ~/temp-bashrc
-            source ~/.bashrc
+            exec bash
          """
 
         self.script["spark.test"] = """
