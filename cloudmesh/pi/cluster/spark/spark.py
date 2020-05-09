@@ -305,7 +305,7 @@ class Spark:
             self.run_script(name="spark.test", hosts=master)
         if self.workers:
             banner("cms pi spark test intended for master only")
-        raise NotImplementedError
+        return
 
     def update_slaves(self,hosts):
         banner("Updating $SPARK_HOME/conf/slaves file")
