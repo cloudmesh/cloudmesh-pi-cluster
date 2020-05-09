@@ -59,7 +59,7 @@ class Spark:
 
         elif arguments.test:
 
-            self.test(master)
+            self.test()
             #self.run_script(name="spark.test", hosts=self.master)
 
         elif arguments.check:
