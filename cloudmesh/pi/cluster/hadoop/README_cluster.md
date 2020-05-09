@@ -268,3 +268,8 @@ hdfs dfsadmin -report
 Check the node online, type in `http://red:9870` on your web browser
 You should see a web page showing resources.
 `http://red:8088` shows nodes of the cluster. 
+
+
+references 
+<https://towardsdatascience.com/installing-hadoop-3-1-0-multi-node-cluster-on
+-ubuntu-16-04-step-by-step-8d1954b31505>
