@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 
+sudo apt-get update
 sudo mkdir /usr/lib/jvm/
 sudo mkdir /usr/lib/jvm/java-8-openjdk-armhf
 sudo mv ~/openjdkpkg.tgz /usr/lib/jvm/java-8-openjdk-armhf

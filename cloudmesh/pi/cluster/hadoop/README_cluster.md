@@ -17,6 +17,18 @@ $ echo "Y" | sudo apt install libatlas3-base libgfortran5
 $ sudo pip3 install numpy
 ```
 
+We assume to connection is `Laptop -> manager -> red/master -> all the workers`.
+
+To go passwordless:
+
+```
+eval `ssh-agent -s` 
+ssh-add
+```
+
+At the moment, you need to copy the public key of the master, then into
+ workers in order to allow direct access to workers from the master. 
+
 To ssh into master for the first time, on your own computer, do
 `rm -f .ssh/known_hosts`
 
@@ -149,9 +161,10 @@ $ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-hadoop-con
  - Worker
 
 ```
+$ ssh red001
 $ cd ~
 $ wget https://archive.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
-$ scp hadoop-3.2.0.tar.gz red002:~/
+# $ scp hadoop-3.2.0.tar.gz red002:~/
 $ sudo tar -xvzf hadoop-3.2.0.tar.gz -C /opt/
 $ cd /opt/
 $ sudo mv hadoop-3.2.0 hadoop
@@ -176,7 +189,7 @@ Add the line below to the end of the file
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf
 ```
 If you are unsure where your JAVA_HOME path is, simply try 
-`dirname $(dirname $(readlink -f $(which javac)))` / `echo __$JAVA_HOME`
+`echo $JAVA_HOME`
 , which returns JAVA_HOME.
 
 Now check if Hadoop has been successfully installed
@@ -199,25 +212,57 @@ Then `source ~/.bashrc`
 
 Back to the master:
 ```buildoutcfg
-$ scp /opt/hadoop/etc/hadoop/* red002:/opt/hadoop/etc/hadoop/
+$ scp /opt/hadoop/etc/hadoop/* red001:/opt/hadoop/etc/hadoop/
 ```
+
+The `/opt/hadoop/etc/hadoop/worker` file should look like below on both master
+ and worker nodes
+ 
+```
+localhost
+red001
+```
+
+Lastly, on each node `/etc/hosts` should look like below
+```
+# 127.0.1.1 red   # ensure this line "123.0.1.1 <local hostname>" is removed/commented out   
+10.1.1.4 red001   # IP can be different depending on what is assigned
+10.1.1.3 red
+```
+
 ### Run Hadoop Cluster 
-Format Namenode
+
+Clean all the old data, and format Namenode
 
 ```
+$ cd /opt/hadoop/hadoopdata/hdfs
+$ sudo rm -rf *
 $ hdfs namenode -format
 ```
 
-First of all, get the permission, then we will start dfs
+First of all, get the permission, then we will start dfs. Ensure that every time
+ to run a job, to have the cluster exit
+ the safe mode. 
 
 ```
-cd ~/.ssh
-cat id_rsa.pub >> authorized_keys
+cat ~/.ssh/id_rsa.pub >>  ~/.ssh/authorized_keys
+if permission demied: sudo chown pi:pi authorized_keys
 cd $HADOOP_HOME/sbin/
+Make changes on /etc/worker file on both master and worker
 ./start-dfs.sh
 ./start-yarn.sh
+HADOOP_HOME/bin/hadoop dfsadmin -safemode leave
 ```
 
+Currently the online web is unavailable to monitor cluster activities
+. However, you can still check them, especially ensure that ALL nodes have
+ been started, by running the line
+
+```
+hdfs dfsadmin -report
+```
+
+--- currently unavaialble
 Check the node online, type in `http://red:9870` on your web browser
 You should see a web page showing resources.
 `http://red:8088` shows nodes of the cluster. 

@@ -16,7 +16,11 @@
     <value>file:///opt/hadoop/hadoopdata/hdfs/datanode</value>
 </property>
 <property>
-  <name>dfs.blocksize</name>
-  <value>10000</value>
+<name>dfs.permissions</name>
+<value>false</value>
+</property>
+<property>
+<name>dfs.datanode.use.datanode.hostname</name>
+<value>false</value>
 </property>
 </configuration>
