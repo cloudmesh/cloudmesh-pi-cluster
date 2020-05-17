@@ -80,7 +80,7 @@ class Spark:
         self.dryrun = False
         self.script = Script()
         self.service = "spark"
-        self.java_version = "11"
+        self.java_version = "8"
         self.version = "2.4.5"
         self.user = "pi"
         self.hostname = os.uname()[1]
@@ -163,7 +163,7 @@ class Spark:
 
         self.script["spark.prereqs"] = """
             sudo apt-get update
-            echo "Y" | sudo apt-get install default-jdk
+            echo "Y" | sudo apt-get install openjdk-8*
             sudo apt-get install scala
             echo "Y" | sudo apt install libatlas3-base libgfortran5
             sudo pip3 install numpy 
@@ -188,7 +188,8 @@ class Spark:
             cat ~/.bashrc /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/spark/bin/spark-bashrc.txt > ~/temp-bashrc
             sudo cp ~/temp-bashrc ~/.bashrc
             sudo rm ~/temp-bashrc
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+            export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf
+            export PATH=$PATH:$JAVA_HOME/bin
             export SCALA_HOME=/usr/share/scala
             export PATH=$PATH:$SCALA_HOME/bin
             export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
@@ -203,7 +204,8 @@ class Spark:
 
         self.script["spark.bashrc.additions"] = """
             #JAVA_HOME
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf/
+            export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf
+            export PATH=$PATH:$JAVA_HOME/bin
             #SCALA_HOME
             export SCALA_HOME=/usr/share/scala
             export PATH=$PATH:$SCALA_HOME/bin
@@ -223,7 +225,8 @@ class Spark:
         """
 
         self.script["spark.uninstall.master"] = """
-            echo "Y" | sudo apt-get remove openjdk-11-jre
+            echo "Y" | sudo apt autoremove openjdk-11*
+            echo "Y" | sudo apt autoremove openjdk-8*
             echo "Y" | sudo apt-get remove scala
             cd ~
             sudo rm -rf spark-2.4.5-bin-hadoop2.7
