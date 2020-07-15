@@ -141,6 +141,11 @@ class PiCommand(PluginCommand):
             k3 = K3()
             k3.execute(arguments)
 
+        elif arguments.mongo:
+            from cloudmesh.pi.cluster.mongo.mongo import Mongo
+            mongo = Mongo()
+            mongo.execute(arguments)
+
         elif arguments.script:
 
             script = Script()
