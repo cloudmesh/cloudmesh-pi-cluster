@@ -24,7 +24,7 @@ class Mongo:
         """
         pi mongo check [--master=MASTER] [--workers=WORKERS]
         pi mongo install [--master=MASTER] [--workers=WORKERS]
-        pi mongo start --master=MASTER
+        pi mongo start --local
         pi mongo stop --master=MASTER
         pi mongo test --master=MASTER
         pi mongo uninstall --master=MASTER [--workers=WORKERS]
@@ -54,7 +54,7 @@ class Mongo:
             self.install(hosts)
 
         elif arguments.start:
-            print("Start Mongo")
+            Console.msg(arguments['--local'])
             # self.run_script(name="spark.start", hosts=master)
 
         elif arguments.stop:
@@ -76,6 +76,8 @@ class Mongo:
             sudo apt update
             sudo apt -y upgrade
             sudo apt -y install mongodb
+            sudo apt-get -y install python3-pip
+            python3 -m pip install pymongo
             """
 
         for host in hosts:
@@ -93,8 +95,9 @@ class Mongo:
             sudo apt-get -y remove mongodb
             sudo apt-get -y remove --purge mongodb
             sudo apt-get autoremove
+            python3 -m pip uninstall pymongo
             """
-            
+
         for host in hosts:
             # if self.is_installed(host) is False:
             job_set.add({"name": host, "host": host, "command": command})
@@ -105,7 +108,8 @@ class Mongo:
         return
 
 
-
+    def start(self, arguments):
+    	if arguments.
     #### CHANGE SO THAT os.shutil runs on the ssh of the host being probed #### 
     # def is_installed(self, host):
     #     '''
