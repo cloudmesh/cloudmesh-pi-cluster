@@ -48,7 +48,7 @@ class PiCommand(PluginCommand):
             pi k3 delete [--master=MASTER] [--workers=WORKERS]
             pi k3 test [--master=MASTER] [--workers=WORKERS]
             pi k3 view
-            pi mongo start [--type=LOCAL/REPLICA] [--master=MASTER] [--port=PORT] [--dbpath=DBPATH]
+            pi mongo start [--type=TYPE] [--master=MASTER] [--port=PORT] [--dbpath=DBPATH]
             pi mongo stop
             pi mongo install [--master=MASTER] [--workers=WORKERS]
             pi mongo uninstall [--master=MASTER] [--workers=WORKERS]
