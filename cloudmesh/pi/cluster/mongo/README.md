@@ -16,25 +16,25 @@ master$ cms pi mongo install [--master=MASTER] [--workers=WORKERS]
 
 ## Other Available Commands
 
-Uninstall MongoDB on the master and/or any worker. This will also remove all of the installed dependancies.
+Uninstall MongoDB on the master and/or any worker. This will also remove all of the installed dependancies.  
 ```
 master$ cms pi mongo uninstall [--master=MASTER] [--workers=WORKERS]
 ```
 
-Start the mongod client. The mongod client can start in one of two implementations depending on the ```--type``` argument provided. If the ```--type``` argument is not specified then the ```local``` option will be considered by default.
+Start the mongod client. The mongod client can start in one of two implementations depending on the ```--type``` argument provided. If the ```--type``` argument is not specified then the ```local``` option will be considered by default.  
 
 ```
 master$ pi mongo start [--type=LOCAL/REPLICA] [--master=MASTER] [--port=PORT] [--dbpath=DBPATH]
 ```
 
-1. ```--type=local```
+1. ```--type=local```  
 The mongod client will be launched on the master Pi only. The ```--port``` and ```--dbpath``` arguments may be provided if you want to specify the port and the database path respectively. If not provided, the values will default to ```--port=27014``` and ```--dbpath=\data\db```
 
-2. ```--type=replica``` **(Not yet implemented)**
+2. ```--type=replica``` **(Not yet implemented)**  
 The mongod client will be launched in a Replication Set configuration.
 
 
-Run a test on your setup cluster 
+Run a test on your setup cluster   
 
 ```
 master$ cms pi mongo test [--master=MASTER] [--workers=WORKERS]
