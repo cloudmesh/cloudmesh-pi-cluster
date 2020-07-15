@@ -35,19 +35,20 @@ class Mongo:
         self.master = arguments.master
         self.workers = Parameter.expand(arguments.workers)
 
-        master =[]
+        master = []
         hosts = []
         if arguments.master:
             hosts.append(arguments.master)
-            master = arguments.master
+
         if arguments.workers:
             hosts = hosts + Parameter.expand(arguments.workers)
+
         if arguments.dryrun:
             self.dryrun = True
 
-        if hosts is None:
-            Console.error("You need to specify at least one master or worker")
-            return ""
+       # if hosts is None:
+       #     Console.error("You need to specify at least one master or worker")
+       #     return ""
 
         if arguments.install:
             self.install(master, hosts)
@@ -66,17 +67,17 @@ class Mongo:
             #self.run_script(name="spark.test", hosts=self.master)
 
         elif arguments.check:
-            print("Check Mongo")
-            if shutil.which("mongo") or shutil.which("mongod") is None:
-                Console.error("Mongo installation not found. \n Install using the following command \n\n"
+            Console.msg("Checking Mongo ")
+            if (shutil.which("mongo") or shutil.which("mongod")) is None:
+                Console.error("Mongo installation not found.\n Install using the following command \n\n"
                               "pi mongo install [--master=MASTER] [--workers=WORKERS]")
             else:
                 output = subprocess.check_output('mongo --version', shell=True)
-                Console.msg(str(output))
+                Console.msg(output.decode('utf-8'))
 
         elif arguments.uninstall:
             print("Remove Mongo")
             # self.uninstall(master, workers_only)
 
-    def install(master, hosts):
-        print("Installing...")
+    def install(self, master, hosts):
+        Console.msg("Installing...")
