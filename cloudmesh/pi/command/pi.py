@@ -51,6 +51,7 @@ class PiCommand(PluginCommand):
             pi k3 view
             pi mongo check
             pi mongo install [--master=MASTER] [--workers=WORKERS]
+            pi mongo uninstall [--master=MASTER] [--workers=WORKERS]
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list

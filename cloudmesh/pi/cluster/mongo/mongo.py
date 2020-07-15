@@ -51,7 +51,7 @@ class Mongo:
        #     return ""
 
         if arguments.install:
-            self.install(master, hosts)
+            self.install(hosts)
 
         elif arguments.start:
             print("Start Mongo")
@@ -65,19 +65,57 @@ class Mongo:
             print("Test Mongo")
             # self.test(master)
             #self.run_script(name="spark.test", hosts=self.master)
-
-        elif arguments.check:
-            Console.msg("Checking Mongo ")
-            if (shutil.which("mongo") or shutil.which("mongod")) is None:
-                Console.error("Mongo installation not found.\n Install using the following command \n\n"
-                              "pi mongo install [--master=MASTER] [--workers=WORKERS]")
-            else:
-                output = subprocess.check_output('mongo --version', shell=True)
-                Console.msg(output.decode('utf-8'))
-
+            
         elif arguments.uninstall:
-            print("Remove Mongo")
-            # self.uninstall(master, workers_only)
+            self.uninstall(hosts)
 
-    def install(self, master, hosts):
-        Console.msg("Installing...")
+    def install(self, hosts):
+
+        job_set = JobSet("mongo_install", executor=JobSet.ssh)
+        command = """
+            sudo apt update
+            sudo apt -y upgrade
+            sudo apt -y install mongodb
+            """
+
+        for host in hosts:
+            # if self.is_installed(host) is False:
+            job_set.add({"name": host, "host": host, "command": command})
+
+        job_set.run(parallel=len(hosts))
+        job_set.Print()
+        banner("MongoDB Setup Complete")
+
+    def uninstall(self, hosts):
+
+        job_set = JobSet("mongo_install", executor=JobSet.ssh)
+        command = """
+            sudo apt-get -y remove mongodb
+            sudo apt-get -y remove --purge mongodb
+            sudo apt-get autoremove
+            """
+            
+        for host in hosts:
+            # if self.is_installed(host) is False:
+            job_set.add({"name": host, "host": host, "command": command})
+
+        job_set.run(parallel=len(hosts))
+        job_set.Print()
+        banner("MongoDB Removed Succesfully")
+        return
+
+
+
+    #### CHANGE SO THAT os.shutil runs on the ssh of the host being probed #### 
+    # def is_installed(self, host):
+    #     '''
+    #     Checks if there is a preexisting mongo installation on the host
+    #     '''
+    #     Console.msg(f"Checking for an existing mongo installation on {host} ")
+    #     if (shutil.which("mongo") or shutil.which("mongod")) is None:
+    #         Console.msg("Mongo installation not found.\n Installing MongoDB...")
+    #         return False
+    #     else:
+    #         output = subprocess.check_output('mongo --version', shell=True)
+    #         Console.error(f"Existing mongo installation found on {host}\n{output.decode('utf-8')}")
+    #         return True
