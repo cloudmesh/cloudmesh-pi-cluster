@@ -1,18 +1,16 @@
 import os
 import subprocess
 import shutil
-
+import platform
+import sys
+from pprint import pprint
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.Host import Host
 from cloudmesh.common.JobSet import JobSet
-import platform
-import sys
 from cloudmesh.common.util import banner
-from pprint import pprint
-import textwrap
 from cloudmesh.common.Tabulate import Printer
 
 class Mongo:
