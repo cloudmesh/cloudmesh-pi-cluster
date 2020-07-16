@@ -37,7 +37,7 @@ implementations depending on the ```--type``` argument provided. If the
 considered by default.  
 
 ```bash  
-cms pi mongo start [--type=TYPE] [--master=MASTER]
+cms pi mongo start [--type=TYPE] [--master=MASTER] \
 [--workers=WORKERS] [--port=PORT] [--dbpath=DBPATH] [--ip_bind=IP_BIND] 
 ```
 
@@ -52,7 +52,7 @@ cms pi mongo start [--type=TYPE] [--master=MASTER]
 	Example usage:
 
 	```bash 
-	cms pi mongo start --type=local --master=blue --ip_bind=10.1.1.100 --port=27017
+	cms pi mongo start --type=local --master=blue --ip_bind=10.1.1.100 --port=27017 \
 	--dbpath=/home/pi/data/db
 	```
 	
@@ -68,7 +68,7 @@ cms pi mongo start [--type=TYPE] [--master=MASTER]
 	Example usage:
 
 	```bash 
-	cms pi mongo start --type=replica --master=blue --workers=blue00[1-3]
+	cms pi mongo start --type=replica --master=blue --workers=blue00[1-3] \
 	--port=2705[1-3]
 	```
 Run a test on your setup cluster   
