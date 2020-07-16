@@ -19,11 +19,10 @@ class Mongo:
 
     def execute(self, arguments):
         """
-        pi mongo install [--master=MASTER] [--workers=WORKERS]
         pi mongo start [--type=TYPE] [--master=MASTER] [--port=PORT] [--dbpath=DBPATH] [--ip_bind=IP_BIND]
-        pi mongo stop
-        pi mongo test --master=MASTER
+        pi mongo install [--master=MASTER] [--workers=WORKERS]
         pi mongo uninstall --master=MASTER [--workers=WORKERS]
+        pi mongo stop
 
         :param arguments:
         :return:
@@ -66,7 +65,7 @@ class Mongo:
             if(arguments['--type'] == "local"):
                 self.start_local(port, dbpath, ipbind)
             elif(arguments['--type'] == "replica"):
-                self.start_replica()
+                self.start_replica(arguments.master)
 
         elif arguments.stop:
             self.stop()
@@ -100,7 +99,7 @@ class Mongo:
         # Copy config files to all hosts
         # Have not used JobSet here. Copying serially...
         for host in hosts:
-            command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/local_setup.cfg pi@{host}:/etc/mongodb.conf"
+            command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/local_setup.cfg pi@{host}:/home/pi/mongodb.conf"
             os.system(command)
 
         banner("MongoDB Setup and Configuration Complete")
@@ -113,9 +112,8 @@ class Mongo:
             sudo apt-get autoremove
             python3 -m pip uninstall pymongo
             """
-
+        
         for host in hosts:
-            # if self.is_installed(host) is False:
             job_set.add({"name": host, "host": host, "command": command})
 
         job_set.run(parallel=len(hosts))
@@ -132,23 +130,56 @@ class Mongo:
         if ip is None:
             ip="127.0.0.1"
 
-        command = f"sudo mongod --dbpath={dbpath} --port={port} --bind_ip={ip}"
+        command = f"sudo mongod --config=/home/pi/mongodb.conf --dbpath={dbpath} --port={port} --bind_ip={ip}"
         output = subprocess.run(command.split(" "), shell=False, capture_output=True)
         Console.msg(output.stdout.decode('utf-8'))
         banner("MongoDB service started succesfully")
         return
 
-    def start_replica(self, hosts):
+    def start_replica(self, master):
         Console.msg("Replica")
-        # It is preferrable to deploy the replica set in an odd configuration. Hence a max limit of 3 workers + 1 master
-        if(len(hosts) > 4):
-        	hosts = hosts[1:3]
+
+        # Currently this value is fixed to a 1 Master and 3 Worker config only
+        hosts = [master+"001", master+"002", master+"003"]
 
         for host in hosts:
-            command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/replica_setup.cfg pi@{host}:/etc/mongodb.conf"
+            command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/repl_setup.cfg pi@{host}:/home/pi/mongodb.conf"
             os.system(command)
 
+        
+        command1 = "mongod --config /home/pi/mongodb.conf --port 27031"
+        ssh = subprocess.Popen(["ssh", "%s" % hosts[0], command1],
+                       shell=False,
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE)
+
+        command2 = "mongod --config /home/pi/mongodb.conf --port 27032"
+        ssh = subprocess.Popen(["ssh", "%s" % hosts[1], command2],
+                       shell=False,
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE)
+
+        command3 = "mongod --config /home/pi/mongodb.conf --port 27033"
+        ssh = subprocess.Popen(["ssh", "%s" % hosts[2], command3],
+                       shell=False,
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE)
+
+        cfg="""{
+            _id: rs0,
+            members: [
+                {_id: 1, host: 'localhost:27031'},
+                {_id: 2, host: 'localhost:27032'},
+                {_id: 3, host: 'localhost:27033'}
+            ]
+        }
+        """
+
+        command_inst = "mongo localhost:27031 --eval \"JSON.stringify(db.adminCommand({'replSetInitiate' : "+cfg+"}))\""
+        os.system(command_inst)
+
         return
+
     def stop(self):
         command = "sudo service mongodb stop"
         subprocess.run(command.split(" "), shell=False, capture_output=False)
@@ -158,17 +189,3 @@ class Mongo:
 
         banner("MongoDB service stopped succesfully")
         return
-
-    #### CHANGE SO THAT os.shutil runs on the ssh of the host being probed #### 
-    # def is_installed(self, host):
-    #     '''
-    #     Checks if there is a preexisting mongo installation on the host
-    #     '''
-    #     Console.msg(f"Checking for an existing mongo installation on {host} ")
-    #     if (shutil.which("mongo") or shutil.which("mongod")) is None:
-    #         Console.msg("Mongo installation not found.\n Installing MongoDB...")
-    #         return False
-    #     else:
-    #         output = subprocess.check_output('mongo --version', shell=True)
-    #         Console.error(f"Existing mongo installation found on {host}\n{output.decode('utf-8')}")
-    #         return True
