@@ -1,17 +1,17 @@
 import os
-import subprocess
+import sys
 import shutil
 import platform
-import sys
+import subprocess
 from pprint import pprint
-from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.console import Console
+from cloudmesh.common.Host import Host
+from cloudmesh.common.util import banner
+from cloudmesh.common.JobSet import JobSet
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
-from cloudmesh.common.Host import Host
-from cloudmesh.common.JobSet import JobSet
-from cloudmesh.common.util import banner
+from cloudmesh.common.console import Console
 from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.parameter import Parameter
 
 class Mongo:
 
@@ -21,6 +21,7 @@ class Mongo:
         pi mongo install [--master=MASTER] [--workers=WORKERS]
         pi mongo uninstall --master=MASTER [--workers=WORKERS]
         pi mongo stop
+        pi mongo test
 
         :param arguments:
         :return:
@@ -51,7 +52,7 @@ class Mongo:
         if arguments.dryrun:
             self.dryrun = True
 
-        if (hosts is None) and (arguments.stop is None):
+        if (hosts is None) and (arguments.stop is None) and (arguments.test is None):
            Console.error("You need to specify at least one master or worker")
            return
 
@@ -68,9 +69,7 @@ class Mongo:
             self.stop()
 
         elif arguments.test:
-            print("Test Mongo")
-            # self.test(master)
-            #self.run_script(name="spark.test", hosts=self.master)
+            self.test()
             
         elif arguments.uninstall:
             self.uninstall(hosts)
@@ -119,7 +118,8 @@ class Mongo:
 
 
     def start_local(self, port, dbpath, ip):
-    	# Setting defaults if no argument is provided
+
+        # Setting defaults if no argument is provided
         if port is None:
             port=27011
         if dbpath is None:
@@ -193,5 +193,14 @@ class Mongo:
         command = "sudo service mongod stop"
         subprocess.run(command.split(" "), shell=False, capture_output=False)
 
-        banner("MongoDB service stopped succesfully")
+        banner("MongoDB service stopped succesfully") 
         return
+
+    def test(self):
+        Console.msg("Running Test on Local...")
+        self.start_local(None, None, None)
+        command = "mongo localhost:27011 --eval \"printjson(db.serverStatus())\""
+        os.system(command)
+
+        banner("MongoDB test completed")
+        return 
