@@ -42,11 +42,11 @@ class Mongo:
 
         dbpath = None
         if '--dbpath' in arguments.keys():
-            ipbind = arguments['--dbpath']
+            dbpath = arguments['--dbpath']
 
         port = None
         if '--port' in arguments.keys():
-            ipbind = arguments['--port']
+            port = arguments['--port']
 
 
         if arguments.dryrun:
@@ -84,8 +84,7 @@ class Mongo:
             sudo apt -y install mongodb
             sudo apt-get -y install python3-pip
             python3 -m pip install pymongo
-            mkdir ~/data
-            cd ~/data
+            mkdir -p /home/pi/data/db
             mkdir db
             """
         # Install mongodb on all Pis
