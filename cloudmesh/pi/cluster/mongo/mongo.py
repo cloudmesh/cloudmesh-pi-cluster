@@ -20,7 +20,7 @@ class Mongo:
     def execute(self, arguments):
         """
         pi mongo install [--master=MASTER] [--workers=WORKERS]
-        pi mongo start [--type=TYPE] [--master=MASTER] [--port=PORT] [--dbpath=DBPATH] [--config=CONFIG] [--ip_bind=IP_BIND]
+        pi mongo start [--type=TYPE] [--master=MASTER] [--port=PORT] [--dbpath=DBPATH] [--ip_bind=IP_BIND]
         pi mongo stop
         pi mongo test --master=MASTER
         pi mongo uninstall --master=MASTER [--workers=WORKERS]
@@ -42,10 +42,6 @@ class Mongo:
         ipbind = None
         if '--ip_bind' in arguments.keys():
             ipbind = arguments['--ip_bind']
-
-        config = None
-        if '--config' in arguments.keys():
-            ipbind = arguments['--config']
 
         dbpath = None
         if '--dbpath' in arguments.keys():
@@ -95,17 +91,21 @@ class Mongo:
             cd ~/data
             mkdir db
             """
-
+        # Install mongodb on all Pis
         for host in hosts:
-            # if self.is_installed(host) is False:
             job_set.add({"name": host, "host": host, "command": command})
-
         job_set.run(parallel=len(hosts))
         job_set.Print()
-        banner("MongoDB Setup Complete")
+
+        # Copy config files to all hosts
+        # Have not used JobSet here. Copying serially...
+        for host in hosts:
+            command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/local_setup.cfg pi@{host}:/etc/mongodb.conf"
+            os.system(command)
+
+        banner("MongoDB Setup and Configuration Complete")
 
     def uninstall(self, hosts):
-        #             rm -rf ~/data/db
         job_set = JobSet("mongo_install", executor=JobSet.ssh)
         command = """
             sudo apt-get -y remove mongodb
@@ -138,14 +138,24 @@ class Mongo:
         banner("MongoDB service started succesfully")
         return
 
-    def start_replica(self):
+    def start_replica(self, hosts):
         Console.msg("Replica")
+        # It is preferrable to deploy the replica set in an odd configuration. Hence a max limit of 3 workers + 1 master
+        if(len(hosts) > 4):
+        	hosts = hosts[1:3]
 
+        for host in hosts:
+            command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/replica_setup.cfg pi@{host}:/etc/mongodb.conf"
+            os.system(command)
+
+        return
     def stop(self):
         command = "sudo service mongodb stop"
         subprocess.run(command.split(" "), shell=False, capture_output=False)
+
         command = "sudo service mongod stop"
         subprocess.run(command.split(" "), shell=False, capture_output=False)
+
         banner("MongoDB service stopped succesfully")
         return
 
