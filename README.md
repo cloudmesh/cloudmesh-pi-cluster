@@ -15,10 +15,10 @@ You will ideally want to have a minimum of 3 Pi's.
 In addition to this document, we have additional we have separate
 documents that showcase how to convert your cluster into a
 
-* [Spark Cluster (under development)](cloudmesh/cluster/spark/README.md)
-* [Hadoop Cluster (under development)](cloudmesh/cluster/hadoop/README.md)
-* [Kubernetes Cluster (under development)](cloudmesh/cluster/k3/README.md)
-* [MongoDB Cluster (under development)](cloudmesh/cluster/mongo/README.md)
+* [Spark Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/spark/README.md)
+* [Hadoop Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/hadoop/README.md)
+* [Kubernetes Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/k3/README.md)
+* [MongoDB Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/mongo/README.md)
 
 ## Installation
 
@@ -27,15 +27,41 @@ documents that showcase how to convert your cluster into a
 We have chosen not to use network booting, but boot from the SD Cards.
 For this, we use our unique `burn` program to burn the Pi's. This
 allows you to immediately start with an OS that has all the needed
-information on it. However, we need one master py that we
-configure with the pi imager.
+information on it. However, we need one master Pi that we
+configure with the Pi imager.  
 
-TODO: point to the documentation
+The detailed procedure on how to proceed with the burning procedure can be seen [here](https://github.com/cloudmesh/cloudmesh-pi-burn/blob/master/README.md)  
 
-TODO: Briefly describe how we burn the master and set it up
+#### Setting up the Master Pi
+1. Use the Raspberry Pi Imager to burn an SD card by following the recommended instructions on the official [website](https://www.raspberrypi.org/blog/raspberry-pi-imager-imaging-utility/). Also make sure that you install the latest stable release of the Raspbian OS you are using. We are using the 32-bit Raspbian Buster, May 2020 build. 
+2. Once burned, insert the SD card in the Master Rpi and then follow the on-screen instructions to configure the OS. Make sure you connect to WiFi, change the default hostname, and enable SSH by using the pre-installed Raspberry Pi Configuration tool.
+3. The next segment of code creates a venv named ~/ENV3, creates an ssh-key, adds it to the sshagent, and then downloads the latest Raspbian(Lite) image. While adding the ssh-key, make sure to choose a strong passphrase.  
+```bash
+pi@red:$ ssh-keygen
+pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@red:$ source ~/ENV3/bin/activate
 
-TODO: Then describe briefly how we burn
+(ENV3) pi@red:$ source ~/.bashrc
+(ENV3) pi@red:$ cms burn image get latest
+(ENV3) pi@red:$ cms burn image ls
+```
 
+
+#### Setting up Worker Pis
+1. Plug in a SD Card Writer to the Master Pi and see if it is detected using the commands shown below. Follow the on-screen propmts and instructions  
+```bash
+(ENV3) pi@red:$ cms burn detect
+(ENV3) pi@red:$ cms burn info
+```
+2. Set your default SD Card device as shown below. Replace ```/dev/sdx``` with the drive name reported by the ```info``` command  
+```bash
+(ENV3) pi@red:$ export DEV=/dev/sdx
+```
+
+3. Start burning the SD Cards. If you do not have a multi-card writer, you will have to plug out your device and replace the SD Card with the next one once the previous one has finished burning. Follow the on-screen instructions.
+```bash
+(ENV3) pi@red:$ cms burn create --hostname=red[001-002]
+```
 
 ### Prerequisite
 
@@ -51,7 +77,7 @@ source ~/ENV3/bin/activate
 ssh-keygen
 ```
 
-These steps have only to be done once on your master Pi.
+These steps have only to be done once on your Master Pi.
 
 
 ### User install
@@ -295,5 +321,6 @@ nmon
 ```
 
 Please make sure you install them first before using them
+
 
 

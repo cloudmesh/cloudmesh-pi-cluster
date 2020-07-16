@@ -21,7 +21,6 @@ class PiCommand(PluginCommand):
     def do_pi(self, args, arguments):
         """
         ::
-
           Usage:
             pi led reset [NAMES]
             pi led (red|green) VALUE
@@ -49,52 +48,37 @@ class PiCommand(PluginCommand):
             pi k3 delete [--master=MASTER] [--workers=WORKERS]
             pi k3 test [--master=MASTER] [--workers=WORKERS]
             pi k3 view
-            pi mongo check
+            pi mongo start [--type=TYPE] [--master=MASTER] [--port=PORT] [--dbpath=DBPATH]
+            pi mongo stop
             pi mongo install [--master=MASTER] [--workers=WORKERS]
+            pi mongo uninstall [--master=MASTER] [--workers=WORKERS]
+            pi mongo start [--master=MASTER]
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
             pi wifi SSID [PASSWORD] [--dryrun]
-
           This command does some useful things.
-
           Arguments:
               FILE   a file name
-
           Options:
               -f      specify the file
-
-
           Description:
-
             This command switches on and off the LEDs of the specified PIs. If
             the hostname is ommitted. IT is assumed that the code is executed on
             a PI and its LED are set. To list the PIs LED status you can use the
             list command
-
             Examples:
-
                 cms pi led list  "red,red[01-03]"
-
                     lists the LED status of the given hosts
-
                 cms pi led red off  "red,red[01-03]"
-
                     switches off the led of the given PIs
-
                 cms pi led red on  "red,red[01-03]"
-
                     switches on the led of the given PIs
-
                 cms pi led red blink  "red,red[01-03]"
-
                     switches on and off the led of the given PIs
-
                 cms pi led red sequence  "red,red[01-03]"
-
                     goes in sequential order and switches on and off the led of
                     the given PIs
-
         """
 
         map_parameters(arguments,
@@ -142,6 +126,11 @@ class PiCommand(PluginCommand):
             from cloudmesh.pi.cluster.k3.k3 import K3
             k3 = K3()
             k3.execute(arguments)
+
+        elif arguments.mongo:
+            from cloudmesh.pi.cluster.mongo.mongo import Mongo
+            mongo = Mongo()
+            mongo.execute(arguments)
 
         elif arguments.script:
 
