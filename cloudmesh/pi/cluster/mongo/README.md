@@ -29,12 +29,15 @@ cms pi mongo install --master=blue --workers=blue00[1-4]
 
 ## Other Available Commands
 
+### Uninstall
+
 Uninstall MongoDB on the master and/or any worker. This will also remove all of
 the installed dependancies.
 
 ```bash
 cms pi mongo uninstall [--master=MASTER] [--workers=WORKERS] 
 ```
+### Start 
 
 Start the mongod client. The mongod client can start in one of two
 implementations depending on the ```--type``` argument provided. If the
@@ -77,7 +80,17 @@ cms pi mongo start [--type=TYPE] [--master=MASTER] \
 	cms pi mongo start --type=replica --master=blue --workers=blue00[1-3] \
 	--port=2705[1-3]
 	```
-	
+
+### Stop
+
+Stop all mongod services running on Master Pi
+
+```bash
+cms pi mongo stop
+```
+
+### Test
+
 Run a test on your setup cluster   
 
 ```bash 
