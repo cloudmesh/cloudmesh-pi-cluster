@@ -21,6 +21,7 @@ This following command will install MongoDB to the master and workers provided.
 ```bash 
 cms pi mongo install [--master=MASTER] [--workers=WORKERS] 
 ```
+
 Example usage:  
 
 ```bash 
@@ -37,6 +38,13 @@ the installed dependancies.
 ```bash
 cms pi mongo uninstall [--master=MASTER] [--workers=WORKERS] 
 ```
+
+Example Usage:  
+
+```bash
+cms pi mongo unistall --master=blue --workers=blue00[1-4]
+```
+
 ### Start 
 
 Start the mongod client. The mongod client can start in one of two
