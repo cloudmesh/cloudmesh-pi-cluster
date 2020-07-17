@@ -21,6 +21,11 @@ This following command will install MongoDB to the master and workers provided.
 ```bash 
 cms pi mongo install [--master=MASTER] [--workers=WORKERS] 
 ```
+Example usage:  
+
+```bash 
+cms pi mongo install --master=blue --workers=blue00[1-4]
+```
 
 ## Other Available Commands
 
@@ -64,13 +69,15 @@ cms pi mongo start [--type=TYPE] [--master=MASTER] \
 	configuration only with 3 Workers acting as secondary and 1 Master as primary.
 	You are required to provide the ```--master``` , ```--workers``` and
 	```--port``` arguments   which specify which workers will be deployed as a part
-	of the Replication set and the ports to which they listen to
+	of the Replication set and the ports to which they listen to.  
+	
 	Example usage:
 
 	```bash 
 	cms pi mongo start --type=replica --master=blue --workers=blue00[1-3] \
 	--port=2705[1-3]
 	```
+	
 Run a test on your setup cluster   
 
 ```bash 
