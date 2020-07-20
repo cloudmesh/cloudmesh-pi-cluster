@@ -102,5 +102,6 @@ Run a test on your setup cluster
 ```bash 
 cms pi mongo test 
 ```
+
 This command creates a mongod instance listening to the localhost and then asks
 it to print the server status.
