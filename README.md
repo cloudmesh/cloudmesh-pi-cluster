@@ -5,7 +5,6 @@ This README is managed in
 * [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/README.md)
 * <https://github.com/cloudmesh/cloudmesh-pi-cluster>
 
-
 ## About
 
 This document describes how to set up a variety of cluster platforms on
@@ -79,7 +78,6 @@ ssh-keygen
 
 These steps have only to be done once on your Master Pi.
 
-
 ### User install
 
 The installation for cloudmesh on the Pi cluster package is simple:
@@ -130,7 +128,6 @@ cms pi
 
 In case you want to signal which Pi is which we can leverage the on
 board LEDs. You have a green and red LED that you can control as follows:
-
 
 ``` bash
 $ cms pi led green on
@@ -206,7 +203,6 @@ cms pi temp "red,red[01-03]"  --output=line
 
 <img src="images/line.png" alt="Display as line" title="Display as line" width="400"/>
 
-
 #### Browser
 
 The output can also be looked at in a browser
@@ -220,8 +216,6 @@ cms pi temp "red,red[01-03]"  --output=browser
 -->
 
 <img src="images/browser.png" alt="Display in browser" title="Display in browser" width="400"/>
-
-
 
 #### Live animation
 
@@ -320,7 +314,4 @@ mpstat -P ALL
 nmon
 ```
 
-Please make sure you install them first before using them
-
-
-
+Please make sure you install them first before using them.
