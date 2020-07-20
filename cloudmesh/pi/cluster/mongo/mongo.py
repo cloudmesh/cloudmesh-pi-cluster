@@ -1,7 +1,4 @@
 import os
-import sys
-import shutil
-import platform
 import subprocess
 from pprint import pprint
 from cloudmesh.common.Host import Host
@@ -13,6 +10,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
 
+
 class Mongo:
 
     def execute(self, arguments):
@@ -20,8 +18,8 @@ class Mongo:
         pi mongo start [--type=TYPE] [--master=MASTER] [--workers=WORKERS] [--port=PORT] [--dbpath=DBPATH] [--ip_bind=IP_BIND]
         pi mongo install [--master=MASTER] [--workers=WORKERS]
         pi mongo uninstall --master=MASTER [--workers=WORKERS]
+        pi mongo test [--port=PORT]
         pi mongo stop
-        pi mongo test
 
         :param arguments:
         :return:
@@ -29,7 +27,6 @@ class Mongo:
         self.master = arguments.master
         self.workers = Parameter.expand(arguments.workers)
 
-        master = []
         hosts = []
         if arguments.master:
             hosts.append(arguments.master)
@@ -53,24 +50,28 @@ class Mongo:
             self.dryrun = True
 
         if (hosts is None) and (arguments.stop is None) and (arguments.test is None):
-           Console.error("You need to specify at least one master or worker")
-           return
+            Console.error("You need to specify at least one master or worker")
+            return
 
         if arguments.install:
             self.install(hosts)
 
         elif arguments.start:
-            if(arguments['--type'] == "local"):
+            if (arguments['--type'] == "local"):
                 self.start_local(port, dbpath, ipbind)
-            elif(arguments['--type'] == "replica"):
+            elif (arguments['--type'] == "replica"):
                 self.start_replica(arguments.master, arguments.workers, port)
 
         elif arguments.stop:
             self.stop()
 
         elif arguments.test:
-            self.test()
-            
+            if port == None:
+                Console.error(
+                    "You need to specify exactly 1 port number. If multiple are specified, first will be selected")
+            else:
+                self.test(port=port)
+
         elif arguments.uninstall:
             self.uninstall(hosts)
 
@@ -107,7 +108,7 @@ class Mongo:
             sudo apt-get autoremove
             python3 -m pip uninstall pymongo
             """
-        
+
         for host in hosts:
             job_set.add({"name": host, "host": host, "command": command})
 
@@ -116,17 +117,17 @@ class Mongo:
         banner("MongoDB Removed Succesfully")
         return
 
-
     def start_local(self, port, dbpath, ip):
 
         # Setting defaults if no argument is provided
         if port is None:
-            port=27011
+            port = 27051
         if dbpath is None:
-            dbpath="/home/pi/data/db"
+            dbpath = "/home/pi/data/db"
         if ip is None:
-            ip="127.0.0.1"
+            ip = "127.0.0.1"
 
+        Console.msg("mongod instance started on IP=" + ip + " PORT=" + port + " \nwith DBPATH=" + dbpath)
         command = f"sudo mongod --config=/etc/mongodb.conf --dbpath={dbpath} --port={port} --bind_ip={ip}"
         output = subprocess.run(command.split(" "), shell=False, capture_output=True)
         Console.msg(output.stdout.decode('utf-8'))
@@ -142,46 +143,48 @@ class Mongo:
         ports = Parameter.expand(port)
 
         if (workers is None) or (port is None):
-            Console.error("Specify 3 workers only. Currently this command supports 1 Primary 3 Secondary configuration. Hence, you need to supply 3 ports for configuration")
+            Console.error(
+                "Specify 3 workers only. Currently this command supports 1 Primary 3 Secondary configuration. Hence, you need to supply 3 ports for configuration")
             return
         elif (len(hosts) > 3 or len(ports) > 3):
-            Console.error("Specify 3 workers only. Currently this command supports 1 Primary 3 Secondary configuration. Hence, you need to supply 3 ports for configuration")
+            Console.error(
+                "Specify 3 workers only. Currently this command supports 1 Primary 3 Secondary configuration. Hence, you need to supply 3 ports for configuration")
             return
 
         for host in hosts:
             command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/repl_setup.cfg pi@{host}:/home/pi/mongodb.conf"
             os.system(command)
 
-        
         command1 = f"mongod --config /home/pi/mongodb.conf --port {ports[0]}"
         ssh = subprocess.Popen(["ssh", "%s" % hosts[0], command1],
-                       shell=False,
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE)
+                               shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
 
         command2 = f"mongod --config /home/pi/mongodb.conf --port {ports[1]}"
         ssh = subprocess.Popen(["ssh", "%s" % hosts[1], command2],
-                       shell=False,
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE)
+                               shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
 
         command3 = f"mongod --config /home/pi/mongodb.conf --port {ports[2]}"
         ssh = subprocess.Popen(["ssh", "%s" % hosts[2], command3],
-                       shell=False,
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE)
+                               shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
 
-        cfg="""{
+        cfg = """{
             _id: rs0,
             members: [
-                {_id: 1, host: '"""+hosts[0]+""":"""+ports[0]+"""'},
-                {_id: 2, host: '"""+hosts[1]+""":"""+ports[1]+"""'},
-                {_id: 3, host: '"""+hosts[2]+""":"""+ports[2]+"""'}
+                {_id: 1, host: '""" + hosts[0] + """:""" + ports[0] + """'},
+                {_id: 2, host: '""" + hosts[1] + """:""" + ports[1] + """'},
+                {_id: 3, host: '""" + hosts[2] + """:""" + ports[2] + """'}
             ]
         }
         """
 
-        command_instantiate = "mongo "+hosts[0]+":"+ports[0]+" --eval \"JSON.stringify(db.adminCommand({'replSetInitiate' : "+cfg+"}))\""
+        command_instantiate = "mongo " + hosts[0] + ":" + ports[
+            0] + " --eval \"JSON.stringify(db.adminCommand({'replSetInitiate' : " + cfg + "}))\""
         os.system(command_instantiate)
 
         return
@@ -193,14 +196,25 @@ class Mongo:
         command = "sudo service mongod stop"
         subprocess.run(command.split(" "), shell=False, capture_output=False)
 
-        banner("MongoDB service stopped succesfully") 
+        banner("MongoDB service stopped succesfully")
         return
 
-    def test(self):
+    def test(self, port):
         Console.msg("Running Test on Local...")
-        self.start_local(None, None, None)
-        command = "mongo localhost:27011 --eval \"printjson(db.serverStatus())\""
-        os.system(command)
+        # The user may specify multiple ports. Selecting only the first port.
+        port = Parameter.expand(port)
+        port = port[0]
 
-        banner("MongoDB test completed")
+        Console.msg("PORT=" + port)
+        self.start_local(port=port, ip=None, dbpath=None)
+
+        Console.msg("Local instance started. Listening for requests...")
+        command = "mongo 127.0.0.1:" + port + " --eval \"printjson(db.serverStatus())\""
+        returncode = os.system(command)
+        if (returncode == 0):
+            Console.ok("Success!")
+        else:
+            Console.error("Test Error! Check physical connections. Port may be already in use.")
+
+        banner("MongoDB Test Completed")
         return 

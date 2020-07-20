@@ -51,8 +51,8 @@ class PiCommand(PluginCommand):
             pi mongo start [--type=TYPE] [--master=MASTER] [--workers=WORKERS] [--port=PORT] [--dbpath=DBPATH] [--ip_bind=IP_BIND]
             pi mongo install [--master=MASTER] [--workers=WORKERS]
             pi mongo uninstall [--master=MASTER] [--workers=WORKERS]
+            pi mongo test [--port=PORT]
             pi mongo stop
-            pi mongo test
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
