@@ -10,9 +10,7 @@ version deployed will be an older version which is no longer supported. Also,
 
 The master and workers must be set up as described in the general setup section.
 The worker Pis have to be connected to the internet via the master using the
-```cms bridge``` command. The documentation for the command can be found here:
-
-<https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/bridge>
+```cms bridge``` command. The documentation for the command can be found by clicking [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/bridge).
 
 ## Installation
 
