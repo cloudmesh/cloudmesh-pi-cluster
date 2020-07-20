@@ -89,10 +89,16 @@ cms pi mongo start [--type=TYPE] [--master=MASTER] \
 
 ### Stop
 
-Stop all mongod services running on Master Pi
+Stop all mongod services running on Master and Worker Pis
 
 ```bash
-cms pi mongo stop
+cms pi mongo stop [--master=MASTER] [--workers=WORKERS] 
+```
+
+Example usage:
+
+```bash
+cms pi mongo stop --master=blue --workers=blue00[1-3]
 ```
 
 ### Test

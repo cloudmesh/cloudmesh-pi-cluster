@@ -1,6 +1,8 @@
 import os
+import json
 import subprocess
 from pprint import pprint
+from json import JSONDecodeError
 from cloudmesh.common.Host import Host
 from cloudmesh.common.util import banner
 from cloudmesh.common.JobSet import JobSet
@@ -18,8 +20,8 @@ class Mongo:
         pi mongo start [--type=TYPE] [--master=MASTER] [--workers=WORKERS] [--port=PORT] [--dbpath=DBPATH] [--ip_bind=IP_BIND]
         pi mongo install [--master=MASTER] [--workers=WORKERS]
         pi mongo uninstall --master=MASTER [--workers=WORKERS]
+        pi mongo stop [--master=MASTER] [--workers=WORKERS]
         pi mongo test [--port=PORT]
-        pi mongo stop
 
         :param arguments:
         :return:
@@ -63,7 +65,7 @@ class Mongo:
                 self.start_replica(arguments.master, arguments.workers, port)
 
         elif arguments.stop:
-            self.stop()
+            self.stop(arguments.master, arguments.workers)
 
         elif arguments.test:
             if port == None:
@@ -155,26 +157,33 @@ class Mongo:
             command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/repl_setup.cfg pi@{host}:/home/pi/mongodb.conf"
             os.system(command)
 
-        command1 = f"mongod --config /home/pi/mongodb.conf --port {ports[0]}"
+
+        command1 = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[0]}"
         ssh = subprocess.Popen(["ssh", "%s" % hosts[0], command1],
                                shell=False,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
+        msg, _ = ssh.communicate()
+        Console.msg(msg.decode('utf-8'))
 
-        command2 = f"mongod --config /home/pi/mongodb.conf --port {ports[1]}"
+        command2 = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[1]}"
         ssh = subprocess.Popen(["ssh", "%s" % hosts[1], command2],
                                shell=False,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
+        msg, _ = ssh.communicate()
+        Console.msg(msg.decode('utf-8'))
 
-        command3 = f"mongod --config /home/pi/mongodb.conf --port {ports[2]}"
+        command3 = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[2]}"
         ssh = subprocess.Popen(["ssh", "%s" % hosts[2], command3],
                                shell=False,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
+        msg, _ = ssh.communicate()
+        Console.msg(msg.decode('utf-8'))
 
         cfg = """{
-            _id: rs0,
+            _id: 'rs0',
             members: [
                 {_id: 1, host: '""" + hosts[0] + """:""" + ports[0] + """'},
                 {_id: 2, host: '""" + hosts[1] + """:""" + ports[1] + """'},
@@ -182,20 +191,44 @@ class Mongo:
             ]
         }
         """
-
-        command_instantiate = "mongo " + hosts[0] + ":" + ports[
+        command_instantiate = "sudo mongo " + hosts[0] + ":" + ports[
             0] + " --eval \"JSON.stringify(db.adminCommand({'replSetInitiate' : " + cfg + "}))\""
-        os.system(command_instantiate)
+
+        ssh = subprocess.Popen(["ssh", "%s" % hosts[0], command_instantiate],
+                               shell=False,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        msg, _ = ssh.communicate()
+        msg = msg.decode('utf-8')
+        Console.msg(msg)
+
+        # Splitting message to extract the returned object only
+        msg = msg.split('\n')
+        json_msg = msg[-2]
+        try:
+            json_msg = json.loads(json_msg)
+            if json_msg['ok'] == 1:
+                Console.ok("Cluster started in Replica configuration.")
+            else:
+                Console.error(json_msg['errmsg'])
+        except JSONDecodeError:
+            Console.error("\n".join(msg))
 
         return
 
-    def stop(self):
+    def stop(self, master, workers):
+        hosts = Parameter.expand(workers)
         command = "sudo service mongodb stop"
-        subprocess.run(command.split(" "), shell=False, capture_output=False)
 
-        command = "sudo service mongod stop"
-        subprocess.run(command.split(" "), shell=False, capture_output=False)
-
+        # Stop mongo
+        if master is not None:
+            os.system(command)
+        if hosts is not None:
+            job_set = JobSet("mongo_stop", executor=JobSet.ssh)
+            for host in hosts:
+                job_set.add({"name": host, "host": host, "command": command})
+            job_set.run(parallel=len(hosts))
+            # job_set.Print()
         banner("MongoDB service stopped succesfully")
         return
 
@@ -209,7 +242,7 @@ class Mongo:
         self.start_local(port=port, ip=None, dbpath=None)
 
         Console.msg("Local instance started. Listening for requests...")
-        command = "mongo 127.0.0.1:" + port + " --eval \"printjson(db.serverStatus())\""
+        command = "mongo 127.0.0.1:"+port+" --eval \"printjson(db.serverStatus())\""
         returncode = os.system(command)
         if (returncode == 0):
             Console.ok("Success!")
@@ -217,4 +250,4 @@ class Mongo:
             Console.error("Test Error! Check physical connections. Port may be already in use.")
 
         banner("MongoDB Test Completed")
-        return 
+        return
