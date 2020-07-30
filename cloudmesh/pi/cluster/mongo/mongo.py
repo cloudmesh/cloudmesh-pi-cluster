@@ -123,7 +123,7 @@ class Mongo:
 
         # Setting defaults if no argument is provided
         if port is None:
-            port = 27051
+            port = 27017
         if dbpath is None:
             dbpath = "/home/pi/data/db"
         if ip is None:
@@ -157,7 +157,7 @@ class Mongo:
             command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/repl_setup.cfg pi@{host}:/home/pi/mongodb.conf"
             os.system(command)
 
-
+        # Loop this command in case you want to make the number of members in Replica configuration dynamic as described in Scope for Improvements section.
         command1 = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[0]}"
         ssh = subprocess.Popen(["ssh", "%s" % hosts[0], command1],
                                shell=False,
