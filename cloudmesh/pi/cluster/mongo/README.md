@@ -10,7 +10,9 @@ version deployed will be an older version which is no longer supported. Also,
 
 The master and workers must be set up as described in the general setup section.
 The worker Pis have to be connected to the internet via the master using the
-```cms bridge``` command. The documentation for the command can be found by clicking [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/cloudmesh/bridge).
+```cms bridge``` command. The documentation for the command can be found by 
+clicking [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/master/
+cloudmesh/bridge).
 
 ## Installation
 
@@ -56,10 +58,11 @@ cms pi mongo start [--type=TYPE] [--master=MASTER] \
 ```
 
 1. Local  
-   This can be activated by setting ```--type=local```. The mongod client will be launched on the Master Pi only. The ```--port``` 
-   ```--dbpath``` and ```--ip_bind``` arguments may be provided if you want to
-   specify the port and the database path respectively. If not provided, the
-   values will default to ```--port=27011```, ```--dbpath=/home/pi/data/db``` and
+   This can be activated by setting ```--type=local```. The mongod client will 
+   be launched on the Master Pi only. The ```--port```, ```--dbpath``` and 
+   ```--ip_bind``` arguments may be provided if you want to specify the port 
+   and the database path respectively. If not provided, the values will default 
+   to ```--port=27011```, ```--dbpath=/home/pi/data/db``` and 
    ```--ip_bind=127.0.0.1```  
 
    Example usage:
@@ -71,12 +74,13 @@ cms pi mongo start [--type=TYPE] [--master=MASTER] \
 	
 
 2. Replica Set  
-   This can be activated by setting ```--type=replica```. The mongod client will be launched in a Replication Set configuration.
-   Currently, this command only supports launching a replica set in an odd
-   configuration only with 3 Workers acting as secondary and 1 Master as primary.
-   You are required to provide the ```--master``` , ```--workers``` and
-   ```--port``` arguments   which specify which workers will be deployed as a part
-   of the Replication set and the ports to which they listen to.  
+   This can be activated by setting ```--type=replica```. The mongod client 
+   will be launched in a Replication Set configuration. Currently, this command 
+   only supports launching a replica set in an odd configuration only with 3 
+   Workers acting as secondary and 1 Master as primary. You are required to 
+   provide the ```--master``` , ```--workers``` and ```--port``` arguments 
+   which specify which workers will be deployed as a part of the Replication 
+   set and the ports to which they listen to.  
 
    Example usage:
 
@@ -120,12 +124,31 @@ cms pi mongo test --port=27017
 
 ### Replica Set
 
-Currently the Replica Set has been implemented in a 1 Primary and 3 Secondary member configuration. It is recommended to have an odd number of members always to avoid ties in voting. If an even number of members are to be deployed, you would need to deploy another member as an Arbiter that will vote in case of a tie. The number of members could be expanded to a maximum of 12 of which 7 can have voting rights. For more information on replica set deployment architectures, click [here](https://docs.mongodb.com/v2.4/core/replica-set-architectures/). The next part describes the changes to the code necessary to expand support to larger configurations  
+Currently the Replica Set has been implemented in a 1 Primary and 3 Secondary
+member configuration. It is recommended to have an odd number of members always
+to avoid ties in voting. If an even number of members are to be deployed, you
+would need to deploy another member as an Arbiter that will vote in case of a
+tie. The number of members could be expanded to a maximum of 12 of which 7 can
+have voting rights. For more information on replica set deployment
+architectures, click
+[here](https://docs.mongodb.com/v2.4/core/replica-set-architectures/). The next
+part describes the changes to the code necessary to expand support to larger
+configurations  
 
-1. Make sure you have the required number of Worker Pis connected in your cluster before trying to deploy a larger replica set config.
-2. Accept the number of members and their hostnames either as an argument to the command or as a YAML file.
-3. Copy the replica set config file named repl_set.cfg present in the /bin/ folder to all the hosts mentioned.
-4. Open mongod instances on all the hosts mentioned.
-5. Add the hostnames and the ports assigned to them to the replica set initiation configuration string which is passed as an ```--eval``` parameter to a mongo instance running on the Primary member (Usually the Master Pi). 
+1. Make sure you have the required number of Worker Pis connected in your
+   cluster before trying to deploy a larger replica set config.  
+2. Accept the number of members and their hostnames either as an argument to the
+   command or as a YAML file.  
+3. Copy the replica set config file named repl_set.cfg present in the /bin/ 
+   folder to all the hosts mentioned.  
+4. Open mongod instances on all the hosts mentioned.  
+5. Add the hostnames and the ports assigned to them to the replica set 
+   initiation configuration string which is passed as an ```--eval``` parameter 
+   to a mongo instance running on the Primary member (Usually the Master Pi). 
 
-Currently, there is no ability to add an Arbiter in case of a requirement of an even number of voting members. However, an Arbiter does not require dedicated hardware since it does not store data. Hence it can be deployed as a shared process on an existing Secondary member. Read the mongoDB [documentation](https://docs.mongodb.com/v2.4/core/replica-set-arbiter/) for further information.
+Currently, there is no ability to add an Arbiter in case of a requirement of an
+even number of voting members. However, an Arbiter does not require dedicated
+hardware since it does not store data. Hence it can be deployed as a shared
+process on an existing Secondary member. Read the mongoDB
+[documentation](https://docs.mongodb.com/v2.4/core/replica-set-arbiter/) for
+further information.
