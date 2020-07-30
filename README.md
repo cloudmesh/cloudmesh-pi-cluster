@@ -37,15 +37,15 @@ The detailed procedure on how to proceed with the burning procedure can be seen 
 * Once burned, insert the SD card in the Master Pi and then follow the on-screen instructions to configure the OS. Make sure you connect to Wi-Fi, change the default hostname, and enable SSH by using the pre-installed Raspberry Pi Configuration tool.
 * The next segment of code creates a venv named ~/ENV3, creates a ssh-key, adds it to the ssh-agent, and then downloads the latest Raspbian(Lite) image. While adding the ssh-key, be sure to choose a strong passphrase.  
 
-```bash
-pi@red:$ ssh-keygen
-pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
-pi@red:$ source ~/ENV3/bin/activate
+  ```bash
+  pi@red:$ ssh-keygen
+  pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
+  pi@red:$ source ~/ENV3/bin/activate
 
-(ENV3) pi@red:$ source ~/.bashrc
-(ENV3) pi@red:$ cms burn image get latest
-(ENV3) pi@red:$ cms burn image ls
-```
+  (ENV3) pi@red:$ source ~/.bashrc
+  (ENV3) pi@red:$ cms burn image get latest
+  (ENV3) pi@red:$ cms burn image ls
+  ```
 
 #### Setting up Worker Pis
 
