@@ -128,12 +128,13 @@ Currently the Replica Set has been implemented in a 1 Primary and 3 Secondary
 member configuration. It is recommended to have an odd number of members always
 to avoid ties in voting. If an even number of members are to be deployed, you
 would need to deploy another member as an Arbiter that will vote in case of a
-tie. The number of members could be expanded to a maximum of 12 of which 7 can
+tie.  
+The number of members could be expanded to a maximum of 12 of which 7 can
 have voting rights. For more information on replica set deployment
 architectures, click
 [here](https://docs.mongodb.com/v2.4/core/replica-set-architectures/). The next
 part describes the changes to the code necessary to expand support to larger
-configurations  
+configurations:  
 
 1. Make sure you have the required number of Worker Pis connected in your
    cluster before trying to deploy a larger replica set config.  
