@@ -2,8 +2,7 @@
 
 This README is managed in 
 
-* [README.md](https://github.com/cloudmesh/
-  cloudmesh-pi-cluster/blob/master/README.md)
+* [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/README.md)
 * <https://github.com/cloudmesh/cloudmesh-pi-cluster>
 
 ## About
@@ -15,14 +14,10 @@ You will ideally want to have a minimum of 3 Pi's.
 In addition to this document, we have additional we have separate
 documents that showcase how to convert your cluster into a
 
-* [Spark Cluster (under development)](https://github.com/cloudmesh/
-  cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/spark/README.md)
-* [Hadoop Cluster (under development)](https://github.com/cloudmesh/
-  cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/hadoop/README.md)
-* [Kubernetes Cluster (under development)](https://github.com/
-  cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/k3/README.md)
-* [MongoDB Cluster (under development)](https://github.com/cloudmesh/
-  cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/mongo/README.md)
+* [Spark Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/spark/README.md)
+* [Hadoop Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/hadoop/README.md)
+* [Kubernetes Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/k3/README.md)
+* [MongoDB Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/cloudmesh/pi/cluster/mongo/README.md)
 
 ## Installation
 
