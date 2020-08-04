@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import subprocess
 from pprint import pprint
@@ -6,8 +7,6 @@ from json import JSONDecodeError
 from cloudmesh.common.Host import Host
 from cloudmesh.common.util import banner
 from cloudmesh.common.JobSet import JobSet
-from cloudmesh.common.util import readfile
-from cloudmesh.common.util import writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
@@ -139,61 +138,47 @@ class Mongo:
     def start_replica(self, master, workers, port):
         Console.msg("Replica")
 
-        # Currently this value is fixed to a 1 Master and 3 Worker config only. It is recommended to
-        # have an odd number of members in replica sets to avoid ties during voting.
+        # It is recommended to have an odd number of members in replica sets to avoid ties during voting.
         hosts = Parameter.expand(workers)
         ports = Parameter.expand(port)
 
         if (workers is None) or (port is None):
-            Console.error(
-                "Specify 3 workers only. Currently this command supports 1 Primary 3 Secondary configuration. Hence, you need to supply 3 ports for configuration")
-            return
-        elif (len(hosts) > 3 or len(ports) > 3):
-            Console.error(
-                "Specify 3 workers only. Currently this command supports 1 Primary 3 Secondary configuration. Hence, you need to supply 3 ports for configuration")
-            return
-
+            Console.error("Specify an odd number of workers(minimum 1, maximum 12) to avoid voting conflicts. Specify number of ports equal to the number of workers.")
+            return 0
+        if (len(hosts) % 2 == 0 or len(ports) % 2 == 0):
+            Console.error("Specify an odd number of workers(minimum 1, maximum 12) to avoid voting conflicts. Specify number of ports equal to the number of workers.")
+            return 0
+        # Copy config files to workers
         for host in hosts:
             command = f"scp /home/pi/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/mongo/bin/repl_setup.cfg pi@{host}:/home/pi/mongodb.conf"
             os.system(command)
 
-        # Loop this command in case you want to make the number of members in Replica configuration dynamic as described in Scope for Improvements section.
-        command1 = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[0]}"
-        ssh = subprocess.Popen(["ssh", "%s" % hosts[0], command1],
-                               shell=False,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        msg, _ = ssh.communicate()
-        Console.msg(msg.decode('utf-8'))
+        # Start mongod servies with the copied replica set config file
+        for i in range(len(hosts)):
+            command = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[i]}"
+            ssh = subprocess.Popen(["ssh", "%s" % hosts[i], command],
+                                   shell=False,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+            msg, _ = ssh.communicate()
+            Console.msg(msg.decode('utf-8'))
 
-        command2 = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[1]}"
-        ssh = subprocess.Popen(["ssh", "%s" % hosts[1], command2],
-                               shell=False,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        msg, _ = ssh.communicate()
-        Console.msg(msg.decode('utf-8'))
+        # Generate json configuration to instantialte the replica set
+        cfg = {'_id': 'rs0', 'members': []}
+        for i in range(len(hosts)):
+            member = {'_id': i + 1, 'host': f"{hosts[i]}:{ports[i]}"}
+            cfg['members'] += [member]
+        # Converting dict to JSON string
+        cfg_string = json.dumps(cfg, indent=4)
+        # Removing quotes("") surrounding keys. Reference: https://stackoverflow.com/questions/25611882/how-to-dump-json-without-quotes-in-python
+        # Also replacing double quotes with single quotes
+        regex = r'(?<!: )"(\S*?)"'
+        cfg_string = re.sub(regex,'\\1', cfg_string).replace("\"", "'")
 
-        command3 = f"sudo mongod --config /home/pi/mongodb.conf --port={ports[2]}"
-        ssh = subprocess.Popen(["ssh", "%s" % hosts[2], command3],
-                               shell=False,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        msg, _ = ssh.communicate()
-        Console.msg(msg.decode('utf-8'))
+        Console.msg(f"Using the following configuration to instantiate Replica Set \n{cfg_string}")
 
-        cfg = """{
-            _id: 'rs0',
-            members: [
-                {_id: 1, host: '""" + hosts[0] + """:""" + ports[0] + """'},
-                {_id: 2, host: '""" + hosts[1] + """:""" + ports[1] + """'},
-                {_id: 3, host: '""" + hosts[2] + """:""" + ports[2] + """'}
-            ]
-        }
-        """
-        command_instantiate = "sudo mongo " + hosts[0] + ":" + ports[
-            0] + " --eval \"JSON.stringify(db.adminCommand({'replSetInitiate' : " + cfg + "}))\""
-
+        command_instantiate = "sudo mongo " + hosts[0] + ":" + ports[0] + " --eval \"JSON.stringify(db.adminCommand({'replSetInitiate': " + cfg_string + "}))\""
+        Console.msg(command_instantiate)
         ssh = subprocess.Popen(["ssh", "%s" % hosts[0], command_instantiate],
                                shell=False,
                                stdout=subprocess.PIPE,
@@ -214,7 +199,7 @@ class Mongo:
         except JSONDecodeError:
             Console.error("\n".join(msg))
 
-        return
+        return 1
 
     def stop(self, master, workers):
         hosts = Parameter.expand(workers)
@@ -230,7 +215,7 @@ class Mongo:
             job_set.run(parallel=len(hosts))
             # job_set.Print()
         banner("MongoDB service stopped succesfully")
-        return
+        return 1
 
     def test(self, port):
         Console.msg("Running Test on Local...")
@@ -250,4 +235,4 @@ class Mongo:
             Console.error("Test Error! Check physical connections. Port may be already in use.")
 
         banner("MongoDB Test Completed")
-        return
+        return 1
