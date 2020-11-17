@@ -17,7 +17,7 @@ documents that showcase how to convert your cluster into a
 
 * [Spark Cluster (under development)](cloudmesh/cluster/spark/README.md)
 * [Hadoop Cluster (under development)](cloudmesh/cluster/hadoop/README.md)
-* [Kubernetes Cluster (under development)](cloudmesh/cluster/k3/README.md)
+* [Kubernetes Cluster (under development)](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/pi/cluster/k3)
 * [MongoDB Cluster (under development)](cloudmesh/cluster/mongo/README.md)
 
 ## Installation
