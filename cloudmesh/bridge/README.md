@@ -30,6 +30,9 @@ For reference, we will use the following setup:
 
 Utilize [cmburn](https://github.com/cloudmesh/cloudmesh-pi-burn) to create the workers
 ```
+(ENV3) pi@manager:$ cms burn detect
+(ENV3) pi@manager:$ cms burn info
+(ENV3) pi@manager:$ cms burn image get latest
 (ENV3) pi@manager:$ cms burn create --hostname=red[003-004]
 ```
 Connect them to the private interface (network switch) via ethernet.
