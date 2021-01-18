@@ -8,3 +8,7 @@ cloudmesh-configuration
 #
 #    pip-compile setup.py
 #
+md_toc
+pygal
+matplotlib
+humanize

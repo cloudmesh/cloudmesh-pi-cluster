@@ -14,6 +14,11 @@ all: install
 install:
 	pip install -e .
 
+readme:
+	cms man readme -p --toc
+	cms man readme -p --tag="MANUAL-PI" pi
+	cms man readme -p --tag="MANUAL-BRIDGE" bridge
+
 source:
 	cd ../cloudmesh.cmd5; make source
 	$(call banner, "Install cloudmesh-{package}")
