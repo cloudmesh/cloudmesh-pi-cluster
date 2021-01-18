@@ -117,6 +117,80 @@ pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
  Timing buffered disk reads: 134 MB in  3.01 seconds =  44.46 MB/sec
 ```
 
+```
+pi@raspberrypi:~ $ curl https://raw.githubusercontent.com/geerlingguy/raspberry-pi-dramble/master/setup/benchmarks/microsd-benchmarks.sh | sudo bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  2247  100  2247    0     0   8415      0 --:--:-- --:--:-- --:--:--  8415
+
+Raspberry Pi Dramble microSD benchmarks
+microSD clock: 50.000 MHz
+
+Installing iozone...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 4040k  100 4040k    0     0  1983k      0  0:00:02  0:00:02 --:--:-- 1984k
+
+Building iozone for Linux-arm
+
+
+Building fileop for Linux-arm
+
+
+Building the pit_server
+
+Install complete!
+
+Running hdparm test...
+
+/dev/mmcblk0:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads: 134 MB in  3.01 seconds =  44.51 MB/sec
+
+Running dd test...
+
+51200+0 records in
+51200+0 records out
+419430400 bytes (419 MB, 400 MiB) copied, 14.8317 s, 28.3 MB/s
+
+Running iozone test...
+	Iozone: Performance Test of File I/O
+	        Version $Revision: 3.488 $
+		Compiled for 32 bit mode.
+		Build: linux-arm 
+
+	Contributors:William Norcott, Don Capps, Isom Crawford, Kirby Collins
+	             Al Slater, Scott Rhine, Mike Wisner, Ken Goss
+	             Steve Landherr, Brad Smith, Mark Kelly, Dr. Alain CYR,
+	             Randy Dunlap, Mark Montague, Dan Million, Gavin Brebner,
+	             Jean-Marc Zucconi, Jeff Blomberg, Benny Halevy, Dave Boone,
+	             Erik Habbinga, Kris Strecker, Walter Wong, Joshua Root,
+	             Fabrice Bacchella, Zhenghua Xue, Qin Li, Darren Sawyer,
+	             Vangel Bojaxhi, Ben England, Vikentsi Lapa,
+	             Alexey Skidanov, Sudhir Kumar.
+
+	Run began: Mon Jan 18 21:50:52 2021
+
+	Include fsync in write timing
+	O_DIRECT feature enabled
+	Auto Mode
+	File size set to 102400 kB
+	Record Size 4 kB
+	Command line used: ./iozone -e -I -a -s 100M -r 4k -i 0 -i 1 -i 2
+	Output is in kBytes/sec
+	Time Resolution = 0.000001 seconds.
+	Processor cache size set to 1024 kBytes.
+	Processor cache line size set to 32 bytes.
+	File stride size set to 17 * record size.
+                                                              random    random     bkwd    record    stride                                    
+              kB  reclen    write  rewrite    read    reread    read     write     read   rewrite      read   fwrite frewrite    fread  freread
+          102400       4     2604     2666    12185    12207     9959     2652                                                                
+
+iozone test complete.
+
+microSD card benchmark complete!
+```
+
 ### With quirks
 
 ```
