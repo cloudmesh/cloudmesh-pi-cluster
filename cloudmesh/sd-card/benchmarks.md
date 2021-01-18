@@ -15,7 +15,7 @@ sudo nano /boot/cmdline.txt
 ```
 And add the below to the end
 ```
-sdhci.quirks2=4
+sdhci.debug_quirks2=4
 ```
 
 ## Without quirks2
