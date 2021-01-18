@@ -84,6 +84,39 @@ sudo hdparm -t /dev/mmcblk0
 
 ### Without quirks
 
+```
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p1
+
+/dev/mmcblk0p1:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads: 134 MB in  3.01 seconds =  44.46 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p1
+
+/dev/mmcblk0p1:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads: 134 MB in  3.02 seconds =  44.43 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p1
+
+/dev/mmcblk0p1:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads: 134 MB in  3.02 seconds =  44.42 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
+
+/dev/mmcblk0p2:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads: 140 MB in  3.03 seconds =  46.19 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
+
+/dev/mmcblk0p2:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads: 134 MB in  3.01 seconds =  44.46 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
+
+/dev/mmcblk0p2:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads: 134 MB in  3.01 seconds =  44.46 MB/sec
+```
+
 ### With quirks
 
 ```
