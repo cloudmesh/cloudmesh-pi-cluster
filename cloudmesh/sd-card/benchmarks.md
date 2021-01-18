@@ -67,3 +67,22 @@ timing spec:	2 (sd high-speed)
 signal voltage:	0 (3.30 V)
 driver type:	0 (driver type B)
 ```
+
+
+## Testing new firmware potential 1.8V fix
+ 
+ It did not fix the issue.
+ 
+ What I did:
+```
+1. Installed latest Pi OS (1-11) using fresh download of Pi imager.On pi:
+# Update rpi-eeprom-update
+$ sudo apt update
+$ sudo apt full-upgrade
+$ sudo reboot# move latest firmware to /lib/firmware/raspberrypi/bootloader/critical to force rpi-eeprom to update
+$ sudo cp /lib/firmware/raspberrypi/bootloader/latest/pieeprom-2021-01-16.bin /lib/firmware/raspberrypi/bootloader/critical/# verify it recognizes it can update
+$ sudo rpi-eeprom-update# update the eeprom
+$ sudo rpi-eeprom-update -a
+$ sudo reboot#verify update took (current and latest under bootloader should match)
+$ sudo rpi-eeprom-update
+```
