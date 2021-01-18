@@ -8,6 +8,16 @@ mmc1 is always just high-speed. I'm not sure why there are two mmc. I suppose be
 
 Still working on actual benchmarks.
 
+## Setup
+To enable quirks
+``` 
+sudo nano /boot/cmdline.txt
+```
+And add the below to the end
+```
+sdhci.quirks2=4
+```
+
 ## Without quirks2
 
 ```
