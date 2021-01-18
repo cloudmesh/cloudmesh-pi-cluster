@@ -97,33 +97,25 @@ sudo hdparm -t /dev/mmcblk0
 Final Benchmark results.
 
 #### Without quirks:
-seq read: 44.5 MB/s
 
-seq write: 28.3 MB/s
-
-rand read: 9.9 MB/s
-
-rand write: 2.7MB/s
+- seq read: 44.5 MB/s
+- seq write: 28.3 MB/s
+- rand read: 9.9 MB/s
+- rand write: 2.7MB/s
 
 #### With quirks:
 
-seq read: 22.8 MB/s
-
-seq write: 18.6 MB/s
-
-rand read: 6.4 MB/s
-
-rand write: 1.4 MB/s
+- seq read: 22.8 MB/s
+- seq write: 18.6 MB/s
+- rand read: 6.4 MB/s
+- rand write: 1.4 MB/s
 
 #### % Decrease
 
-seq read: 49%
-
-seq write: 34.3%
-
-rand read: 35%
-
-rand write: 48% 
+- seq read: 49%
+- seq write: 34.3%
+- rand read: 35%
+- rand write: 48% 
 
 ### Without quirks
 
