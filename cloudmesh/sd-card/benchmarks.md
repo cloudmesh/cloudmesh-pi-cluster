@@ -68,6 +68,56 @@ signal voltage:	0 (3.30 V)
 driver type:	0 (driver type B)
 ```
 
+## Benchmarking quirks SD card fix
+Inspiration http://www.pidramble.com/wiki/benchmarks/microsd-cards
+
+Install utility for buffered raw throughput testing.
+
+```
+sudo apt-get install -y hdparm
+```
+
+Run throughput tests
+```
+sudo hdparm -t /dev/mmcblk0
+```
+
+### Without quirks
+
+### With quirks
+
+```
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
+
+/dev/mmcblk0p2:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads:  78 MB in  3.05 seconds =  25.59 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
+
+/dev/mmcblk0p2:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads:  70 MB in  3.08 seconds =  22.76 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
+
+/dev/mmcblk0p2:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads:  70 MB in  3.08 seconds =  22.74 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p2
+
+/dev/mmcblk0p2:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads:  70 MB in  3.08 seconds =  22.73 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p1
+
+/dev/mmcblk0p1:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads:  70 MB in  3.05 seconds =  22.96 MB/sec
+pi@raspberrypi:~ $ sudo hdparm -t /dev/mmcblk0p1
+
+/dev/mmcblk0p1:
+ HDIO_DRIVE_CMD(identify) failed: Invalid argument
+ Timing buffered disk reads:  70 MB in  3.08 seconds =  22.76 MB/sec
+```
 
 ## Testing new firmware potential 1.8V fix
  
