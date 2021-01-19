@@ -29,10 +29,9 @@ $ cms pi hadoop setup --master=red
 $ source ~/.bashrc
 ```
 
-
 If the installation is successful, you should see the versions of each
- returned by running these commands below. The number in front of jps can be
-  different.
+returned by running these commands below. The number in front of jps can be 
+different.
 
 ```
 $ java -version
@@ -46,8 +45,8 @@ Hadoop 3.2.0
 ```
 
 Now set up passwordless ssh on the localhost and configure Hadoop properly by
- running the commands below. These lines only need to be run once for the
-  cluster.
+running the commands below. These lines only need to be run once for the
+cluster.
 
 ```
 $ sh ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/master-start-hadoop.sh
@@ -67,9 +66,9 @@ $ cms pi hadoop start --master=red
 ```
 
 If the start is successful, you can see six items are running in the
- background by typing the command below. If any one is missing, Hadoop might
-  not be able to work properly, in which case you should stop and restart
-   hadoop.
+background by typing the command below. If any one is missing, Hadoop might
+not be able to work properly, in which case you should stop and restart 
+hadoop.
 
 ```
 $ jps
@@ -83,7 +82,7 @@ $ jps
 
 Check the node online, type in `http://red:9870` on web browser
 You should see a web page showing resources. `http://red:8088` shows nodes of
- the cluster. 
+the cluster. 
 
 ![red:9870_on_web](images/resource-manager-web.png)
 
@@ -95,8 +94,8 @@ $ cms pi hadoop stop --master=red
 
   - **Test**
  
-This command starts Hadoop, run a π calculation (2 maps, 5 samples per map
-) and stop Hadoop. You should see output like this 
+This command starts Hadoop, run a π calculation (2 maps, 5 samples per map) 
+and stop Hadoop. You should see output like this 
 
 ```
 $ cms pi hadoop test --master=red
@@ -119,8 +118,8 @@ $ cms pi hadoop check --master=red
 
 ## Example: Calculation of π
 
-Hadoop comes with sample file for computation. Once you have started the cluster
-, you can run one of the examples to calculate the value of π.
+Hadoop comes with sample file for computation. Once you have started the 
+cluster, you can run one of the examples to calculate the value of Pi.
 
 ```
 $ hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar pi 2 5
@@ -149,46 +148,47 @@ Estimated value of Pi is 3.15000000000000000000
 3. <https://tecadmin.net/setup-hadoop-single-node-cluster-on-centos-redhat/>
 
 
-
-
 -- WORKED UP TO HERE
 ## install Java on master and workers
 
-Hadoop requires Java. Raspbian Desktop doesn't come with Java installed
-, we therefore need to install java on all of the Pi.
+Hadoop requires Java. Raspbian Desktop doesn't come with Java installed, 
+we therefore need to install java on all of the Pi.
 
 ### Install Java on worker nodes
 
 Since workers don't have access to network, java can be installed by master
- passing the installation package to workers.
- 
- Ensure you can ssh into workers without password
- 
- ## (ENSURE YOU HAVE INPUT TAKE THE NUMBER OF WORKERS)
- 
+passing the installation package to workers.
+
+Ensure you can ssh into workers without password
+
+(ENSURE YOU HAVE INPUT TAKE THE NUMBER OF WORKERS)
+
  ```buildoutcfg
 $ ssh red001
 $ ssh red002
 ```
  
- run command 
-  ```
+run command 
+
+```
 sh master-to-worker.sh
 ```
 
 Now that each worker has the right java zip package, we are gonna upzip and
- install java on each worker using just one line from master:
+install java on each worker using just one line from master:
  
- This py file is in cloudmesh-common (this JobMultiHostScript.py needs to be
-  motified till the source code is fixed)
- ```
+This py file is in cloudmesh-common (this JobMultiHostScript.py needs to be
+motified till the source code is fixed)
+
+```
 cd ~/cm/cloudmesh-common/cloudmesh/common
 sudo nano JobMultiHostScript.py
 ```
+
  ```
- import sys
+import sys
  
- def main():
+def main():
     # EXAMPLE FOR TERMINAL - python JobMultiHostScript.py [SCRIPT-FILE] [HOSTS]
     argumentCounter = 0
     for arg in sys.argv[1:]:
@@ -218,12 +218,12 @@ if __name__ == '__main__':
                                         beginLine="# Task: pwd", endLine="# Task: uname")
     """
 
- ```
+```
  
- `python JobMultiHostScript.py ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/worker-installation.sh red[001-002]`
+`python JobMultiHostScript.py ~/cm/cloudmesh-pi-cluster/cloudmesh/pi/cluster/hadoop/bin/worker-installation.sh red[001-002]`
 
 If it is installed successfully on workers, you should see returns similar to
- this. Basically, stdout shouldnt tell you there is any error.
+this. Basically, stdout shouldnt tell you there is any error.
  
 ```
 {'red001': {'command': 'java -version',
@@ -318,7 +318,7 @@ Edit yarn-site.xml
 
 ## create cluster with multiple Pi
 
-# copy and install hadoop on workers
+### copy and install hadoop on workers
 
 scp -r /home/pi/hadoop-3.2.0.tar.gz red001:
 ssh red001
@@ -326,17 +326,18 @@ sudo tar -xvzf hadoop-3.2.0.tar.gz -C /opt/
 sudo mv /opt/hadoop-3.2.0 /opt/hadoop
 sudo chown pi:pi -R /opt/hadoop
 
-# install jps
+### install jps
+
 sudo nano ~/.bashrc
 alias jps='/opt/jdk/bin/jps'
 source ~/.bashrc
 jps
 
-# remove hdfs folder files on master
+### remove hdfs folder files on master
 
 cd ~/opt/hadoop/hadoopdata/hdfs
 
-# Set hadoop env on Worker
+### Set hadoop env on Worker
 
 ssh red001
 sudo nano  /opt/hadoop/etc/hadoop/hadoop-env.sh
@@ -410,8 +411,3 @@ yarn-site.xml
  </property>
 </configuration>
 ```
-
-
-
-
-

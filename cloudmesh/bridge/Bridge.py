@@ -153,7 +153,8 @@ class Bridge:
                         Console.warning(
                             f"Suitable ip range is {cls.ip_range[0]} - {cls.ip_range[1]}")
                         Console.error(
-                            f'Address {ip} for {host} is out of range. See "cms bridge create --range=RANGE" to reconfigure the IP range')
+                            f'Address {ip} for {host} is out of range. '
+                            f'See "cms bridge create --range=RANGE" to reconfigure the IP range')
                         sys.exit(1)
 
                     # Check if static IP assignment already exists
@@ -251,7 +252,8 @@ class Bridge:
         for host in hosts:
             if host not in known_hosts:
                 Console.warning(
-                    f'{host} is not among the known devices of the bridge. No connection from {host} has been received before. Skipping test')
+                    f'{host} is not among the known devices of the bridge. '
+                    f'No connection from {host} has been received before. Skipping test')
                 hosts_to_check -= 1
             else:
                 Console.info(f'Pinging Host {host}. Please wait ...')
@@ -302,7 +304,8 @@ class Bridge:
             time.sleep(2)
             if not cls._dhcpcd_active(iface=priv_iface):
                 Console.error(
-                    'Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
+                    'Timeout: Could not boot dhcpcd in the allotted amont of time. '
+                    'Use `sudo service dhcpcd status` for more info.')
                 sys.exit(1)
 
             Console.ok("Verified dhcpcd status successfuly")
@@ -395,9 +398,11 @@ class Bridge:
         :param iface: the interface that is connected to the private network. Default eth0
         :return boolean:
         """
-        # It's possible dhcpcd isn't fully started up yet after restarting. This is tricky as it says active even if it may fail
+        # It's possible dhcpcd isn't fully started up yet after restarting.
+        # This is tricky as it says active even if it may fail
         # after probing all interfaces
-        # Usually, dhcpcd is working once we see f'{interface}: no IPv6 Routers available' somewhere in the status message
+        # Usually, dhcpcd is working once we see
+        # f'{interface}: no IPv6 Routers available' somewhere in the status message
         pattern = re.compile(f'{iface}: no IPv6 Routers available*')
 
         # Loop if necessary
@@ -420,7 +425,8 @@ class Bridge:
                     return False
                 else:
                     Console.warning(
-                        f'dhcpcd failed to restart. Retrying in 5 seconds... Restart number {restartCount} - Maximum 5 restarts')
+                        f'dhcpcd failed to restart. Retrying in 5 seconds... '
+                        f'Restart number {restartCount} - Maximum 5 restarts')
                     time.sleep(time_interval)
                     cls._system('sudo service dhcpcd restart')
                     restartCount += 1
@@ -649,7 +655,8 @@ class Bridge:
                     old_conf[old_conf.index('#' + new_line)] = new_line
                 except ValueError:
                     Console.warning(
-                        "Could not find iPv4 setting. Perhaps /etc/sysctl.conf has been changed from default. Process continues by adding iPv4 setting")
+                        "Could not find iPv4 setting. Perhaps /etc/sysctl.conf "
+                        "has been changed from default. Process continues by adding iPv4 setting")
                     old_conf.append('net.ipv4.ip_forward=1')
                 except:
                     Console.error(
@@ -668,7 +675,8 @@ class Bridge:
         :return:
         """
         cmd1 = f"sudo iptables -A FORWARD -i {cls.priv_interface} -o {cls.ext_interface} -j ACCEPT"
-        cmd2 = f"sudo iptables -A FORWARD -i {cls.ext_interface} -o {cls.priv_interface} -m state --state ESTABLISHED,RELATED -j ACCEPT"
+        cmd2 = f"sudo iptables -A FORWARD -i {cls.ext_interface} -o {cls.priv_interface}"\
+               " -m state --state ESTABLISHED,RELATED -j ACCEPT"
         cmd3 = f"sudo iptables -t nat -A POSTROUTING -o {cls.ext_interface} -j MASQUERADE"
 
         if cls.dryrun:
@@ -698,7 +706,9 @@ class Bridge:
 
             if old_conf[-1] != 'exit 0':
                 Console.error(
-                    'rc.local does not have exit 0 in last line. Contingency not handled in this version. Cannot enable iPv4 forwarding at this time')
+                    'rc.local does not have exit 0 in last line. '
+                    'Contingency not handled in this version. '
+                    'Cannot enable iPv4 forwarding at this time')
                 raise NotImplementedError
 
             if restore_command not in old_conf:
@@ -738,7 +748,7 @@ class Bridge:
                 if cls.priv_interface in conf[i]:
                     info = conf[i + 1].split()
 
-            if info == None:
+            if info is None:
                 Console.error(f"Interface {cls.priv_interface} not found")
                 sys.exit(1)
 
