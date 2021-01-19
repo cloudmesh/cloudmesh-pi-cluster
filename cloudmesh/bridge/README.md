@@ -3,17 +3,30 @@ WARNING: This program is designed for Raspberry Pi and must not be executed on y
 
 
 ---
-## Table of Contents
-* [Quick Start](#quick-start)
-* [Usage: Create command](#using-the-create-command)
-* [Usage: Restart command](#using-the-restart-command)
-* [Usage: Info and Status command](#using-the-info-and-status-commands)
-* [Usage: Test command](#using-the-test-command)
-* [Usage: Set command](#using-the-set-command)
 
----
+<!--TOC-->
+
+- [A simple command to setup a network bridge between raspberry pi's and a manager pi utilizing dnsmasq](#a-simple-command-to-setup-a-network-bridge-between-raspberry-pis-and-a-manager-pi-utilizing-dnsmasq)
+- [Quick Start](#quick-start)
+  - [Step 1. Create necessary workers](#step-1-create-necessary-workers)
+  - [Step 2 Create Bridge](#step-2-create-bridge)
+  - [Step 3. Restart Bridge](#step-3-restart-bridge)
+  - [Step 4 (optional). Assign static IPs to workers](#step-4-optional-assign-static-ips-to-workers)
+  - [Step 5. Verify](#step-5-verify)
+  - [Quick Fixes](#quick-fixes)
+- [Using the create command](#using-the-create-command)
+- [Using the restart command](#using-the-restart-command)
+- [Using the info and status commands](#using-the-info-and-status-commands)
+- [Using the test command](#using-the-test-command)
+- [Using the set command](#using-the-set-command)
+- [Other recommendations](#other-recommendations)
+- [Dependencies](#dependencies)
+- [Manual Page](#manual-page)
+
+<!--TOC-->
+
 ##  Quick Start
----
+
 For reference, we will use the following setup:
 * Router Pi has hostname `manager` and is connected to the internet via interface `eth1` (usb -> ethernet) cable
 * Router Pi uses interface `eth0` as the private interface to communicate with the workers.
@@ -25,8 +38,7 @@ For reference, we will use the following setup:
 
 ![Network Layout](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/images/layout.png)
 
----
-**Step 1. Create necessary workers**
+### Step 1. Create necessary workers
 
 Utilize [cmburn](https://github.com/cloudmesh/cloudmesh-pi-burn) to create the workers
 ```
@@ -42,9 +54,7 @@ We do not need to boot them up yet as if we connect them to the manager now, we 
 *Note* 
 Notice how we are not setting the `--ipaddr` option. This is intentional as we want to handle static IPs in a centralized manner now. The program will still work if you configure the Pis with static IPs, but you just won't be able to change them from the manager.
 
----
-
-**Step 2 Create Bridge.**
+### Step 2 Create Bridge
 
 Plug the manager Pi into the private interface (network switch) via the built-in ethernet port (eth0)
 
@@ -74,9 +84,8 @@ The `IP Range` tells us the range of suitable IPs we can give to the workers.
 
 In the future, a command will be added to expand the `IP range` dynamically.
 
----
 
-**Step 3. Restart Bridge**
+### Step 3. Restart Bridge
 
 We can now restart the bridge to reflect these changes:
 
@@ -130,9 +139,7 @@ We can check to verify the bridge is working by calling
 
 ```
 
----
-
-**Step 4 (optional). Assign static IPs to workers**
+### Step 4 (optional). Assign static IPs to workers
 
 We can set a static IP for hostnames as follows:
 ```
@@ -171,9 +178,8 @@ We then restart the bridge again and boot up (or reboot) the workers.
 ```
 Notice how there is an added option `--nohup`. This option is used when we do not want to reset the entire networking setup of the pi. This is useful in case your are connected to the device via ssh. This will ensure that your pipeline is not broken. Note that we can only use this command after the initial post-creation restart is run once. 
 
----
 
-**Step 5.**
+### Step 5. Verify
 
 To verify that workers have successfuly connected, we call the info command again:
 ```
@@ -199,16 +205,15 @@ It is NOT an indicator of devices currently connected. That feature is still in 
 The fields in {} will be populated with the worker-specific info.
 Additionally, the expiration time is there for reference. There is no need to reassign a static IP after it has already been assigned unless the bridge is re-created.
 
----
 
-**Quick Fixes**
+### Quick Fixes
+
 Here are some quick actions to try if you are unable to access your workers:
 * Restart the bridge
 * Restart the workers
 * Set a static IP for the hostname
 * Utilize the purge option `cms bridge create --interface='eth1' --purge` for a total reconfiguration of the bridge.
 
----
 
 ## Using the create command
 ```
@@ -233,21 +238,22 @@ The default configuration will work for most unless the external network overlap
 172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
 192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
 ```
----
 
 ## Using the restart command
+
 ```
 cms bridge restart [--nohup] [--background]
 ```
+
 Restarts the bridge and its services. Used when there is a modification to the bridge configuration. Note that the restart command must be called at least once before using the `--nohup` command.
 | Option    | Description  |
 | :-------: | ----------|
 |`--nohup` | Restarts only the `dnsmasq` service and not the `dhcpcd` service (which is the default behavior). This is useful for when simply assigning a static IP to a host or refreshing the lease history. This is particularly of interest for those that are ssh'd into the manager during this process. This option guarantees that the ssh pipe will not be broken after restarting. |
 |`--background` | Used for when a user wishes to run the command in the background. Usage for this option is mostly for when users are ssh'd through WiFi and experience broken pipelines. Using `--background` will prevent the command from terminating in the case that a pipeline is broken. The output of the command will be stored in the current working directory on the Pi in a file called `bridge_restart.log` |
 
----
 
 ## Using the info and status commands
+
 ```
 cms bridge status
 ```
@@ -275,9 +281,9 @@ The first two entries of each row show the date and time in which the lease expi
 **Note**
 The lease history is not a list of connected devices. It simply demonstrates the known information about each lease it has given out during its lifetime. To check if a host is connected, see the `test` command usage below
 
----
 
 ## Using the test command
+
 ```
 cms bridge test HOSTS
 ```
@@ -285,6 +291,7 @@ The test command is used to verify a connection with the given hostnames. Using 
 server has seen the specified host before, and then check to see if there are transmitted packets.
 
 Example usage:
+
 ```
 cms bridge test red002
 
@@ -293,19 +300,21 @@ cms bridge test red002,red005
 cms bridge test red[002-004]
 ```
 
----
 
 ## Using the set command
 
 ```
 cms bridge set HOSTS ADDRESSES
 ```
+
 Used to assign static IPs to given hosts. The given addresses must fall in the current ip range of the server. The range can be viewed using `cms bridge info`. After setting the IPs, the bridge must be restarted. 
+
 ```
 cms bridge restart --nohup
 ```
 
 Example usage:
+
 ```
 cms bridge set red002 10.1.1.2
 
@@ -313,11 +322,114 @@ cms bridge set red[003-005] 10.1.1.[3-5]
 
 ```
 
----
 
-**Other recommendations**
-* I find that this system works even better if this bridge is configured on a pi that is completely separate from any other pi in a cluster. That way, you can configure a single pi for general use similar to an internet modem and then develop several pi clusters through the use of it.
+## Other recommendations
 
-**Dependencies**
+* I find that this system works even better if this bridge is configured on a 
+  pi that is completely separate from any other pi in a cluster. That way, 
+  you can configure a single pi for general use similar to an internet modem 
+  and then develop several pi clusters through the use of it.
+
+## Dependencies
+
 * [dnsmasq](https://wiki.archlinux.org/index.php/dnsmasq) - Installed upon first call to `create` and reinstalled when using `--purge`
 * [dhcpcd](https://wiki.archlinux.org/index.php/Dhcpcd) - Pre-installed with raspbian OS
+
+## Manual Page
+
+<!--MANUAL-BRIDGE-->
+```
+  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
+  bridge set HOSTS ADDRESSES 
+  bridge restart [--nohup] [--background]
+  bridge status
+  bridge test HOSTS [--rate=RATE]
+  bridge list NAMES
+  bridge check NAMES [--configuration] [--connection]
+  bridge info
+
+Arguments:
+    HOSTS        Hostnames of connected devices. 
+                 Ex. red002
+                 Ex. red[002-003]
+
+    ADDRESSES    IP addresses to assign to HOSTS. Addresses
+                 should be in the network range configured.
+                 Ex. 10.1.1.2
+                 Ex. 10.1.1.[2-3]
+
+    NAMES        A parameterized list of hosts. The first hostname 
+                 in the list is the master through which the traffic 
+                 is routed. Example:
+                 blue,blue[002-003]
+
+Options:
+    --interface=INTERFACE  The interface name [default: eth1]
+                           You can also specify wlan0 if you wnat
+                           to bridge through WIFI on the master
+                           eth0 requires a USB to WIFI adapter
+
+    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to assign the master on the
+                           interface. Ex. 10.1.1.1
+
+    --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.122] that can be assigned 
+                           to connecting devices. Value should be a comma
+                           separated tuple of the two range bounds. Should
+                           not include the ip of the master
+                           Ex. 10.1.1.2-10.1.1.20
+
+    --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
+                           Ex. red002
+                           Ex. red[002-003]
+
+    --purge       Include option if a full reinstallation of dnsmasq is desired
+
+    --background    Runs the restart command in the background. stdout to bridge_restart.log
+
+    --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
+
+    --rate=RATE            The rate in seconds for repeating the test
+                           If ommitted its done just once.
+
+Description:
+
+  Command used to set up a bride so that all nodes route the traffic
+  trough the master PI.
+
+  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
+      creates the bridge on the current device
+      The create command does not restart the network.
+
+  bridge set HOSTS ADDRESSES 
+      the set command assigns the given static 
+      ip addresses to the given hostnames.
+
+  bridge status
+      Returns the status of the bridge and its linked services.
+
+  bridge restart [--nohup]
+      restarts the bridge on the master without rebooting. 
+
+  bridge test NAMES
+      A test to see if the bridges are configured correctly and one
+      hase internet access on teh specified hosts.
+
+  bridge list NAMES
+      Lists information about the bridges (may not be needed)
+
+  bridge check NAMES [--config] [--connection]
+      provides information about the network configuration
+      and netwokrk access. Thisis not a comprehensive speedtest
+      for which we use test.
+
+  bridge info
+      prints relevant information about the configured bridge
+
+
+Design Changes:
+  We still may need the master to be part of other commands in case
+  for example the check is different for master and worker
+
+```
+<!--MANUAL-BRIDGE-->
+
