@@ -19,6 +19,7 @@ def sudo_readfile(filename, split=True, trim=False):
 
     return result
 
+
 def sudo_writefile(filename, content, append=False):
     os.system('mkdir -p ~/.cloudmesh/tmp')
     tmp = "~/.cloudmesh/tmp/tmp.txt"
@@ -35,4 +36,3 @@ def sudo_writefile(filename, content, append=False):
         Console.warning(f"{filename} was not created correctly -> {result[1]}")
 
     return result[1]
-

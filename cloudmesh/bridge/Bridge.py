@@ -13,6 +13,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile, readfile
 
+
 #
 # These methods are not parallel but just work in one processor
 #
@@ -30,12 +31,14 @@ class Bridge:
     masterIP = None
     ip_range = None
     workers = None
-    dns=['8.8.8.8', '8.8.4.4']
+    dns = ['8.8.8.8', '8.8.4.4']
     lease_bookmark = '# LEASE HISTORY #'
 
     @classmethod
-    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'], master=None, workers=None,
-                priv_interface='eth0', ext_interface='eth1', purge=False, dryrun=False):
+    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'],
+               master=None, workers=None,
+               priv_interface='eth0', ext_interface='eth1', purge=False,
+               dryrun=False):
         """
         if worker(s) is missing the master is set up only
 
@@ -53,7 +56,6 @@ class Bridge:
         cls.dryrun = dryrun
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
-
 
         # Master configuration
         StopWatch.start('Manager Configuration')
@@ -120,18 +122,21 @@ class Bridge:
             Console.info(f"DRYRUN: Setting {workers} to {addresses}")
         else:
             if not Path('/etc/dnsmasq.conf').is_file():
-                Console.error('This Pi is not configured as a bridge yet. See "cms bridge create" ')
+                Console.error(
+                    'This Pi is not configured as a bridge yet. See "cms bridge create" ')
                 sys.exit(1)
 
             elif len(workers) != len(addresses):
-                Console.error('The number of hostnames and addresses given do not match')
+                Console.error(
+                    'The number of hostnames and addresses given do not match')
                 sys.exit(1)
 
             else:
-                conf_line = cls._system('cat /etc/dnsmasq.conf | grep dhcp-range')
+                conf_line = cls._system(
+                    'cat /etc/dnsmasq.conf | grep dhcp-range')
                 interm = conf_line.split(',')
-                upper = interm[1] # 10.1.1.20
-                lower = interm[0].split('=')[1] # 10.1.1.2
+                upper = interm[1]  # 10.1.1.20
+                lower = interm[0].split('=')[1]  # 10.1.1.2
                 cls.ip_range = lower, upper
 
                 to_add = []
@@ -139,26 +144,31 @@ class Bridge:
                     host = workers[i]
                     ip = addresses[i]
                     Console.info(f"Setting {host} to {ip}")
-                    
+
                     if not cls._in_range(ip):
-                        Console.warning(f"Suitable ip range is {cls.ip_range[0]} - {cls.ip_range[1]}")
-                        Console.error(f'Address {ip} for {host} is out of range. See "cms bridge create --range=RANGE" to reconfigure the IP range')
+                        Console.warning(
+                            f"Suitable ip range is {cls.ip_range[0]} - {cls.ip_range[1]}")
+                        Console.error(
+                            f'Address {ip} for {host} is out of range. See "cms bridge create --range=RANGE" to reconfigure the IP range')
                         sys.exit(1)
 
                     # Check if static IP assignment already exists
                     conf = sudo_readfile('/etc/dnsmasq.conf')
 
                     start = f'dhcp-host={host}'
-                    line = f'{start},{ip}' # dhcp-host=red001,10.1.1.1
+                    line = f'{start},{ip}'  # dhcp-host=red001,10.1.1.1
                     ipPattern = re.compile(f'dhcp-host=.*{ip}')
                     hostPattern = re.compile(f'{start}.*')
 
-                    ipResults = list(filter(ipPattern.search, conf)) # see if ip is already assigned
-                    hostResults = list(filter(hostPattern.search, conf)) # see if host is already assigned
+                    ipResults = list(filter(ipPattern.search,
+                                            conf))  # see if ip is already assigned
+                    hostResults = list(filter(hostPattern.search,
+                                              conf))  # see if host is already assigned
 
                     # If ip already assigned
                     if ipResults:
-                        Console.error(f'{ip} is already assigned. Please try a different IP')
+                        Console.error(
+                            f'{ip} is already assigned. Please try a different IP')
                         sys.exit(1)
 
                     # If new host
@@ -166,25 +176,28 @@ class Bridge:
                         to_add.append(line)
 
                     else:
-                        Console.warning(f"Previous IP assignment for {host} found. Overwriting.")
+                        Console.warning(
+                            f"Previous IP assignment for {host} found. Overwriting.")
                         if len(hostResults) > 1:
-                            Console.warning(f"Found too many assignments for {host}. Overwriting first one")
+                            Console.warning(
+                                f"Found too many assignments for {host}. Overwriting first one")
                         key = conf.index(hostResults[0])
                         conf[key] = line
-                
+
                 conf += to_add
 
                 sudo_writefile('/etc/dnsmasq.conf', '\n'.join(conf) + '\n')
                 Console.ok("Added IP's to dnsmasq")
-
 
     @classmethod
     def status(cls):
         """
         A simple status check of the bridge setup. It looks at both dhcpcd and dnsmasq status messages.
         """
-        dhcpcdRunning = 'running' in cls._system('sudo service dhcpcd status | grep Active', warnuser=False)
-        dnsmasqRunning = 'running' in cls._system('sudo service dnsmasq status | grep Active', warnuser=False)
+        dhcpcdRunning = 'running' in cls._system(
+            'sudo service dhcpcd status | grep Active', warnuser=False)
+        dnsmasqRunning = 'running' in cls._system(
+            'sudo service dnsmasq status | grep Active', warnuser=False)
         banner(textwrap.dedent(f"""
         Status of Bridge:
 
@@ -194,12 +207,10 @@ class Bridge:
         BRIDGE        - Service running: {dhcpcdRunning and dnsmasqRunning}
         
         """), color='CYAN')
-        
 
     @classmethod
     def list(cls, host=None):
         raise NotImplementedError
-
 
     @classmethod
     def check(cls, hosts=None):
@@ -214,15 +225,16 @@ class Bridge:
         :param host: List of hostnames to check for connectivity.
         :return:
         """
-        
+
         try:
             info = sudo_readfile('~/.cloudmesh/bridge/info')
             index = info.index(cls.lease_bookmark)
             leases = info[index + 1:]
         except:
-            Console.error('Could not find information on bridge. Has the bridge been created yet?')
+            Console.error(
+                'Could not find information on bridge. Has the bridge been created yet?')
             sys.exit(1)
-        
+
         known_hosts = []
         for lease in leases:
             lease_info = lease.split()
@@ -234,11 +246,13 @@ class Bridge:
         Console.info("Beginning ping checks...")
         for host in hosts:
             if host not in known_hosts:
-                Console.warning(f'{host} is not among the known devices of the bridge. No connection from {host} has been received before. Skipping test')
+                Console.warning(
+                    f'{host} is not among the known devices of the bridge. No connection from {host} has been received before. Skipping test')
                 hosts_to_check -= 1
             else:
                 Console.info(f'Pinging Host {host}. Please wait ...')
-                status, stdout = cls._system(f'ping -c 1 {host}', warnuser=False, both=True)
+                status, stdout = cls._system(f'ping -c 1 {host}',
+                                             warnuser=False, both=True)
                 # I believe this is a sufficient check
                 if status != 0:
                     message = textwrap.dedent(f"""
@@ -252,8 +266,9 @@ class Bridge:
                 else:
                     count += 1
                     Console.ok(f"Successfuly pinged {host}")
-        
-        Console.ok(f'Completed checks. {count} out of {hosts_to_check} checks succeeded.')
+
+        Console.ok(
+            f'Completed checks. {count} out of {hosts_to_check} checks succeeded.')
 
     @classmethod
     def restart(cls, priv_iface='eth0', workers=None, user='pi', nohup=False):
@@ -274,14 +289,16 @@ class Bridge:
 
             status = cls._system('sudo service dhcpcd restart', exitcode=True)
             if status != 0:
-                Console.error(f'Did not restart manager networking service correctly')
+                Console.error(
+                    f'Did not restart manager networking service correctly')
                 sys.exit(1)
             Console.info("Restarted dhcpcd")
             Console.info("Verifying dhcpcd status...")
             # Give the service a change to adjust
             time.sleep(2)
             if not cls._dhcpcd_active(iface=priv_iface):
-                Console.error('Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
+                Console.error(
+                    'Timeout: Could not boot dhcpcd in the allotted amont of time. Use `sudo service dhcpcd status` for more info.')
                 sys.exit(1)
 
             Console.ok("Verified dhcpcd status successfuly")
@@ -300,14 +317,16 @@ class Bridge:
             ignore_setting = '-o "StrictHostKeyChecking no"'
             for worker in workers:
                 Console.info(f"Restarting dhcpcd on {worker} please wait...")
-                status = cls._system(f'ssh {ignore_setting} {user}@{worker} sudo service dhcpcd restart', exitcode=True)
+                status = cls._system(
+                    f'ssh {ignore_setting} {user}@{worker} sudo service dhcpcd restart',
+                    exitcode=True)
                 if status != 0:
-                    Console.error(f'Did not restart {worker} DHCP service correctly')
+                    Console.error(
+                        f'Did not restart {worker} DHCP service correctly')
                     sys.exit(1)
                 Console.ok(f"Restarted dhcpcd on {worker}")
 
             Console.ok("Restarted DHCP service on workers")
-
 
     @classmethod
     def info(cls):
@@ -316,7 +335,8 @@ class Bridge:
             info = info[:info.index(cls.lease_bookmark) + 1]
 
         except:
-            Console.error("Cannot execute info command. Has the bridge been made yet?")
+            Console.error(
+                "Cannot execute info command. Has the bridge been made yet?")
             sys.exit(1)
 
         try:
@@ -324,20 +344,22 @@ class Bridge:
             # If cur_leases is not empty, then the first element of each row is the epoch time of the lease expiration date
             for i in range(len(curr_leases)):
                 curr_leases[i] = curr_leases[i].split()
-                curr_leases[i][0] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(curr_leases[i][0])))
+                curr_leases[i][0] = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                  time.localtime(
+                                                      int(curr_leases[i][0])))
                 curr_leases[i] = ' '.join(curr_leases[i])
 
             curr_leases = '\n' + '\n'.join(curr_leases)
 
         except:
-            Console.warning("dnsmasq.leases file not found. No devices have been connected yet") 
+            Console.warning(
+                "dnsmasq.leases file not found. No devices have been connected yet")
             curr_leases = "\n"
 
         toWrite = '\n'.join(info) + curr_leases
         sudo_writefile('~/.cloudmesh/bridge/info', toWrite)
 
         banner(toWrite, color='CYAN')
-
 
     # Begin private methods for Bridge
     @classmethod
@@ -352,14 +374,14 @@ class Bridge:
         exit, stdout = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
         if exit != 0 and warnuser:
-            Console.warning(f'Warning: "{command}" did not execute properly -> {stdout} :: exit code {exit}')
+            Console.warning(
+                f'Warning: "{command}" did not execute properly -> {stdout} :: exit code {exit}')
         if both:
             return exit, stdout
         elif exitcode:
             return exit
         else:
             return stdout
-
 
     @classmethod
     def _dhcpcd_active(cls, iface='eth0', timeout=10, time_interval=5):
@@ -379,19 +401,22 @@ class Bridge:
         count = 1
         while True:
             Console.info(f'Checking if dhcpcd is up - Attempt {count}')
-            code, full_status = cls._system('sudo service dhcpcd status',warnuser=False, both=True)
+            code, full_status = cls._system('sudo service dhcpcd status',
+                                            warnuser=False, both=True)
             if pattern.search(full_status):
                 Console.info('dhcpcd is done starting')
-                status_line = cls._system('sudo service dhcpcd status | grep Active')
+                status_line = cls._system(
+                    'sudo service dhcpcd status | grep Active')
                 return 'running' in status_line
-            
+
             # Occassionally dhcpcd fails to start when using WiFi. 
             # Unresolved bug as it works after a few restarts
             elif code != 0:
                 if restartCount >= 5:
-                    return False    
+                    return False
                 else:
-                    Console.warning(f'dhcpcd failed to restart. Retrying in 5 seconds... Restart number {restartCount} - Maximum 5 restarts')
+                    Console.warning(
+                        f'dhcpcd failed to restart. Retrying in 5 seconds... Restart number {restartCount} - Maximum 5 restarts')
                     time.sleep(time_interval)
                     cls._system('sudo service dhcpcd restart')
                     restartCount += 1
@@ -399,7 +424,8 @@ class Bridge:
                     continue
 
             if count >= timeout:
-                status_line = cls._system('sudo service dhcpcd status | grep Active')
+                status_line = cls._system(
+                    'sudo service dhcpcd status | grep Active')
                 return 'running' in status_line
             count += 1
             Console.info('dhcpcd is not ready. Checking again in 5 seconds...')
@@ -413,14 +439,14 @@ class Bridge:
         """
         return tuple(int(n) for n in ip.split('.'))
 
-    
     @classmethod
     def _in_range(cls, ip):
         """
         :param ip: An iPv4 address given as a string
         :return: True if the iPv4 is within cls.ip_range
         """
-        return cls._convert_ipv4(cls.ip_range[0]) <= cls._convert_ipv4(ip) <= cls._convert_ipv4(cls.ip_range[1])
+        return cls._convert_ipv4(cls.ip_range[0]) <= cls._convert_ipv4(
+            ip) <= cls._convert_ipv4(cls.ip_range[1])
 
     @classmethod
     def _completion_message(cls):
@@ -463,7 +489,6 @@ class Bridge:
         cls._system('sudo mkdir -p ~/.cloudmesh/bridge')
         sudo_writefile('~/.cloudmesh/bridge/info', info)
 
-
     @classmethod
     def _config_dnsmasq(cls):
         """
@@ -488,7 +513,7 @@ class Bridge:
             bind-interfaces
 
             """)
-            
+
             Console.info("Rewriting /etc/dnsmasq.conf")
             sudo_writefile('/etc/dnsmasq.conf', config)
 
@@ -503,7 +528,6 @@ class Bridge:
                 temp[0], temp[1] = temp[1], temp[0]
                 sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
 
-            
     @classmethod
     def _install_dnsmasq(cls):
         """
@@ -528,7 +552,7 @@ class Bridge:
             StopWatch.status('install dnsmasq', True)
 
             Console.ok("Finished installing dnsmasq")
-        
+
     @classmethod
     def _purge_dnsmasq(cls):
         """
@@ -545,7 +569,8 @@ class Bridge:
         """
         Returns true if dnsmasq service is already installed
         """
-        exitCode, status = cls._system("dpkg-query -W -f='${Status}' dnsmasq", warnuser=False, both=True)
+        exitCode, status = cls._system("dpkg-query -W -f='${Status}' dnsmasq",
+                                       warnuser=False, both=True)
         if exitCode != 0:
             return False
         return status == 'install ok installed'
@@ -560,7 +585,8 @@ class Bridge:
         :return:
         """
         if cls.dryrun:
-            Console.info(f"DRYRUN: Setting ip on {cls.priv_interface} to {cls.masterIP}")
+            Console.info(
+                f"DRYRUN: Setting ip on {cls.priv_interface} to {cls.masterIP}")
         else:
             banner(f"""
             
@@ -578,9 +604,10 @@ class Bridge:
                 index = curr_config.index(iface)
                 try:
                     if 'static ip_address' not in curr_config[index + 1]:
-                        Console.warning("Missing static ip_address assignment. Overwriting line")
+                        Console.warning(
+                            "Missing static ip_address assignment. Overwriting line")
                     curr_config[index + 1] = static_ip
-                    
+
                 except IndexError:
                     Console.error('/etc/dhcpcd.conf ends abruptly. Aborting')
                     sys.exit(1)
@@ -589,10 +616,9 @@ class Bridge:
                 curr_config.append(iface)
                 curr_config.append(static_ip)
                 curr_config.append('nolink\n')
-                
+
             sudo_writefile('/etc/dhcpcd.conf', '\n'.join(curr_config))
             Console.ok('Successfully wrote to /etc/dhcpcd.conf')
-
 
     @classmethod
     def _set_ipv4(cls):
@@ -605,7 +631,7 @@ class Bridge:
         if cls.dryrun:
             Console.info("DRYRUN: Turning on iPv4")
         else:
-            new_line='net.ipv4.ip_forward=1'
+            new_line = 'net.ipv4.ip_forward=1'
 
             # First turn on ipv4 forwarding
             cls._system(f'sudo sysctl -w {new_line}')
@@ -618,15 +644,16 @@ class Bridge:
                 try:
                     old_conf[old_conf.index('#' + new_line)] = new_line
                 except ValueError:
-                    Console.warning("Could not find iPv4 setting. Perhaps /etc/sysctl.conf has been changed from default. Process continues by adding iPv4 setting")
+                    Console.warning(
+                        "Could not find iPv4 setting. Perhaps /etc/sysctl.conf has been changed from default. Process continues by adding iPv4 setting")
                     old_conf.append('net.ipv4.ip_forward=1')
                 except:
-                    Console.error("Could not set iPv4 forwarding. Unknown error occurred")
+                    Console.error(
+                        "Could not set iPv4 forwarding. Unknown error occurred")
                 finally:
                     sudo_writefile('/etc/sysctl.conf', '\n'.join(old_conf))
             else:
                 Console.info("iPv4 forwarding already set. Skipping iPv4 setup")
-
 
     @classmethod
     def _set_iptables(cls, flush=True):
@@ -660,18 +687,20 @@ class Bridge:
 
             # Restore rules if reboot
             old_conf = sudo_readfile('/etc/rc.local', trim=True)
-            
+
             # Exit 0 should be in the last entry of old_conf 
             # Add ip table restoration lines just above
             restore_command = "iptables-restore < /etc/iptables.ipv4.nat"
 
             if old_conf[-1] != 'exit 0':
-                Console.error('rc.local does not have exit 0 in last line. Contingency not handled in this version. Cannot enable iPv4 forwarding at this time')
+                Console.error(
+                    'rc.local does not have exit 0 in last line. Contingency not handled in this version. Cannot enable iPv4 forwarding at this time')
                 raise NotImplementedError
 
             if restore_command not in old_conf:
                 old_conf.append(restore_command)
-                old_conf[-1], old_conf[-2] = old_conf[-2], old_conf[-1] # Places 'exit 0' below our restore_command
+                old_conf[-1], old_conf[-2] = old_conf[-2], old_conf[
+                    -1]  # Places 'exit 0' below our restore_command
                 sudo_writefile('/etc/rc.local', '\n'.join(old_conf) + '\n')
 
             else:
@@ -689,8 +718,10 @@ class Bridge:
 
         if cls.dryrun:
             Console.info("Configuring worker info.")
-            Console.info(f"scp /etc/network/interfaces from {cls.master} to {user}@{worker}")
-            Console.info("Configure default gateway and DNS for {cls.priv_interface} on {user}@{worker}")
+            Console.info(
+                f"scp /etc/network/interfaces from {cls.master} to {user}@{worker}")
+            Console.info(
+                "Configure default gateway and DNS for {cls.priv_interface} on {user}@{worker}")
 
         else:
             # Get gateway and netmask for worker
@@ -702,13 +733,14 @@ class Bridge:
             for i in range(len(conf)):
                 if cls.priv_interface in conf[i]:
                     info = conf[i + 1].split()
-                    
+
             if info == None:
                 Console.error(f"Interface {cls.priv_interface} not found")
                 sys.exit(1)
-            
+
             elif info[0] != 'inet':
-                Console.error(f"Interface {cls.priv_interface} found, but there appears to be no iPv4 connection")
+                Console.error(
+                    f"Interface {cls.priv_interface} found, but there appears to be no iPv4 connection")
                 sys.exit(1)
 
             else:
@@ -722,7 +754,9 @@ class Bridge:
 
                 ignore_setting = '-o "StrictHostKeyChecking no"'
                 StopWatch.start(f'Talking to {user}@{worker}')
-                exit_code = cls._system(f'scp {ignore_setting} {user}@{worker}:/etc/network/interfaces {tmp}', exitcode=True)
+                exit_code = cls._system(
+                    f'scp {ignore_setting} {user}@{worker}:/etc/network/interfaces {tmp}',
+                    exitcode=True)
                 StopWatch.stop(f'Talking to {user}@{worker}')
                 StopWatch.status(f'Talking to {user}@{worker}', exit_code == 0)
 
@@ -736,9 +770,11 @@ class Bridge:
                 try:
                     ind = interfaces.index(f'auto {cls.priv_interface}')
                 except:
-                    Console.error(f"Could not find {cls.priv_interface} configuration in interfaces file")
+                    Console.error(
+                        f"Could not find {cls.priv_interface} configuration in interfaces file")
 
-                interface_config = [line.lstrip() for line in interfaces[ind: ind + 3]]
+                interface_config = [line.lstrip() for line in
+                                    interfaces[ind: ind + 3]]
                 interface_config.append(f'gateway {gateway}')
                 interface_config.append(f'netmask {netmask}')
                 dnss = " ".join(cls.dns) + "\n"
@@ -750,11 +786,13 @@ class Bridge:
                 # New config file now written on local machine. Move to worker in tmp directory
                 remote_cmd1 = 'mkdir -p ~/.cloudmesh/tmp'
                 remote_path = '~/.cloudmesh/tmp/interface.tmp'
-                cls._system(f'ssh {ignore_setting} {user}@{worker} {remote_cmd1}')
-                cls._system(f'scp {ignore_setting} {tmp} {user}@{worker}:{remote_path}')
+                cls._system(
+                    f'ssh {ignore_setting} {user}@{worker} {remote_cmd1}')
+                cls._system(
+                    f'scp {ignore_setting} {tmp} {user}@{worker}:{remote_path}')
                 remote_cmd2 = 'sudo cp ~/.cloudmesh/tmp/interface.tmp /etc/network/interfaces'
-                cls._system(f'ssh {ignore_setting} {user}@{worker} {remote_cmd2}')
-
+                cls._system(
+                    f'ssh {ignore_setting} {user}@{worker} {remote_cmd2}')
 
 # Tests
 # Bridge.create(master='red', workers=['red001'], priv_interface='eth0', ext_interface='wlan0', dryrun=True)

@@ -1,16 +1,14 @@
-from __future__ import print_function
-import sys
 import os
 import textwrap
 
+from cloudmesh.bridge.Bridge import Bridge
+from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import banner
-from cloudmesh.shell.command import PluginCommand 
+from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.common.console import Console
-from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.bridge.Bridge import Bridge
+
 
 class BridgeCommand(PluginCommand):
 
@@ -194,9 +192,11 @@ class BridgeCommand(PluginCommand):
             nohup = True if arguments.nohup else False
             if background:
                 if nohup:
-                    os.system('nohup cms bridge restart --nohup > bridge_restart.log 2>&1 &')
+                    os.system(
+                        'nohup cms bridge restart --nohup > bridge_restart.log 2>&1 &')
                 else:
-                    os.system('nohup cms bridge restart > brige_restart.log 2>&1 &')
+                    os.system(
+                        'nohup cms bridge restart > brige_restart.log 2>&1 &')
 
             else:
                 StopWatch.start('Network Service Restart')
