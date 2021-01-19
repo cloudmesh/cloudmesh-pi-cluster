@@ -83,7 +83,7 @@ class Hadoop:
 
         hostname = os.uname()[1]
         for command in script.splitlines():
-            print (hosts, "->", command)
+            print(hosts, "->", command)
             if command.startswith("#") or command.strip() == "":
                 pass
                 # print (command)
@@ -197,6 +197,7 @@ class Hadoop:
             self.hadoop_env(self)
             # self.run_script(name="source bashrc ", hosts=self.master) -
             # might need a line to do "source bashrc"
+
     #
     #     #
     #     # SETUP WORKER
@@ -298,7 +299,6 @@ class Hadoop:
     #     f.close()
     #     Installer.add_script("~/spark-setup-worker.sh", script)
 
-
     # def create_hadoop-bashrc.txt(self):
     #     """
     #     Test to add at bottome of ~/.bashrc.  File is created on master and copied to worker
@@ -331,5 +331,5 @@ class Hadoop:
         os.system("eval $(ssh-agent)")
         os.system("ssh-add")
 
- #   def install(self):
- #       raise NotImplementedError
+#   def install(self):
+#       raise NotImplementedError

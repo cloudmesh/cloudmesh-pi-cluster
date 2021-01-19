@@ -11,6 +11,7 @@ from cloudmesh.common.parameter import Parameter
 from matplotlib.animation import FuncAnimation
 from cloudmesh.common.debug import VERBOSE
 
+
 class Monitor:
 
     def __init__(self):
@@ -169,15 +170,15 @@ class Monitor:
                 for attribute in self.display:
                     if len(hosts) == 1:
                         axs.plot(series[host]['x'],
-                                      series[host][attribute],
-                                      color=self.color[attribute],
-                                      label=attribute)
+                                 series[host][attribute],
+                                 color=self.color[attribute],
+                                 label=attribute)
 
                     else:
                         axs[host_no].plot(series[host]['x'],
-                                      series[host][attribute],
-                                      color=self.color[attribute],
-                                      label=attribute)
+                                          series[host][attribute],
+                                          color=self.color[attribute],
+                                          label=attribute)
                 patches = []
                 for attribute in self.display:
                     patch = mpatches.Patch(color=self.color[attribute],
@@ -202,9 +203,7 @@ class Monitor:
             plt.tight_layout()
             plt.show()
 
-
         except KeyboardInterrupt:
             print()
             print("Terminating, please wait ...")
             print()
-

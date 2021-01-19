@@ -20,7 +20,8 @@ from cloudmesh.common.util import writefile, readfile
 
 class Bridge:
     """
-    A simple Bridge to connect workers to the internet through a port on the manager
+    A simple Bridge to connect workers to the internet through a port on the
+    manager
     """
 
     dryrun = False
@@ -44,8 +45,10 @@ class Bridge:
 
         :param master: expected to be a single string
         :param workers:
-        :param ext_interface: The external interface through which the manager connects to the internet
-        :param priv_interface: The private interface through which the manager and workers communicate
+        :param ext_interface: The external interface through which the manager
+                              connects to the internet
+        :param priv_interface: The private interface through which the manager
+                               and workers communicate
         :param dryrun:
         :return:
         """
@@ -123,7 +126,8 @@ class Bridge:
         else:
             if not Path('/etc/dnsmasq.conf').is_file():
                 Console.error(
-                    'This Pi is not configured as a bridge yet. See "cms bridge create" ')
+                    'This Pi is not configured as a bridge yet. '
+                    'See "cms bridge create" ')
                 sys.exit(1)
 
             elif len(workers) != len(addresses):

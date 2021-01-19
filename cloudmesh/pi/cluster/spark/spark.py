@@ -11,6 +11,7 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import banner
 from cloudmesh.common.JobSet import JobSet
 
+
 class Spark:
 
     def execute(self, arguments):
@@ -28,9 +29,9 @@ class Spark:
         self.master = arguments.master
         self.workers = Parameter.expand(arguments.workers)
 
-        master =[]
+        master = []
         hosts = []
-        workers_only =[]
+        workers_only = []
         if arguments.master:
             hosts.append(arguments.master)
             master = arguments.master
@@ -46,7 +47,7 @@ class Spark:
 
         if arguments.setup:
 
-            self.setup(master,workers_only)
+            self.setup(master, workers_only)
 
         elif arguments.start:
 
@@ -59,7 +60,7 @@ class Spark:
         elif arguments.test:
 
             self.test(master)
-            #self.run_script(name="spark.test", hosts=self.master)
+            # self.run_script(name="spark.test", hosts=self.master)
 
         elif arguments.check:
 
@@ -101,13 +102,14 @@ class Spark:
 
         hostname = os.uname()[1]
         for command in script.splitlines():
-            if hosts == None:
+            if hosts is None:
                 hosts = ""
             if command.startswith("#") or command.strip() == "":
                 print(command)
             elif len(hosts) == 1 and hosts[0] == self.hostname:
                 host = hosts[0]
-                command = command.format(user=self.user, version=self.version, host=host, hostname=hostname)
+                command = command.format(user=self.user, version=self.version,
+                                         host=host, hostname=hostname)
                 print(hosts, "->", command)
                 if self.dryrun:
                     Console.info(f"Executiong command >{command}<")
@@ -115,7 +117,8 @@ class Spark:
                     os.system(command)
             elif len(hosts) == 1 and hosts[0] != self.hostname:
                 host = hosts[0]
-                command = command.format(user=self.user, version=self.version, host=host, hostname=hostname)
+                command = command.format(user=self.user, version=self.version,
+                                         host=host, hostname=hostname)
                 print(hosts, "->", command, hosts)
                 if self.dryrun:
                     Console.info(f"Executiong command >{command}<")
@@ -123,8 +126,8 @@ class Spark:
                     os.system(f"ssh {host} {command}")
             else:
 
-                #@staticmethod
-                #def run(hosts=None,
+                # @staticmethod
+                # def run(hosts=None,
                 #        command=None,
                 #        execute=None,
                 #        processors=3,
@@ -142,8 +145,10 @@ class Spark:
                                   key="~/.ssh/id_rsa.pub",
                                   processors=processors,
                                   executor=executor,
-                                  version=self.version, # this was your bug, you did not pass this along
-                                  user=self.user  # this was your bug, you did not pass this along
+                                  version=self.version,
+                                  # this was your bug, you did not pass this along
+                                  user=self.user
+                                  # this was your bug, you did not pass this along
                                   )
                 results.append(result)
         if verbose:
@@ -241,7 +246,7 @@ class Spark:
         banner(name)
         results = self.run(script=self.script[name], hosts=hosts, verbose=True)
 
-    def setup(self,master,hosts):
+    def setup(self, master, hosts):
         #
         # SETUP MASTER
         #
@@ -278,9 +283,10 @@ class Spark:
                 self.update_slaves(host)
             banner("Updating workers in parallel")
             jobSet.run(parallel=len(hosts))
-            #jobSet.Print()
+            # jobSet.Print()
             banner("Spark setup complete")
         return
+
     #    #raise NotImplementedError
     #
     #     # Setup Pi workflow
@@ -301,7 +307,7 @@ class Spark:
     #     # Update slaves file on master
     #       function update_slaves(self)
 
-    def test(self,master):
+    def test(self, master):
         if self.master:
             banner("Master Pi password needed TWICE - for start and stop")
             self.run_script(name="spark.test", hosts=master)
@@ -309,14 +315,13 @@ class Spark:
             banner("cms pi spark test intended for master only")
         return
 
-    def update_slaves(self,hosts):
+    def update_slaves(self, hosts):
         banner("Updating $SPARK_HOME/conf/slaves file")
         command5 = f"echo 'pi@{hosts}' >> ~/spark-2.4.5-bin-hadoop2.7/conf/slaves "
         print(command5)
         os.system(command5)
 
-
-    def uninstall(self,master,hosts):
+    def uninstall(self, master, hosts):
         #
         # Uninstall MASTER
         #
@@ -333,6 +338,6 @@ class Spark:
             for host in hosts:
                 jobSet.add({"name": host, "host": host, "command": command7})
             jobSet.run(parallel=len(hosts))
-            #jobSet.Print()
+            # jobSet.Print()
             banner("Successfully uninstalled workers")
         return

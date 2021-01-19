@@ -23,8 +23,9 @@ class Load(Monitor):
         entry['5'], \
         entry['10'], \
         procs, \
-        entry['last.pid']  = entry["stdout"].split()
-        entry['proc.running'], entry['proc.total'] = [int(x) for x in procs.split("/")]
-        for a in '1','5', '10':
+        entry['last.pid'] = entry["stdout"].split()
+        entry['proc.running'], entry['proc.total'] = [int(x) for x in
+                                                      procs.split("/")]
+        for a in '1', '5', '10':
             entry[a] = float(entry[a])
         return entry

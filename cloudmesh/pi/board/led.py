@@ -27,7 +27,6 @@ high to turn it off.
 """
 
 
-
 class LED:
     """
     Implements:
@@ -75,7 +74,6 @@ class LED:
                 username=arguments.user,
                 rate=arguments.RATE,
                 processors=3)
-
 
             self.Print_leds(arguments, results)
 
@@ -148,9 +146,9 @@ class LED:
 
     @staticmethod
     def reset_remote(
-        hosts=None,
-        username=None,
-        processors=3):
+            hosts=None,
+            username=None,
+            processors=3):
 
         command = f"echo mmc0 >/sys/class/leds/led0/trigger"
         result = Host.ssh(hosts=hosts,
@@ -184,11 +182,11 @@ class LED:
 
     @staticmethod
     def set_remote(
-        led=None,
-        value=1,
-        hosts=None,
-        username=None,
-        processors=3):
+            led=None,
+            value=1,
+            hosts=None,
+            username=None,
+            processors=3):
 
         if led not in [1, 0]:
             raise ValueError("Led number is wrong")
@@ -198,7 +196,7 @@ class LED:
         command = f"echo {state} |" \
                   f" sudo tee /sys/class/leds/led{led}/brightness" \
                   f" >> /dev/null"
-        print ("command", command)
+        print("command", command)
         result = Host.ssh(hosts=hosts,
                           command=command,
                           username=username,
@@ -209,11 +207,11 @@ class LED:
 
     @staticmethod
     def blink_remote(
-        led=None,
-        hosts=None,
-        username=None,
-        rate=None,
-        processors=3):
+            led=None,
+            hosts=None,
+            username=None,
+            rate=None,
+            processors=3):
 
         if led not in [1, 0]:
             raise ValueError("Led number is wrong")
@@ -244,11 +242,11 @@ class LED:
 
     @staticmethod
     def sequence_remote(
-        led=None,
-        hosts=None,
-        username=None,
-        rate=None,
-        processors=3):
+            led=None,
+            hosts=None,
+            username=None,
+            rate=None,
+            processors=3):
 
         if led not in [1, 0]:
             raise ValueError("Led number is wrong")
@@ -278,9 +276,9 @@ class LED:
 
     @staticmethod
     def list_remote(
-        hosts=None,
-        username=None,
-        processors=3):
+            hosts=None,
+            username=None,
+            processors=3):
 
         command = f"cat" \
                   " /sys/class/leds/led0/brightness" \

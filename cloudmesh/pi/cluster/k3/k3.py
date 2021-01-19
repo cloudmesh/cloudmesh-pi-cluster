@@ -25,6 +25,7 @@ from pprint import pprint
 import textwrap
 from cloudmesh.common.Tabulate import Printer
 
+
 class Installer:
 
     @staticmethod
@@ -48,7 +49,7 @@ class Installer:
 
     @staticmethod
     def oneline(msg):
-        return msg.replace("\n", "").replace ("  ", " ")
+        return msg.replace("\n", "").replace("  ", " ")
 
     @staticmethod
     def get_master_ip_address(ifname):
@@ -59,8 +60,8 @@ class Installer:
             struct.pack('256s', ifname[:15].encode('utf-8'))
         )[20:24])
 
-class K3(Installer):
 
+class K3(Installer):
 
     def __init__(self):
         self.port = 6443
@@ -132,7 +133,8 @@ class K3(Installer):
                 command = "scp {0} pi@{1}:~/".format(source, host)
                 os.system(command)
 
-            # Check if workers already have line and if not, append to /boot/cmdline.txt
+            # Check if workers already have line and if not,
+            # append to /boot/cmdline.txt
             tmp_cmdline = "~/cmdline.txt"
             command = f"""
                 if grep -q "{line}" '/boot/cmdline.txt'
@@ -144,11 +146,12 @@ class K3(Installer):
                   sudo cp {tmp_cmdline} {filename}; rm {tmp_cmdline} {source};
                 fi"""
 
-            jobSet = JobSet("kubernetes_worker_enable_containers", executor=JobSet.ssh)
+            jobSet = JobSet("kubernetes_worker_enable_containers",
+                            executor=JobSet.ssh)
             for host in hosts:
                 jobSet.add({"name": host, "host": host, "command": command})
             jobSet.run()
-            #jobSet.Print()
+            # jobSet.Print()
 
             # Delete tmp file on master
             command = f"rm {source}"
@@ -179,13 +182,13 @@ class K3(Installer):
             curl -sfL https://get.k3s.io | sh -
             """)
             jobSet = JobSet("kubernetes_master_install", executor=JobSet.ssh)
-            jobSet.add({"name": self.hostname, "host": master[0], "command": command})
+            jobSet.add(
+                {"name": self.hostname, "host": master[0], "command": command})
             jobSet.run()
             result_stdout = jobSet.array()[0]['stdout'].decode('UTF-8')
             if "No change detected" in result_stdout:
                 print()
                 Console.info("Service already running")
-
 
         # Setup workers and join to cluster
         #
@@ -195,8 +198,10 @@ class K3(Installer):
             if master is not None:
                 banner(f"Get Join Token From {master[0]}")
                 command = "sudo cat /var/lib/rancher/k3s/server/node-token"
-                jobSet = JobSet("kubernetes_token_retrieval", executor=JobSet.ssh)
-                jobSet.add({"name": master[0], "host": master[0], "command": command})
+                jobSet = JobSet("kubernetes_token_retrieval",
+                                executor=JobSet.ssh)
+                jobSet.add(
+                    {"name": master[0], "host": master[0], "command": command})
                 jobSet.run()
                 token = jobSet.array()[0]['stdout'].decode('UTF-8')
 
@@ -205,16 +210,20 @@ class K3(Installer):
                 banner(f"Setup Workers: {workers}")
 
                 command = "curl -sfL http://get.k3s.io | sh -"
-                #worker_install = Host.ssh(hosts=hosts, command=command, executor=os.system)
+                # worker_install = Host.ssh(hosts=hosts,
+                #                           command=command,
+                #                           executor=os.system)
 
-                jobSet = JobSet("kubernetes_worker_install", executor=JobSet.ssh)
+                jobSet = JobSet("kubernetes_worker_install",
+                                executor=JobSet.ssh)
                 for host in hosts:
                     jobSet.add({"name": host, "host": host, "command": command})
                 jobSet.run(parallel=len(hosts))
                 jobSet.Print()
 
                 # Join workers to master's cluster
-                # TODO - Currently get ip address from eth0 instead of using hostname
+                # TODO - Currently get ip address from eth0 instead of using
+                #        hostname
                 # because worker does not know master's host name
                 ip = self.get_master_ip_address('eth0')
 
@@ -229,11 +238,11 @@ class K3(Installer):
                 jobSet.run(parallel=len(hosts))
                 jobSet.Print()
             else:
-                Console.warning("You must have the master parameter set to burn workers")
+                Console.warning(
+                    "You must have the master parameter set to burn workers")
 
         # Print created cluster
         self.view()
-
 
     def join(self, master=None, hosts=None):
         if hosts is not None and master is not None:
@@ -244,7 +253,8 @@ class K3(Installer):
             jobSet.run()
             token = jobSet.array()[0]['stdout'].decode('UTF-8')
 
-            # TODO - Currently get ip address from eth0 instead of using hostname
+            # TODO - Currently get ip address from eth0 instead of using
+            #        hostname
             # because worker does not know master's host name
             ip = self.get_master_ip_address('eth0')
 
@@ -259,7 +269,6 @@ class K3(Installer):
             jobSet.Print()
 
             self.view()
-
 
     def uninstall(self, master=None, hosts=None):
         # Uninstall master
@@ -276,7 +285,7 @@ class K3(Installer):
         if hosts is not None:
             workers = ', '.join(hosts)
             banner(f"Uninstalling Workers: {workers}")
-            #command = "/usr/local/bin/k3s-agent-uninstall.sh"
+            # command = "/usr/local/bin/k3s-agent-uninstall.sh"
             command = "/usr/local/bin/k3s-uninstall.sh"
             jobSet = JobSet("kubernetes_worker_uninstall", executor=JobSet.ssh)
 
@@ -287,21 +296,22 @@ class K3(Installer):
             jobSet.Print()
 
             self.delete(hosts=hosts)
-            #print("Workers:", Printer.write(jobSet.array(),
-            #        order=["name", "command", "status", "stdout", "returncode"]))
-
+            # print("Workers:", Printer.write(jobSet.array(),
+            #        order=["name", "command", "status", "stdout",
+            #               "returncode"]))
 
     def delete(self, master=None, hosts=None):
         # Delete master node
         # TODO - k3s does not allow you to delete it's parent node
-        #if master is not None:
+        # if master is not None:
         #    banner(f"Deleting Master Node: {master}")
         #
         #    command = Installer.oneline(f"""
         #                sudo kubectl delete {master}
         #    """)
         #    jobSet = JobSet("kubernetes_master_delete", executor=JobSet.ssh)
-        #    jobSet.add({"name": self.hostname, "host": master, "command": command})
+        #    jobSet.add({"name": self.hostname, "host": master,
+        #                "command": command})
         #    jobSet.run()
 
         # Uninstall workers
@@ -315,17 +325,18 @@ class K3(Installer):
                 sudo kubectl drain {host} --ignore-daemonsets --delete-local-data; 
                 sudo kubectl delete node {host}
                 """)
-                jobSet.add({"name": self.hostname, "host": self.hostname, "command": command})
+                jobSet.add({"name": self.hostname, "host": self.hostname,
+                            "command": command})
             jobSet.run(parallel=len(hosts))
             print("Workers:", Printer.write(jobSet.array(),
-                    order=["name", "command", "status", "stdout", "returncode"]))
-
+                                            order=["name", "command", "status",
+                                                   "stdout", "returncode"]))
 
     def test(self, master=None, hosts=None):
         print("Test not yet implemented")
-        # TODO - Check for software that is installed or can be installed to run a test
+        # TODO - Check for software that is installed or can be installed
+        #        to run a test
         # on the cluster
-
 
     def view(self):
         os.system("sudo kubectl get node -o wide")

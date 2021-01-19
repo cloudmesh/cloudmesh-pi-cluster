@@ -35,8 +35,7 @@ class Script(dict):
             return service
 
         if arguments.list and arguments.SERVICE and arguments.NAMES:
-
-            print (arguments.NAMES)
+            print(arguments.NAMES)
 
         if arguments.list and arguments.SERVICE:
 
@@ -49,14 +48,14 @@ class Script(dict):
             print()
             if not arguments.details:
                 for script in service.script:
-                    print ("    *", script)
+                    print("    *", script)
                 print()
             else:
                 for name in service.script:
-                    banner (name)
+                    banner(name)
                     print(service.script[name].strip())
                 print()
-                print ("details")
+                print("details")
 
         elif arguments.list:
 
@@ -64,22 +63,22 @@ class Script(dict):
             print(f"Deployment Services")
             print()
 
-            directory =  os.path.dirname(cloudmesh.pi.cluster.__file__)
+            directory = os.path.dirname(cloudmesh.pi.cluster.__file__)
             entries = glob.glob(f"{directory}/*")
             for entry in entries:
                 if os.path.isdir(entry):
                     entry = os.path.basename(entry)
                     if not entry.startswith("_"):
-                        print ("   *", entry)
+                        print("   *", entry)
 
             print()
 
-class Installer:
 
+class Installer:
 
     @staticmethod
     def comment(label, allign=None):
-        if allign =='top':
+        if allign == 'top':
             script = textwrap.dedent("""
 
                 # ################################################
@@ -102,7 +101,6 @@ class Installer:
 
         return script
 
-
     @staticmethod
     def add_line(script, line):
         """
@@ -113,18 +111,17 @@ class Installer:
         :return:
         """
         if line.startswith("#") or \
-           line == "\n" or \
-           line not in script:
-           script += line + "\n"
+                line == "\n" or \
+                line not in script:
+            script += line + "\n"
         return script
 
     @staticmethod
     def add_script(filename, script):
         """
-
-        adds all the lines of the script to the filename, if the line of the script
-        does not already exist. It is useful to add lines to for example the .bashrc
-        script
+        adds all the lines of the script to the filename, if the line of
+        the script does not already exist. It is useful to add lines to for
+        example the .bashrc script
 
         :param filename:
         :param script:
@@ -132,7 +129,6 @@ class Installer:
         """
         script = readfile(filename)
         for line in script:
-           script = Installer.add_line(script, line)
+            script = Installer.add_line(script, line)
 
-        writefile (filename, script)
-
+        writefile(filename, script)
