@@ -159,12 +159,17 @@ class BridgeCommand(PluginCommand):
         elif arguments.create:
             StopWatch.start('Bridge Creation')
 
-            Bridge.create(masterIP=arguments.ip, ip_range=arguments.range.split("-"), priv_interface='eth0', ext_interface=arguments.interface, purge=True if arguments.purge else False)
+            Bridge.create(masterIP=arguments.ip,
+                          ip_range=arguments.range.split("-"),
+                          priv_interface='eth0',
+                          ext_interface=arguments.interface,
+                          purge=True if arguments.purge else False)
 
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
             banner(textwrap.dedent(f"""
-            You have now configured a bridge on your master pi. To see the changes reflected, run the following command:
+            You have now configured a bridge on your master pi. 
+            To see the changes reflected, run the following command:
 
             cms bridge restart 
 
