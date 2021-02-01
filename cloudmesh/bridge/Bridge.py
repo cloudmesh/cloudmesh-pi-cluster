@@ -69,27 +69,27 @@ class Bridge:
         StopWatch.stop('dhcpcd.conf configuration')
         StopWatch.status('dhcpcd.conf configuration', True)
 
-        if purge:
-            # Uninstall dnsmasq and all files
-            StopWatch.start('dnsmasq purge')
-            cls._purge_dnsmasq()
-            StopWatch.start('dnsmasq purge')
-            StopWatch.status('dnsmasq purge', True)
+        # if purge:
+        #     # Uninstall dnsmasq and all files
+        #     StopWatch.start('dnsmasq purge')
+        #     cls._purge_dnsmasq()
+        #     StopWatch.start('dnsmasq purge')
+        #     StopWatch.status('dnsmasq purge', True)
 
         # Install dnsmasq if it is not already installed
-        if not cls._dnsmasq_exists():
-            StopWatch.start('dnsmasq installation')
-            cls._install_dnsmasq()
-            StopWatch.stop('dnsmasq installation')
-            StopWatch.status('dnsmasq installation', True)
-        else:
-            Console.info("dnsmasq already installed. Skipping installation")
+        # if not cls._dnsmasq_exists():
+        #     StopWatch.start('dnsmasq installation')
+        #     cls._install_dnsmasq()
+        #     StopWatch.stop('dnsmasq installation')
+        #     StopWatch.status('dnsmasq installation', True)
+        # else:
+        #     Console.info("dnsmasq already installed. Skipping installation")
 
-        # Configure dnsmasq
-        StopWatch.start('dnsmasq config')
-        cls._config_dnsmasq()
-        StopWatch.stop('dnsmasq config')
-        StopWatch.status('dnsmasq config', True)
+        # # Configure dnsmasq
+        # StopWatch.start('dnsmasq config')
+        # cls._config_dnsmasq()
+        # StopWatch.stop('dnsmasq config')
+        # StopWatch.status('dnsmasq config', True)
 
         # iPv4 forwarding
         StopWatch.start('Enable iPv4 forwarding')
@@ -474,26 +474,10 @@ class Bridge:
         """)
 
         banner(f"""
-        Successfuly configured a dhcp server on the hostname {cls.master}
+        Successfuly configured an internet bridge on this pi. Please reboot for changes to take effect.
         Details:
-          * IP range of connected devices is {cls.ip_range[0]} - {cls.ip_range[1]}. 
+          * This bridge will allow devices with ip in the {cls.masterIP}/24 range to connect to the internet through this pi
           * Manager Pi has ip {cls.masterIP} on interface {cls.priv_interface}
-
-        Before connecting to devices, run:
-
-        $ cms bridge restart
-
-        to see the changes reflected. 
-        NOTE: If you are logged in via ssh, you may be logged out by the above command
-
-        To assign a worker a static IP in the IP range above, run
-
-        $ cms bridge set NAMES ADDRESSES
-
-        Example:
-        
-        $ cms bridge set red[002-003] 10.1.1.[2-3]
-
         """, color='CYAN')
 
         cls._system('sudo mkdir -p ~/.cloudmesh/bridge')
