@@ -16,32 +16,8 @@ class BridgeCommand(PluginCommand):
     @command
     def do_bridge(self, args, arguments):
         """
-        ::
-
           Usage:
-            bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
-            bridge set HOSTS ADDRESSES 
-            bridge restart [--nohup] [--background]
-            bridge status
-            bridge test HOSTS [--rate=RATE]
-            bridge list NAMES
-            bridge check NAMES [--configuration] [--connection]
-            bridge info
-
-          Arguments:
-              HOSTS        Hostnames of connected devices. 
-                           Ex. red002
-                           Ex. red[002-003]
-              
-              ADDRESSES    IP addresses to assign to HOSTS. Addresses
-                           should be in the network range configured.
-                           Ex. 10.1.1.2
-                           Ex. 10.1.1.[2-3]
-
-              NAMES        A parameterized list of hosts. The first hostname 
-                           in the list is the master through which the traffic 
-                           is routed. Example:
-                           blue,blue[002-003]
+            bridge create [--interface=INTERFACE]
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
@@ -49,74 +25,14 @@ class BridgeCommand(PluginCommand):
                                      to bridge through WIFI on the master
                                      eth0 requires a USB to WIFI adapter
 
-              --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
-                                     assign the master on the
-                                     interface. Ex. 10.1.1.1
-
-              --range=IPRANGE        The inclusive range of IPs that can be
-                                     assigned to connecting devices. Value
-                                     should be a comma separated tuple of the
-                                     two range bounds. Should not include the
-                                     ip of the master Ex. 10.1.1.2-10.1.1.20
-                                     [default: 10.1.1.2-10.1.1.122]
-              
-              --workers=WORKERS      The parametrized hostnames of workers
-                                     attatched to the bridge.
-                                     Ex. red002
-                                     Ex. red[002-003]
-
-              --purge                Include option if a full reinstallation of
-                                     dnsmasq is desired
-
-              --background           Runs the restart command in the background.
-                                     stdout to bridge_restart.log
-
-              --nohup                Restarts only the dnsmasq portion of the
-                                     bridge. This is done to surely prevent
-                                     SIGHUP if using ssh.
-
-              --rate=RATE            The rate in seconds for repeating the test
-                                     If ommitted its done just once.
-
           Description:
 
             Command used to set up a bride so that all nodes route the traffic
             trough the master PI.
 
-            bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
-                creates the bridge on the current device
-                The create command does not restart the network.
-
-            bridge set HOSTS ADDRESSES 
-                the set command assigns the given static 
-                ip addresses to the given hostnames.
-
-            bridge status
-                Returns the status of the bridge and its linked services.
-
-            bridge restart [--nohup]
-                restarts the bridge on the master without rebooting. 
-
-            bridge test NAMES
-                A test to see if the bridges are configured correctly and one
-                hase internet access on teh specified hosts.
-
-            bridge list NAMES
-                Lists information about the bridges (may not be needed)
-
-            bridge check NAMES [--config] [--connection]
-                provides information about the network configuration
-                and netwokrk access. Thisis not a comprehensive speedtest
-                for which we use test.
-
-            bridge info
-                prints relevant information about the configured bridge
-
-
-          Design Changes:
-            We still may need the master to be part of other commands in case
-            for example the check is different for master and worker
-
+            bridge create [--interface=INTERFACE]
+                creates the bridge on the current device.
+                A reboot is required.
         """
 
         map_parameters(arguments,
