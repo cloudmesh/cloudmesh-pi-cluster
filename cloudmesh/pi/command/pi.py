@@ -32,23 +32,6 @@ class PiCommand(PluginCommand):
             pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
             pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
             pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-            pi hadoop setup [--master=MASTER] [--workers=WORKERS]
-            pi hadoop start [--master=MASTER] [--workers=WORKERS]
-            pi hadoop stop [--master=MASTER] [--workers=WORKERS]
-            pi hadoop test [--master=MASTER] [--workers=WORKERS]
-            pi hadoop check [--master=MASTER] [--workers=WORKERS]
-            pi spark setup [--master=MASTER] [--workers=WORKERS]
-            pi spark start --master=MASTER
-            pi spark stop --master=MASTER
-            pi spark test --master=MASTER
-            pi spark check [--master=MASTER] [--workers=WORKERS]
-            pi spark uninstall --master=MASTER [--workers=WORKERS]
-            pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
-            pi k3 join --master=MASTER --workers=WORKERS
-            pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
-            pi k3 delete [--master=MASTER] [--workers=WORKERS]
-            pi k3 test [--master=MASTER] [--workers=WORKERS]
-            pi k3 view
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
