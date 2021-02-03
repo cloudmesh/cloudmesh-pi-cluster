@@ -108,22 +108,6 @@ class PiCommand(PluginCommand):
             led = LED()
             led.execute(arguments)
 
-        elif arguments.spark:
-
-            from cloudmesh.pi.cluster.spark.spark import Spark
-            spark = Spark()
-            spark.execute(arguments)
-
-        elif arguments.hadoop:
-            from cloudmesh.pi.cluster.hadoop.hadoop import Hadoop
-            hadoop = Hadoop()
-            hadoop.execute(arguments)
-
-        elif arguments.k3:
-            from cloudmesh.pi.cluster.k3.k3 import K3
-            k3 = K3()
-            k3.execute(arguments)
-
         elif arguments.script:
 
             script = Script()
