@@ -1,13 +1,11 @@
-import sys
-import subprocess
-import os
 import re
-import time
+import sys
 import textwrap
+import time
 from pathlib import Path
+
 # Functions in utils should be moved to cloudmesh.common
 from cloudmesh.bridge.utils import *
-
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
