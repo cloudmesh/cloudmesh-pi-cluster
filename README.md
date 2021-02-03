@@ -524,17 +524,17 @@ Design Changes:
 
 ### Versions
 
-`prebranch` -- this is the code prior to us creating branches for
-kubernetes, and map reduce.  map reduce contains spak and
-hadoop. However as these efforts wer just starting, they may confuse
-others. Thus it was important to separate them so we have a clear
-distinction betwen production and development.
+* `prebranch` -- this is the code prior to us creating branches for
+  kubernetes, and map reduce.  map reduce contains spak and
+  hadoop. However as these efforts wer just starting, they may confuse
+  others. Thus it was important to separate them so we have a clear
+  distinction betwen production and development.
 
-`02-03-2021` -- This is a branch done after prebranch, where all
-experimental code has been removed and placed into its seperate
-branches. The removal includes kubernetes, mongo, spark, hadoop. proxy
-and sdcard contained some documentation, that was moved to
-README-proxy.md and benchmar/sdcard-benchmark.md
+* `02-03-2021` -- This is a branch done after prebranch, where all
+  experimental code has been removed and placed into its seperate
+  branches. The removal includes kubernetes, mongo, spark,
+  hadoop. proxy and sdcard contained some documentation, that was
+  moved to README-proxy.md and benchmar/sdcard-benchmark.md
 
 ### Branches
 
