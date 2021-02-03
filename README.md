@@ -535,6 +535,7 @@ important to separate them so we have a clear distinction betwen production and 
 * mapreduce: a branch in which we coordinate hadoop and spark deployments. There is a temprrary solution in her, 
   but we have not tested is and I woudl consider the status as pre alphs. It needs t o be redone.
 * with-dhcp-server: Some intermediate development
+* mongo: distributed deployment of mongo. This branch is essentially empty. We may delete it due to inactivity.
 
 
 
