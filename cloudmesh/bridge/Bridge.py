@@ -347,7 +347,8 @@ class Bridge:
 
         try:
             curr_leases = sudo_readfile('/var/lib/misc/dnsmasq.leases')
-            # If cur_leases is not empty, then the first element of each row is the epoch time of the lease expiration date
+            # If cur_leases is not empty, then the first element of each row is the epoch time of
+            # the lease expiration date
             for i in range(len(curr_leases)):
                 curr_leases[i] = curr_leases[i].split()
                 curr_leases[i][0] = time.strftime('%Y-%m-%d %H:%M:%S',
@@ -473,9 +474,12 @@ class Bridge:
         """)
 
         banner(f"""
-        Successfuly configured an internet bridge on this pi. Please reboot for changes to take effect.
+        Successfuly configured an internet bridge on this pi. Please reboot 
+        for changes to take effect.
+        
         Details:
-          * This bridge will allow devices with ip in the {cls.masterIP}/24 range to connect to the internet through this pi
+          * This bridge will allow devices with ip in the {cls.masterIP}/24 
+            range to connect to the internet through this pi
           * Manager Pi has ip {cls.masterIP} on interface {cls.priv_interface}
         """, color='CYAN')
 
