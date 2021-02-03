@@ -39,10 +39,6 @@ humanize
 md_toc
 """.split("\n")
 
-# seaborn
-
-# dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
-
 version = readfile("VERSION")[0].strip()
 
 with open('README.md') as f:
