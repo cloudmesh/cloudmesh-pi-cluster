@@ -1,9 +1,0 @@
-#JAVA_HOME
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf
-export PATH=$PATH:$JAVA_HOME/bin
-#SCALA_HOME
-export SCALA_HOME=/usr/share/scala
-export PATH=$PATH:$SCALA_HOME/bin
-#SPARK_HOME
-export SPARK_HOME=~/spark-2.4.5-bin-hadoop2.7
-export PATH=$PATH:$SPARK_HOME/bin

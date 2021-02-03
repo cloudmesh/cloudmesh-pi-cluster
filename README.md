@@ -38,9 +38,9 @@ This README is managed in
 
 ## About
 
-This document describes how to set up a variety of cluster platforms on
-a number of Raspberry Pi's. We used Pi3B+ and Pi4 with 32 GB SD cards.
-You will ideally want to have a minimum of 3 Pi's.
+This document describes how to set up a variety of cluster platforms
+on a number of Raspberry Pi's. We used Pi3B+ and Pi4 with 32 GB SD
+cards.  You will ideally want to have a minimum of 3 Pi's.
 
 In addition to this document, we have additional we have separate
 documents that showcase how to convert your cluster into a
@@ -57,8 +57,8 @@ documents that showcase how to convert your cluster into a
 We have chosen not to use network booting, but boot from the SD Cards.
 For this, we use our unique `burn` program to burn the Pi's. This
 allows you to immediately start with an OS that has all the needed
-information on it. However, we need one master py that we
-configure with the pi imager.
+information on it. However, we need one master py that we configure
+with the pi imager.
 
 TODO: point to the documentation
 
@@ -414,6 +414,7 @@ Description:
 
 
 
+
 ### Bridge Command
 
 <!--MANUAL-BRIDGE-->
@@ -448,24 +449,31 @@ Options:
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
-    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to assign the master on the
+    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
+                           assign the master on the
                            interface. Ex. 10.1.1.1
 
-    --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.122] that can be assigned 
-                           to connecting devices. Value should be a comma
-                           separated tuple of the two range bounds. Should
-                           not include the ip of the master
-                           Ex. 10.1.1.2-10.1.1.20
+    --range=IPRANGE        The inclusive range of IPs that can be
+                           assigned to connecting devices. Value
+                           should be a comma separated tuple of the
+                           two range bounds. Should not include the
+                           ip of the master Ex. 10.1.1.2-10.1.1.20
+                           [default: 10.1.1.2-10.1.1.122]
 
-    --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
+    --workers=WORKERS      The parametrized hostnames of workers
+                           attatched to the bridge.
                            Ex. red002
                            Ex. red[002-003]
 
-    --purge       Include option if a full reinstallation of dnsmasq is desired
+    --purge                Include option if a full reinstallation of
+                           dnsmasq is desired
 
-    --background    Runs the restart command in the background. stdout to bridge_restart.log
+    --background           Runs the restart command in the background.
+                           stdout to bridge_restart.log
 
-    --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
+    --nohup                Restarts only the dnsmasq portion of the
+                           bridge. This is done to surely prevent
+                           SIGHUP if using ssh.
 
     --rate=RATE            The rate in seconds for repeating the test
                            If ommitted its done just once.
@@ -512,8 +520,41 @@ Design Changes:
 ```
 <!--MANUAL-BRIDGE-->
 
+## History
 
+### Versions
 
+* `prebranch` -- this is the code prior to us creating branches for
+  kubernetes, and map reduce.  map reduce contains spak and
+  hadoop. However as these efforts wer just starting, they may confuse
+  others. Thus it was important to separate them so we have a clear
+  distinction betwen production and development.
+
+* `02-03-2021` -- This is a branch done after prebranch, where all
+  experimental code has been removed and placed into its seperate
+  branches. The removal includes kubernetes, mongo, spark,
+  hadoop. proxy and sdcard contained some documentation, that was
+  moved to README-proxy.md and benchmar/sdcard-benchmark.md
+
+### Branches
+
+* main: our main branch for production releases
+
+* dev: a general branch that is used prior to the production release
+  with active fixes
+
+* kubernetes: a branch in which we coordinate the implemnetation of
+  easy kubernetes deplyments
+
+* mapreduce: a branch in which we coordinate hadoop and spark
+  deployments. There is a temprrary solution in her, but we have not
+  tested is and I woudl consider the status as pre alphs. It needs t o
+  be redone.
+
+* with-dhcp-server: Some intermediate development
+
+* mongo: distributed deployment of mongo. This branch is essentially
+  empty. We may delete it due to inactivity.
 
 
 
