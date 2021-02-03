@@ -38,9 +38,9 @@ This README is managed in
 
 ## About
 
-This document describes how to set up a variety of cluster platforms on
-a number of Raspberry Pi's. We used Pi3B+ and Pi4 with 32 GB SD cards.
-You will ideally want to have a minimum of 3 Pi's.
+This document describes how to set up a variety of cluster platforms
+on a number of Raspberry Pi's. We used Pi3B+ and Pi4 with 32 GB SD
+cards.  You will ideally want to have a minimum of 3 Pi's.
 
 In addition to this document, we have additional we have separate
 documents that showcase how to convert your cluster into a
@@ -57,8 +57,8 @@ documents that showcase how to convert your cluster into a
 We have chosen not to use network booting, but boot from the SD Cards.
 For this, we use our unique `burn` program to burn the Pi's. This
 allows you to immediately start with an OS that has all the needed
-information on it. However, we need one master py that we
-configure with the pi imager.
+information on it. However, we need one master py that we configure
+with the pi imager.
 
 TODO: point to the documentation
 
@@ -524,23 +524,37 @@ Design Changes:
 
 ### Versions
 
-`prebranch` -- this is the code prior to us creating branches for kubernetes, and map reduce. 
-map reduce contains spak and hadoop. However as these efforts wer just starting, they may confuse others. Thus it was 
-important to separate them so we have a clear distinction betwen production and development.
+`prebranch` -- this is the code prior to us creating branches for
+kubernetes, and map reduce.  map reduce contains spak and
+hadoop. However as these efforts wer just starting, they may confuse
+others. Thus it was important to separate them so we have a clear
+distinction betwen production and development.
 
-`02-03-2021` -- This is a branch done after prebranch, where all experimental code has been removed and placed into its 
-seperate branches. The removal includes kubernetes, mongo, spark, hadoop. proxy and sdcard contained some documentation, 
-that was moved to README-proxy.md and benchmar/sdcard-benchmark.md
+`02-03-2021` -- This is a branch done after prebranch, where all
+experimental code has been removed and placed into its seperate
+branches. The removal includes kubernetes, mongo, spark, hadoop. proxy
+and sdcard contained some documentation, that was moved to
+README-proxy.md and benchmar/sdcard-benchmark.md
 
 ### Branches
 
 * main: our main branch for production releases
-* dev: a general branch that is used prior to the production release with active fixes
-* kubernetes: a branch in which we coordinate the implemnetation of easy kubernetes deplyments
-* mapreduce: a branch in which we coordinate hadoop and spark deployments. There is a temprrary solution in her, 
-  but we have not tested is and I woudl consider the status as pre alphs. It needs t o be redone.
+
+* dev: a general branch that is used prior to the production release
+  with active fixes
+
+* kubernetes: a branch in which we coordinate the implemnetation of
+  easy kubernetes deplyments
+
+* mapreduce: a branch in which we coordinate hadoop and spark
+  deployments. There is a temprrary solution in her, but we have not
+  tested is and I woudl consider the status as pre alphs. It needs t o
+  be redone.
+
 * with-dhcp-server: Some intermediate development
-* mongo: distributed deployment of mongo. This branch is essentially empty. We may delete it due to inactivity.
+
+* mongo: distributed deployment of mongo. This branch is essentially
+  empty. We may delete it due to inactivity.
 
 
 
