@@ -521,7 +521,11 @@ Design Changes:
 <!--MANUAL-BRIDGE-->
 
 
+## Tags
 
+`prebranch` -- this is the code prior to us creating branches for kubernetes, and map reduce. 
+map reduce contains spak and hadoop. However as these efforts wer just starting, they may confuse others. Thus it was 
+important to separate them so we have a clear distinction betwen production and development.
 
 
 
