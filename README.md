@@ -527,6 +527,14 @@ Design Changes:
 map reduce contains spak and hadoop. However as these efforts wer just starting, they may confuse others. Thus it was 
 important to separate them so we have a clear distinction betwen production and development.
 
+## Branches
+
+* main: our main branch for production releases
+* dev: a general branch that is used prior to the production release with active fixes
+* kubernetes: a branch in which we coordinate the implemnetation of easy kubernetes deplyments
+* mapreduce: a branch in which we coordinate hadoop and spark deployments. There is a temprrary solution in her, 
+  but we have not tested is and I woudl consider the status as pre alphs. It needs t o be redone.
+* with-dhcp-server: Some intermediate development
 
 
 
