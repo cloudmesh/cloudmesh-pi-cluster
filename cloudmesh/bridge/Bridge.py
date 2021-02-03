@@ -235,7 +235,7 @@ class Bridge:
             info = sudo_readfile('~/.cloudmesh/bridge/info')
             index = info.index(cls.lease_bookmark)
             leases = info[index + 1:]
-        except:
+        except Exception as e:
             Console.error(
                 'Could not find information on bridge. Has the bridge been created yet?')
             sys.exit(1)
@@ -340,8 +340,7 @@ class Bridge:
         try:
             info = readfile('~/.cloudmesh/bridge/info').split('\n')
             info = info[:info.index(cls.lease_bookmark) + 1]
-
-        except:
+        except Exception as e:
             Console.error(
                 "Cannot execute info command. Has the bridge been made yet?")
             sys.exit(1)
@@ -358,7 +357,7 @@ class Bridge:
 
             curr_leases = '\n' + '\n'.join(curr_leases)
 
-        except:
+        except Exception as e:
             Console.warning(
                 "dnsmasq.leases file not found. No devices have been connected yet")
             curr_leases = "\n"
@@ -642,7 +641,7 @@ class Bridge:
                         "Could not find iPv4 setting. Perhaps /etc/sysctl.conf "
                         "has been changed from default. Process continues by adding iPv4 setting")
                     old_conf.append('net.ipv4.ip_forward=1')
-                except:
+                except Exception as e:
                     Console.error(
                         "Could not set iPv4 forwarding. Unknown error occurred")
                 finally:
@@ -761,13 +760,13 @@ class Bridge:
                 # Write new interfaces file
                 try:
                     interfaces = readfile(tmp).rstrip().split('\n')
-                except:
+                except Exception as e:
                     Console.error(f"Could not open {tmp}")
                     sys.exit(1)
 
                 try:
                     ind = interfaces.index(f'auto {cls.priv_interface}')
-                except:
+                except Exception as e:
                     Console.error(
                         f"Could not find {cls.priv_interface} configuration in interfaces file")
 
