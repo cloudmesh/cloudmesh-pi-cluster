@@ -2,7 +2,6 @@ from __future__ import print_function
 
 from getpass import getpass
 
-from cloudmesh.pi.cluster.k3.k3 import K3
 from cloudmesh.pi.cluster.Installer import Script
 from cloudmesh.common.console import Console
 from cloudmesh.pi.board.free import Free
