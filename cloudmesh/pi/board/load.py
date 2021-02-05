@@ -23,7 +23,7 @@ class Load(Monitor):
         entry['5'], \
         entry['10'], \
         procs, \
-        entry['last.pid'] = entry["stdout"].split()
+        entry['last.pid'] = entry["stdout"].split()  # noqa: E122
         entry['proc.running'], entry['proc.total'] = [int(x) for x in
                                                       procs.split("/")]
         for a in '1', '5', '10':
