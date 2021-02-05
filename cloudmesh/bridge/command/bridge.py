@@ -81,7 +81,7 @@ class BridgeCommand(PluginCommand):
 
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
-            banner(textwrap.dedent(f"""
+            banner(textwrap.dedent("""
             You have now configured a bridge on your master pi.
             To see the changes reflected, please reboot.
 

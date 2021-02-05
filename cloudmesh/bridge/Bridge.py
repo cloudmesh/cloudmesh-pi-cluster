@@ -3,6 +3,7 @@ import sys
 import textwrap
 import time
 from pathlib import Path
+import os
 
 # Functions in utils should be moved to cloudmesh.common
 from cloudmesh.bridge.utils import *
@@ -266,7 +267,7 @@ class Bridge:
                     Rebooting {host} may fix the problem.
 
                     Manually ping {host} for more details.
-                    """)
+                    """)  # noqa: W293
                     Console.warning(message)
                 else:
                     count += 1
@@ -294,8 +295,7 @@ class Bridge:
 
             status = cls._system('sudo service dhcpcd restart', exitcode=True)
             if status != 0:
-                Console.error(
-                    f'Did not restart manager networking service correctly')
+                Console.error('Did not restart manager networking service correctly')
                 sys.exit(1)
             Console.info("Restarted dhcpcd")
             Console.info("Verifying dhcpcd status...")
@@ -312,7 +312,7 @@ class Bridge:
         Console.info("Restarting dnsmasq please wait...")
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
-            Console.error(f'Did not restart manager dnsmasq service correctly')
+            Console.error('Did not restart manager dnsmasq service correctly')
             sys.exit(1)
         Console.ok("Restarted dnsmasq successfuly")
 
@@ -480,7 +480,7 @@ class Bridge:
           * This bridge will allow devices with ip in the {cls.masterIP}/24
             range to connect to the internet through this pi
           * Manager Pi has ip {cls.masterIP} on interface {cls.priv_interface}
-        """, color='CYAN')
+        """, color='CYAN')  # noqa: W293
 
         cls._system('sudo mkdir -p ~/.cloudmesh/bridge')
         sudo_writefile('~/.cloudmesh/bridge/info', info)
@@ -580,11 +580,8 @@ class Bridge:
             Console.info(
                 f"DRYRUN: Setting ip on {cls.priv_interface} to {cls.masterIP}")
         else:
-            banner(f"""
-            
-            Writing to dhcpcd.conf. Setting static IP of manager to {cls.masterIP} on {cls.priv_interface}
-
-            """)
+            banner("\n\nWriting to dhcpcd.conf. Setting static IP "
+                   f"of manager to {cls.masterIP} on {cls.priv_interface}\n\n")
 
             iface = f'interface {cls.priv_interface}'
             static_ip = f'static ip_address={cls.masterIP}'
@@ -640,7 +637,7 @@ class Bridge:
                         "Could not find iPv4 setting. Perhaps /etc/sysctl.conf "
                         "has been changed from default. Process continues by adding iPv4 setting")
                     old_conf.append('net.ipv4.ip_forward=1')
-                except Exception as e:
+                except Exception as e:  # noqa: F841
                     Console.error(
                         "Could not set iPv4 forwarding. Unknown error occurred")
                 finally:
@@ -700,7 +697,7 @@ class Bridge:
                 sudo_writefile('/etc/rc.local', '\n'.join(old_conf) + '\n')
 
             else:
-                Console.warning(f"iptables restoration already in rc.local")
+                Console.warning("iptables restoration already in rc.local")
 
     @classmethod
     def _configure_worker_interfaces(cls, worker, user='pi'):

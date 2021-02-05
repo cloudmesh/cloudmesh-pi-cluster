@@ -60,7 +60,7 @@ class Script(dict):
         elif arguments.list:
 
             print()
-            print(f"Deployment Services")
+            print("Deployment Services")
             print()
 
             directory = os.path.dirname(cloudmesh.pi.cluster.__file__)

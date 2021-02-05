@@ -6,7 +6,7 @@ class Temperature(Monitor):
 
     def __init__(self):
         self.title = "Temperature"
-        self.order = order = ['host', 'cpu', 'gpu', 'date']
+        self.order = order = ['host', 'cpu', 'gpu', 'date']  # noqa: F841
         self.command = \
             'cat' \
             ' /sys/class/thermal/thermal_zone0/temp;' \

@@ -6,7 +6,7 @@ class Free(Monitor):
 
     def __init__(self):
         self.title = "Free"
-        self.order = order = [
+        self.order = order = [  # noqa: F841
             'host',
             'mem.total', 'mem.used', 'mem.free', 'mem.shared',
             'mem.cache', 'mem.avail',
@@ -26,14 +26,14 @@ class Free(Monitor):
 
         header, mem, swap = entry["stdout"].splitlines()
         # noinspection PyPep8
-        entry['mem.total'], \
-        entry['mem.used'], \
-        entry['mem.free'], \
-        entry['mem.shared'], \
-        entry['mem.cache'], \
-        entry['mem.avail'] = [f(v) for v in mem.split()[1:7]]
+        entry['mem.total'],
+        entry['mem.used'],
+        entry['mem.free'],
+        entry['mem.shared'],
+        entry['mem.cache'],
+        entry['mem.avail'] = \
+            [f(v) for v in mem.split()[1:7]]
         # noinspection PyPep8
-        entry['swap.total'], \
-        entry['swap.used'], \
-        entry['swap.free'] = [f(v) for v in swap.split()[1:4]]
+        entry['swap.total'], entry['swap.used'], entry['swap.free'] = \
+            [f(v) for v in swap.split()[1:4]]
         return entry
