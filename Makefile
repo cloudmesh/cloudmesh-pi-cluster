@@ -14,6 +14,11 @@ source:
 	$(call banner, "Install cloudmesh-common")
 	pip install -e . -U
 
+
+flake8:
+	flake8 --max-line-length 124 cloudmesh
+
+
 requirements:
 	echo "# cloudmesh-common requirements"> tmp.txt
 	echo "cloudmesh-cmd5" > tmp.txt
