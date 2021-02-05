@@ -38,7 +38,7 @@ class LED:
     """
 
     # TODO: implement: cms pi led reset  # to original setting
-    # TODO: implement: cms pi led list --trogger list, list the triggers
+    # TODO: implement: cms pi led list --trigger list, list the triggers
 
     def __init__(self):
         pass
