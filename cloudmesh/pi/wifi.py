@@ -1,4 +1,3 @@
-import subprocess
 import textwrap
 
 from cloudmesh.common.console import Console
@@ -18,7 +17,7 @@ class Wifi:
                 psk="{password}"
                 key_mgmt=WPA-PSK
         }}
-    """)  #noqa: W293
+    """)  # noqa: W293
 
     @staticmethod
     def set(ssid, password, dryrun=False):
@@ -36,4 +35,3 @@ class Wifi:
                 writefile(Wifi.location, config)
             except FileNotFoundError as e:  # noqa: F841
                 Console.error(f"The file does not exist: {Wifi.location}")
-

@@ -1,9 +1,7 @@
-import os
 import textwrap
 
 from cloudmesh.bridge.Bridge import Bridge
 from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import banner
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command

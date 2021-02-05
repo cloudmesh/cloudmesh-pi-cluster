@@ -1,8 +1,8 @@
-from cloudmesh.common.console import Console
-from cloudmesh.common.util import writefile
 import os
 import subprocess
-import platform
+
+from cloudmesh.common.console import Console
+from cloudmesh.common.util import writefile
 
 
 # These functions should be moved to cloudmesh.common.utils

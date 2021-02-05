@@ -9,7 +9,8 @@ from cloudmesh.bridge.utils import *
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
-from cloudmesh.common.util import writefile, readfile
+from cloudmesh.common.util import writefile
+from cloudmesh.common.util import readfile
 
 
 #

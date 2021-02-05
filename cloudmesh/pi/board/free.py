@@ -11,7 +11,7 @@ class Free(Monitor):
             'mem.total', 'mem.used', 'mem.free', 'mem.shared',
             'mem.cache', 'mem.avail',
             'swap.total', 'swap.used', 'swap.free',
-        ]
+        ]  # noqa: F841
         self.command = "free -b"
         self.display = ['mem.used', 'swap.used']
         self.color = {
