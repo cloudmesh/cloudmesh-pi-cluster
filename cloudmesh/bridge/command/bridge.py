@@ -57,7 +57,7 @@ class BridgeCommand(PluginCommand):
 
             # $ cms bridge restart --nohup
 
-            # If {arguments.HOSTS} is connected already, 
+            # If {arguments.HOSTS} is connected already,
             # restart bridge then reboot {arguments.HOSTS}.
 
             # """, color='CYAN')
@@ -84,7 +84,7 @@ class BridgeCommand(PluginCommand):
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
             banner(textwrap.dedent(f"""
-            You have now configured a bridge on your master pi. 
+            You have now configured a bridge on your master pi.
             To see the changes reflected, please reboot.
 
             """), color='CYAN')

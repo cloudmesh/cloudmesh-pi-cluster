@@ -209,7 +209,7 @@ class Bridge:
 
         BRIDGE        - Service running: {dhcpcdRunning and dnsmasqRunning}
         
-        """), color='CYAN')
+        """), color='CYAN')  # noqa: W293
 
     @classmethod
     def list(cls, host=None):
@@ -233,7 +233,7 @@ class Bridge:
             info = sudo_readfile('~/.cloudmesh/bridge/info')
             index = info.index(cls.lease_bookmark)
             leases = info[index + 1:]
-        except Exception as e:
+        except Exception as e:  # noqa: F841
             Console.error(
                 'Could not find information on bridge. Has the bridge been created yet?')
             sys.exit(1)
@@ -338,7 +338,7 @@ class Bridge:
         try:
             info = readfile('~/.cloudmesh/bridge/info').split('\n')
             info = info[:info.index(cls.lease_bookmark) + 1]
-        except Exception as e:
+        except Exception as e:  # noqa: F841
             Console.error(
                 "Cannot execute info command. Has the bridge been made yet?")
             sys.exit(1)
@@ -356,7 +356,7 @@ class Bridge:
 
             curr_leases = '\n' + '\n'.join(curr_leases)
 
-        except Exception as e:
+        except Exception as e:  # noqa: F841
             Console.warning(
                 "dnsmasq.leases file not found. No devices have been connected yet")
             curr_leases = "\n"
@@ -416,7 +416,7 @@ class Bridge:
                     'sudo service dhcpcd status | grep Active')
                 return 'running' in status_line
 
-            # Occassionally dhcpcd fails to start when using WiFi. 
+            # Occassionally dhcpcd fails to start when using WiFi.
             # Unresolved bug as it works after a few restarts
             elif code != 0:
                 if restartCount >= 5:
@@ -472,11 +472,11 @@ class Bridge:
         """)
 
         banner(f"""
-        Successfuly configured an internet bridge on this pi. Please reboot 
+        Successfuly configured an internet bridge on this pi. Please reboot
         for changes to take effect.
         
         Details:
-          * This bridge will allow devices with ip in the {cls.masterIP}/24 
+          * This bridge will allow devices with ip in the {cls.masterIP}/24
             range to connect to the internet through this pi
           * Manager Pi has ip {cls.masterIP} on interface {cls.priv_interface}
         """, color='CYAN')
@@ -533,11 +533,7 @@ class Bridge:
         if cls.dryrun:
             Console.info('Installing dnsmasq...')
         else:
-            banner("""
-
-            Installing dnsmasq. Please wait for installation to complete. 
-
-            """)
+            banner("\n\nInstalling dnsmasq. Please wait for installation to complete.\n\n")
 
             StopWatch.start('install dnsmasq')
             # cls._system(f'sudo apt-get install -y dnsmasq')
@@ -685,7 +681,7 @@ class Bridge:
             # Restore rules if reboot
             old_conf = sudo_readfile('/etc/rc.local', trim=True)
 
-            # Exit 0 should be in the last entry of old_conf 
+            # Exit 0 should be in the last entry of old_conf
             # Add ip table restoration lines just above
             restore_command = "iptables-restore < /etc/iptables.ipv4.nat"
 
