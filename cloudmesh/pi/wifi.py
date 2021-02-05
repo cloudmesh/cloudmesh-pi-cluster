@@ -37,7 +37,3 @@ class Wifi:
             except FileNotFoundError as e:
                 Console.error(f"The file does not exist: {Wifi.location}")
 
-    @staticmethod
-    def is_root():
-        username = subprocess.getoutput("whoami")
-        return username == "root"
