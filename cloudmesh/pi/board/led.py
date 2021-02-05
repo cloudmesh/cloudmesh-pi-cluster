@@ -141,7 +141,7 @@ class LED:
     @staticmethod
     def reset():
 
-        command = f"echo mmc0 >/sys/class/leds/led0/trigger"
+        command = "echo mmc0 >/sys/class/leds/led0/trigger"
         os.system(command)
 
     @staticmethod
@@ -150,8 +150,8 @@ class LED:
             username=None,
             processors=3):
 
-        command = f"echo mmc0 >/sys/class/leds/led0/trigger"
-        result = Host.ssh(hosts=hosts,
+        command = "echo mmc0 >/sys/class/leds/led0/trigger"
+        result = Host.ssh(hosts=hosts,  # noqa: F841
                           command=command,
                           username=username,
                           key="~/.ssh/id_rsa.pub",
@@ -170,7 +170,7 @@ class LED:
             # switch it first off, technically we should disable the trigger
             # first
             # then we do not have to switch it off
-            command = f"echo 0 | " \
+            command = "echo 0 | " \
                       "sudo tee /sys/class/leds/led{led}/brightness " \
                       ">> /dev/null"
             os.system(command)
@@ -218,7 +218,7 @@ class LED:
         rate = float(rate or 0.5)
 
         for i in range(0, 3):
-            state = 0
+            # state = 0
 
             LED.set_remote(
                 led=led,
@@ -280,7 +280,7 @@ class LED:
             username=None,
             processors=3):
 
-        command = f"cat" \
+        command = "cat" \
                   " /sys/class/leds/led0/brightness" \
                   " /sys/class/leds/led1/brightness"
         results = Host.ssh(hosts=hosts,

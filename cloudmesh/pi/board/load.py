@@ -5,7 +5,7 @@ class Load(Monitor):
 
     def __init__(self):
         self.title = "Load"
-        self.order = order = [
+        self.order = order = [  # noqa: F841
             'host',
             '1', '5', '10',
             'proc.running', 'proc.total'

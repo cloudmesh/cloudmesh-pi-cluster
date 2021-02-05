@@ -759,13 +759,13 @@ class Bridge:
                 # Write new interfaces file
                 try:
                     interfaces = readfile(tmp).rstrip().split('\n')
-                except Exception as e:
+                except Exception as e:  # noqa: F841
                     Console.error(f"Could not open {tmp}")
                     sys.exit(1)
 
                 try:
                     ind = interfaces.index(f'auto {cls.priv_interface}')
-                except Exception as e:
+                except Exception as e:  # noqa: F841
                     Console.error(
                         f"Could not find {cls.priv_interface} configuration in interfaces file")
 

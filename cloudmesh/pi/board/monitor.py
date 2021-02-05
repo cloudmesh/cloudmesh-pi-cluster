@@ -9,7 +9,6 @@ from cloudmesh.common.Host import Host
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
 from matplotlib.animation import FuncAnimation
-from cloudmesh.common.debug import VERBOSE
 
 
 class Monitor:
