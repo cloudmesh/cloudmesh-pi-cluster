@@ -604,7 +604,6 @@ class Bridge:
             else:
                 curr_config.append(iface)
                 curr_config.append(static_ip)
-                curr_config.append('nolink\n')
 
             sudo_writefile('/etc/dhcpcd.conf', '\n'.join(curr_config))
             Console.ok('Successfully wrote to /etc/dhcpcd.conf')
