@@ -73,11 +73,16 @@ class BridgeCommand(PluginCommand):
         elif arguments.create:
             StopWatch.start('Bridge Creation')
 
-            Bridge.create(masterIP=arguments.ip,
-                          ip_range=arguments.range.split("-"),
-                          priv_interface='eth0',
-                          ext_interface=arguments.interface,
-                          purge=True if arguments.purge else False)
+            if arguments.ip:
+                Bridge.create(masterIP=arguments.ip,
+                            priv_interface='eth0',
+                            ext_interface=arguments.interface,
+                            purge=True if arguments.purge else False)
+            else:
+                Bridge.create(masterIP='10.1.1.1',
+                            priv_interface='eth0',
+                            ext_interface=arguments.interface,
+                            purge=True if arguments.purge else False)
 
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)

@@ -12,6 +12,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import readfile
+from cloudmesh.common.util import sudo_readfile, sudo_writefile
 
 
 #
@@ -465,7 +466,6 @@ class Bridge:
         :return:
         """
         info = textwrap.dedent(f"""
-        IP range: {cls.ip_range[0]} - {cls.ip_range[1]}
         Manager IP: {cls.masterIP}
 
         {cls.lease_bookmark}
