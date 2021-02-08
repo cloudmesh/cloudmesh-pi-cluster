@@ -8,24 +8,18 @@ commandline otions also. If the install is ommitted, the install is conducted
 on all nodes.
 """
 
-import os
-import subprocess
-import socket
 import fcntl
+import os
+import socket
 import struct
 
-from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.JobSet import JobSet
+from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
+from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.util import banner
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
-from cloudmesh.common.Host import Host
-from cloudmesh.common.JobSet import JobSet
-import platform
-import sys
-from cloudmesh.common.util import banner
-from pprint import pprint
-import textwrap
-from cloudmesh.common.Tabulate import Printer
 
 
 class Installer:
@@ -226,9 +220,7 @@ class K3(Installer):
             #
             banner(f"Setup Master: {manager[0]}")
 
-            command = Installer.oneline(f"""
-            curl -sfL https://get.k3s.io | sh -
-            """)
+            command = Installer.oneline("curl -sfL https://get.k3s.io | sh -")
             jobSet = JobSet("kubernetes_manager_install", executor=JobSet.ssh)
             jobSet.add(
                 {"name": self.hostname,
@@ -280,7 +272,7 @@ class K3(Installer):
                 command = f"sudo k3s agent --server https://{ip}:{self.port} --token {token}"
 
                 # TODO: install: This currently does not work, command runs fine but
-                # "k3s agent" having trouble creating node. 
+                #       "k3s agent" having trouble creating node.
                 jobSet = JobSet("kubernetes_worker_join", executor=JobSet.ssh)
                 for host in hosts:
                     jobSet.add({"name": host, "host": host, "command": command})
@@ -386,7 +378,6 @@ class K3(Installer):
         print("Test not yet implemented")
         # TODO: test: not implemented, Check for software that is installed or can be installed to run a test
         # on the cluster
-
 
     def view(self):
         # TODO: docstring
