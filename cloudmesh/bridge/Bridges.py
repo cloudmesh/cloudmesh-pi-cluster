@@ -1,7 +1,8 @@
-#
-# These methods are working on multiple processors
-# that can be located remotely
-#
+"""
+These Bridges class methods are working on multiple processors
+that can be located remotely
+"""
+
 
 class Bridges:
 
