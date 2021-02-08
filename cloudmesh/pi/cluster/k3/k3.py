@@ -44,11 +44,11 @@ class Installer:
         :return:
         :rtype:
         """
-        # TODO: add option: replace=False, match=str
+        # TODO: add_to_file: add option: replace=False, match=str
         #       if set to tru it searches for a prefix match and
         #       replaces the content with the line
         # TODO: docstring
-        # TODO: move to cloudmesh.common.util
+        # TODO: add_to_file: move to cloudmesh.common.util
 
         lines = readfile(filename)
         if line in lines:
@@ -74,9 +74,9 @@ class Installer:
         :return: a one line string with \n removed
         :rtype: str
         """
-        # TODO: possibly add to cloudmesh common JobSet
-        # TODO: possibly add .strip()
-        # TODO: replacement of multiple spaces not do ne right, shoudl eb option
+        # TODO: oneline: possibly add to cloudmesh common JobSet
+        # TODO: oneline: possibly add .strip()
+        # TODO: oneline: replacement of multiple spaces not do ne right, shoudl eb option
         return msg.replace("\n", "").replace("  ", " ")
 
     @staticmethod
@@ -116,7 +116,7 @@ class K3(Installer):
         :return:
         """
 
-        # TODO: use Parameter map, this will simplify getting arguments
+        # TODO: execute: use Parameter map, this will simplify getting arguments
 
         manager = None
         if arguments.manager:
@@ -138,7 +138,6 @@ class K3(Installer):
         #    Console.error("You need to specify a manager")
         #    return ""
 
-        # TODO: use named arguments
         if arguments.install:
             self.install(manager=manager, hosts=hosts, step=step)
 
@@ -169,13 +168,13 @@ class K3(Installer):
 
         if hosts is not None:
             # Create tmp file on manager with enable_containers line
-            # TODO: can we not use writefile?
+            # TODO: enable_containers: can we not use writefile?
             source = "~/container_tmp.txt"
             command = f'echo "{line}" >> {source}'
             os.system(command)
 
             # Copy over temporary file with container line
-            # TODO: Can we not use Shell.scp?
+            # TODO: Cenable_containers: an we not use Shell.scp?
             for host in hosts:
                 command = f"scp {source} pi@{host}:~/"
                 os.system(command)
@@ -201,7 +200,7 @@ class K3(Installer):
             # jobSet.Print()
 
             # Delete tmp file on manager
-            # TODO: use python rm/delete for files
+            # TODO: enable_containers: use python rm/delete for files
             command = f"rm {source}"
             os.system(command)
 
@@ -223,7 +222,7 @@ class K3(Installer):
                 manager = Parameter.expand(manager)
 
             #
-            # TODO - bug I should be able to run this even if I am not on manager
+            # TODO: install: bug I should be able to run this even if I am not on manager
             #
             banner(f"Setup Master: {manager[0]}")
 
@@ -243,7 +242,7 @@ class K3(Installer):
 
         # Setup workers and join to cluster
         #
-        # TODO - bug I should be able to run this even if I am not on manager
+        # TODO: install: bug I should be able to run this even if I am not on manager
         #
         if hosts is not None:
             if manager is not None:
@@ -274,14 +273,13 @@ class K3(Installer):
                 jobSet.Print()
 
                 # Join workers to manager's cluster
-                # TODO - Currently get ip address from eth0 instead of using
-                #        hostname
+                # TODO: install: Currently get ip address from eth0 instead of using hostname
                 # because worker does not know manager's host name
                 ip = self.get_manager_ip_address('eth0')
 
                 command = f"sudo k3s agent --server https://{ip}:{self.port} --token {token}"
 
-                # TODO - This currently does not work, command runs fine but
+                # TODO: install: This currently does not work, command runs fine but
                 # "k3s agent" having trouble creating node. 
                 jobSet = JobSet("kubernetes_worker_join", executor=JobSet.ssh)
                 for host in hosts:
@@ -305,8 +303,7 @@ class K3(Installer):
             jobSet.run()
             token = jobSet.array()[0]['stdout'].decode('UTF-8')
 
-            # TODO - Currently get ip address from eth0 instead of using
-            #        hostname
+            # TODO: join: Currently get ip address from eth0 instead of using hostname
             # because worker does not know manager's host name
             ip = self.get_manager_ip_address('eth0')
 
@@ -354,7 +351,7 @@ class K3(Installer):
     def delete(self, manager=None, hosts=None):
         # TODO: docstring
         # Delete manager node
-        # TODO - k3s does not allow you to delete it's parent node
+        # TODO: delete: k3s does not allow you to delete it's parent node
         # if manager is not None:
         #    banner(f"Deleting Master Node: {manager}")
         #
@@ -387,11 +384,11 @@ class K3(Installer):
     def test(self, manager=None, hosts=None):
         # TODO: docstring
         print("Test not yet implemented")
-        # TODO - Check for software that is installed or can be installed
-        #        to run a test
+        # TODO: test: not implemented, Check for software that is installed or can be installed to run a test
         # on the cluster
+
 
     def view(self):
         # TODO: docstring
         os.system("sudo kubectl get node -o wide")
-        # TODO - What other information about the chuster can I present
+        # TODO: view: What other information about the chuster can I present
