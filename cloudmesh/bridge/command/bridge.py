@@ -16,6 +16,7 @@ class BridgeCommand(PluginCommand):
         """
           Usage:
             bridge create [--interface=INTERFACE]
+                                   [--ip=IP]
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
@@ -23,12 +24,14 @@ class BridgeCommand(PluginCommand):
                                      to bridge through WIFI on the master
                                      eth0 requires a USB to WIFI adapter
 
+             --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
+
           Description:
 
             Command used to set up a bride so that all nodes route the traffic
             trough the master PI.
 
-            bridge create [--interface=INTERFACE]
+            bridge create [--interface=INTERFACE] [--ip=IP]
                 creates the bridge on the current device.
                 A reboot is required.
         """
@@ -73,16 +76,9 @@ class BridgeCommand(PluginCommand):
         elif arguments.create:
             StopWatch.start('Bridge Creation')
 
-            if arguments.ip:
-                Bridge.create(masterIP=arguments.ip,
-                              priv_interface='eth0',
-                              ext_interface=arguments.interface,
-                              purge=True if arguments.purge else False)
-            else:
-                Bridge.create(masterIP='10.1.1.1',
-                              priv_interface='eth0',
-                              ext_interface=arguments.interface,
-                              purge=True if arguments.purge else False)
+            Bridge.create(masterIP=arguments.ip,
+                            priv_interface='eth0',
+                            ext_interface=arguments.interface)
 
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
