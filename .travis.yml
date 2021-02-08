@@ -5,4 +5,4 @@ install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
 script:
-  - flake8 --max-line-length 124 --ignore=E722 cloudmesh
+  - make flake8
