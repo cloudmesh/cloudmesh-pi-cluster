@@ -29,22 +29,22 @@ class Bridge:
     ext_interface = "eth1"
     priv_interface = "eth0"
     lease = '12h'
-    master = None
-    masterIP = None
+    manager = None
+    managerIP = None
     ip_range = None
     workers = None
     dns = ['8.8.8.8', '8.8.4.4']
     lease_bookmark = '# LEASE HISTORY #'
 
     @classmethod
-    def create(cls, masterIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'],
-               master=None, workers=None,
+    def create(cls, managerIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'],
+               manager=None, workers=None,
                priv_interface='eth0', ext_interface='eth1', purge=False,
                dryrun=False):
         """
-        if worker(s) is missing the master is set up only
+        if worker(s) is missing the manager is set up only
 
-        :param master: expected to be a single string
+        :param manager: expected to be a single string
         :param workers:
         :param ext_interface: The external interface through which the manager
                               connects to the internet
@@ -53,9 +53,9 @@ class Bridge:
         :param dryrun:
         :return:
         """
-        cls.masterIP = masterIP
+        cls.managerIP = managerIP
         cls.ip_range = ip_range
-        cls.master = master
+        cls.manager = manager
         cls.workers = workers
         cls.dryrun = dryrun
         cls.ext_interface = ext_interface
@@ -64,7 +64,7 @@ class Bridge:
         # Master configuration
         StopWatch.start('Manager Configuration')
 
-        # Configure dhcpcd.conf of master. No restart
+        # Configure dhcpcd.conf of manager. No restart
         StopWatch.start('dhcpcd.conf configuration')
         cls._dhcpcd_conf()
         StopWatch.stop('dhcpcd.conf configuration')
@@ -113,7 +113,7 @@ class Bridge:
 
         Console.ok("Process completed")
 
-    # Set a worker to use the master
+    # Set a worker to use the manager
     @classmethod
     def set(cls, workers=None, addresses=None):
         """
@@ -466,7 +466,7 @@ class Bridge:
         :return:
         """
         info = textwrap.dedent(f"""
-        Manager IP: {cls.masterIP}
+        Manager IP: {cls.managerIP}
 
         {cls.lease_bookmark}
 
@@ -477,9 +477,9 @@ class Bridge:
         for changes to take effect.
         
         Details:
-          * This bridge will allow devices with ip in the {cls.masterIP}/24
+          * This bridge will allow devices with ip in the {cls.managerIP}/24
             range to connect to the internet through this pi
-          * Manager Pi has ip {cls.masterIP} on interface {cls.priv_interface}
+          * Manager Pi has ip {cls.managerIP} on interface {cls.priv_interface}
         """, color='CYAN')  # noqa: W293
 
         cls._system('sudo mkdir -p ~/.cloudmesh/bridge')
@@ -499,7 +499,7 @@ class Bridge:
             Console.info("Configuring dnsmasq...")
             config = textwrap.dedent(f"""
             interface = {cls.priv_interface}
-            listen-address={cls.masterIP}
+            listen-address={cls.managerIP}
 
             dhcp-range={cls.ip_range[0]},{cls.ip_range[1]},{cls.lease}
 
@@ -570,7 +570,7 @@ class Bridge:
     @classmethod
     def _dhcpcd_conf(cls):
         """
-        Configures manager with static ip masterIP on interface priv_interface in dhcpcd.conf.
+        Configures manager with static ip managerIP on interface priv_interface in dhcpcd.conf.
         Considered as the IP address of the "default gateway" for the cluster network
         Note: Does not restart dhcpcd.service
 
@@ -578,13 +578,13 @@ class Bridge:
         """
         if cls.dryrun:
             Console.info(
-                f"DRYRUN: Setting ip on {cls.priv_interface} to {cls.masterIP}")
+                f"DRYRUN: Setting ip on {cls.priv_interface} to {cls.managerIP}")
         else:
             banner("\n\nWriting to dhcpcd.conf. Setting static IP "
-                   f"of manager to {cls.masterIP} on {cls.priv_interface}\n\n")
+                   f"of manager to {cls.managerIP} on {cls.priv_interface}\n\n")
 
             iface = f'interface {cls.priv_interface}'
-            static_ip = f'static ip_address={cls.masterIP}'
+            static_ip = f'static ip_address={cls.managerIP}'
 
             curr_config = sudo_readfile('/etc/dhcpcd.conf')
             if iface in curr_config:
@@ -701,7 +701,7 @@ class Bridge:
     @classmethod
     def _configure_worker_interfaces(cls, worker, user='pi'):
         """
-        Configures the network interface of the worker to use the master as an internet gateway
+        Configures the network interface of the worker to use the manager as an internet gateway
 
         :param worker: A single string hostname for the worker (ie. --hostname option from cm-pi-burn)
         :param user: The user we will use to ssh/scp into the worker
@@ -711,7 +711,7 @@ class Bridge:
         if cls.dryrun:
             Console.info("Configuring worker info.")
             Console.info(
-                f"scp /etc/network/interfaces from {cls.master} to {user}@{worker}")
+                f"scp /etc/network/interfaces from {cls.manager} to {user}@{worker}")
             Console.info(
                 "Configure default gateway and DNS for {cls.priv_interface} on {user}@{worker}")
 
@@ -787,6 +787,6 @@ class Bridge:
                     f'ssh {ignore_setting} {user}@{worker} {remote_cmd2}')
 
 # Tests
-# Bridge.create(master='red', workers=['red001'], priv_interface='eth0', ext_interface='wlan0', dryrun=True)
-# Bridge.restart(master='red', workers=['red001'])
+# Bridge.create(manager='red', workers=['red001'], priv_interface='eth0', ext_interface='wlan0', dryrun=True)
+# Bridge.restart(manager='red', workers=['red001'])
 # StopWatch.benchmark(sysinfo=False, csv=False, tag='Testing')

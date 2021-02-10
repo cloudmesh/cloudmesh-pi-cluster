@@ -6,11 +6,11 @@
 class Bridges:
 
     @staticmethod
-    def create(master=None, workers=None, name=None):
+    def create(manager=None, workers=None, name=None):
         raise NotImplementedError
 
     @staticmethod
-    def set(master=None, workers=None, name=None):
+    def set(manager=None, workers=None, name=None):
         raise NotImplementedError
 
     @staticmethod

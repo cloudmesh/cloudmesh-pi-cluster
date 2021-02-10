@@ -1,9 +1,9 @@
 """
-cms pi k3 install --master=red --worker[01-03] --install=red02
+cms pi k3 install --manager=red --worker[01-03] --install=red02
 
-Meaning overall we like to have a clusetr with master and workers, but in this
+Meaning overall we like to have a clusetr with manager and workers, but in this
 command we only deal with the install of node red002. However this node may
-need information from the master and workers to complete, so we put it in the
+need information from the manager and workers to complete, so we put it in the
 commandline otions also. If the install is ommitted, the install is conducted
 on all nodes.
 """
@@ -218,7 +218,7 @@ class K3(Installer):
             #
             # TODO: install: bug I should be able to run this even if I am not on manager
             #
-            banner(f"Setup Master: {manager[0]}")
+            banner(f"Setup manager: {manager[0]}")
 
             command = Installer.oneline("curl -sfL https://get.k3s.io | sh -")
             jobSet = JobSet("kubernetes_manager_install", executor=JobSet.ssh)
@@ -313,7 +313,7 @@ class K3(Installer):
         # TODO: docstring
         # Uninstall manager
         if manager is not None:
-            banner(f"Uninstalling Master {manager}")
+            banner(f"Uninstalling manager {manager}")
 
             command = "/usr/local/bin/k3s-uninstall.sh"
             jobSet = JobSet("kubernetes_manager_uninstall", executor=JobSet.ssh)
@@ -345,7 +345,7 @@ class K3(Installer):
         # Delete manager node
         # TODO: delete: k3s does not allow you to delete it's parent node
         # if manager is not None:
-        #    banner(f"Deleting Master Node: {manager}")
+        #    banner(f"Deleting manager Node: {manager}")
         #
         #    command = Installer.oneline(f"""
         #                sudo kubectl delete {manager}
