@@ -27,12 +27,15 @@
   - [Manual Pages](#manual-pages)
     - [Pi Command](#pi-command)
     - [Bridge Command](#bridge-command)
+  - [History](#history)
+    - [Versions](#versions)
+    - [Branches](#branches)
 
 <!--TOC-->
 
 This README is managed in 
 
-* [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/README.md)
+* [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/README.md)
 * <https://github.com/cloudmesh/cloudmesh-pi-cluster>
 
 
@@ -57,19 +60,19 @@ documents that showcase how to convert your cluster into a
 We have chosen not to use network booting, but boot from the SD Cards.
 For this, we use our unique `burn` program to burn the Pi's. This
 allows you to immediately start with an OS that has all the needed
-information on it. However, we need one master py that we configure
-with the pi imager.
+information on it. However, we need one manager Pi that we configure
+with the Pi imager.
 
 TODO: point to the documentation
 
-TODO: Briefly describe how we burn the master and set it up
+TODO: Briefly describe how we burn the manager and set it up
 
 TODO: Then describe briefly how we burn
 
 
 ### Prerequisite
 
-Once you have set up the master and have network access, you must
+Once you have set up the manager and have network access, you must
 conduct the following steps
 
 First, we update the system and install python3 in ~/ENV3 with the
@@ -81,7 +84,7 @@ source ~/ENV3/bin/activate
 ssh-keygen
 ```
 
-These steps have only to be done once on your master Pi.
+These steps have only to be done once on your manager Pi.
 
 
 ### User install
@@ -342,23 +345,6 @@ Please make sure you install them first before using them
   pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
   pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
   pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-  pi hadoop setup [--master=MASTER] [--workers=WORKERS]
-  pi hadoop start [--master=MASTER] [--workers=WORKERS]
-  pi hadoop stop [--master=MASTER] [--workers=WORKERS]
-  pi hadoop test [--master=MASTER] [--workers=WORKERS]
-  pi hadoop check [--master=MASTER] [--workers=WORKERS]
-  pi spark setup [--master=MASTER] [--workers=WORKERS]
-  pi spark start --master=MASTER
-  pi spark stop --master=MASTER
-  pi spark test --master=MASTER
-  pi spark check [--master=MASTER] [--workers=WORKERS]
-  pi spark uninstall --master=MASTER [--workers=WORKERS]
-  pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
-  pi k3 join --master=MASTER --workers=WORKERS
-  pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
-  pi k3 delete [--master=MASTER] [--workers=WORKERS]
-  pi k3 test [--master=MASTER] [--workers=WORKERS]
-  pi k3 view
   pi script list SERVICE [--details]
   pi script list SERVICE NAMES
   pi script list
@@ -403,8 +389,13 @@ Description:
           goes in sequential order and switches on and off the led of
           the given PIs
 
+
 ```
 <!--MANUAL-PI-->
+
+
+
+
 
 
 
@@ -419,29 +410,6 @@ Description:
 
 <!--MANUAL-BRIDGE-->
 ```
-  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
-  bridge set HOSTS ADDRESSES 
-  bridge restart [--nohup] [--background]
-  bridge status
-  bridge test HOSTS [--rate=RATE]
-  bridge list NAMES
-  bridge check NAMES [--configuration] [--connection]
-  bridge info
-
-Arguments:
-    HOSTS        Hostnames of connected devices. 
-                 Ex. red002
-                 Ex. red[002-003]
-
-    ADDRESSES    IP addresses to assign to HOSTS. Addresses
-                 should be in the network range configured.
-                 Ex. 10.1.1.2
-                 Ex. 10.1.1.[2-3]
-
-    NAMES        A parameterized list of hosts. The first hostname 
-                 in the list is the master through which the traffic 
-                 is routed. Example:
-                 blue,blue[002-003]
 
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
@@ -449,76 +417,23 @@ Options:
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
-    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
-                           assign the master on the
-                           interface. Ex. 10.1.1.1
-
-    --range=IPRANGE        The inclusive range of IPs that can be
-                           assigned to connecting devices. Value
-                           should be a comma separated tuple of the
-                           two range bounds. Should not include the
-                           ip of the master Ex. 10.1.1.2-10.1.1.20
-                           [default: 10.1.1.2-10.1.1.122]
-
-    --workers=WORKERS      The parametrized hostnames of workers
-                           attatched to the bridge.
-                           Ex. red002
-                           Ex. red[002-003]
-
-    --purge                Include option if a full reinstallation of
-                           dnsmasq is desired
-
-    --background           Runs the restart command in the background.
-                           stdout to bridge_restart.log
-
-    --nohup                Restarts only the dnsmasq portion of the
-                           bridge. This is done to surely prevent
-                           SIGHUP if using ssh.
-
-    --rate=RATE            The rate in seconds for repeating the test
-                           If ommitted its done just once.
+   --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
 
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
   trough the master PI.
 
-  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
-      creates the bridge on the current device
-      The create command does not restart the network.
-
-  bridge set HOSTS ADDRESSES 
-      the set command assigns the given static 
-      ip addresses to the given hostnames.
-
-  bridge status
-      Returns the status of the bridge and its linked services.
-
-  bridge restart [--nohup]
-      restarts the bridge on the master without rebooting. 
-
-  bridge test NAMES
-      A test to see if the bridges are configured correctly and one
-      hase internet access on teh specified hosts.
-
-  bridge list NAMES
-      Lists information about the bridges (may not be needed)
-
-  bridge check NAMES [--config] [--connection]
-      provides information about the network configuration
-      and netwokrk access. Thisis not a comprehensive speedtest
-      for which we use test.
-
-  bridge info
-      prints relevant information about the configured bridge
-
-
-Design Changes:
-  We still may need the master to be part of other commands in case
-  for example the check is different for master and worker
+  bridge create [--interface=INTERFACE] [--ip=IP]
+      creates the bridge on the current device.
+      A reboot is required.
 
 ```
 <!--MANUAL-BRIDGE-->
+
+
+
+
 
 ## History
 

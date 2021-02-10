@@ -35,8 +35,6 @@ readme:
 	cms man readme -p --toc
 	cms man readme -p --tag="MANUAL-PI" pi
 	cms man readme -p --tag="MANUAL-BRIDGE" bridge
-	cd cloudmesh/bridge; cms man readme -p --toc
-	cd cloudmesh/bridge; cms man readme -p --tag="MANUAL-BRIDGE" bridge
 
 test:
 	pytest -v --html=.report.html
