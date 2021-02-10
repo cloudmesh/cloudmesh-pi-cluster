@@ -584,7 +584,7 @@ class Bridge:
                    f"of manager to {cls.managerIP} on {cls.priv_interface}\n\n")
 
             iface = f'interface {cls.priv_interface}'
-            static_ip = f'static ip_address={cls.managerIP}'
+            static_ip = f'static ip_address={cls.masterIP}/24'
 
             curr_config = sudo_readfile('/etc/dhcpcd.conf')
             if iface in curr_config:
