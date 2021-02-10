@@ -1,10 +1,10 @@
 # Documentation
 
 
-[![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi.svg?branch=master)](https://travis-ci.org/TankerHQ/cloudmesn-pi)
+[![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi.svg?branch=main)](https://travis-ci.org/TankerHQ/cloudmesn-pi)
 [![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi.svg)](https://pypi.org/project/cloudmesh-pi)
 [![image](https://img.shields.io/pypi/v/cloudmesh-pi.svg)](https://pypi.org/project/cloudmesh-pi/)
-[![image](https://img.shields.io/github/license/TankerHQ/python-cloudmesh-pi.svg)](https://github.com/TankerHQ/python-cloudmesh-pi/blob/master/LICENSE)
+[![image](https://img.shields.io/github/license/TankerHQ/python-cloudmesh-pi.svg)](https://github.com/TankerHQ/python-cloudmesh-pi/blob/main/LICENSE)
 
 
 <!--TOC-->
@@ -32,7 +32,7 @@
 
 This README is managed in 
 
-* [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/master/README.md)
+* [README.md](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/README.md)
 * <https://github.com/cloudmesh/cloudmesh-pi-cluster>
 
 
@@ -57,19 +57,19 @@ documents that showcase how to convert your cluster into a
 We have chosen not to use network booting, but boot from the SD Cards.
 For this, we use our unique `burn` program to burn the Pi's. This
 allows you to immediately start with an OS that has all the needed
-information on it. However, we need one master py that we configure
+information on it. However, we need one manager py that we configure
 with the pi imager.
 
 TODO: point to the documentation
 
-TODO: Briefly describe how we burn the master and set it up
+TODO: Briefly describe how we burn the manager and set it up
 
 TODO: Then describe briefly how we burn
 
 
 ### Prerequisite
 
-Once you have set up the master and have network access, you must
+Once you have set up the manager and have network access, you must
 conduct the following steps
 
 First, we update the system and install python3 in ~/ENV3 with the
@@ -81,7 +81,7 @@ source ~/ENV3/bin/activate
 ssh-keygen
 ```
 
-These steps have only to be done once on your master Pi.
+These steps have only to be done once on your manager Pi.
 
 
 ### User install
