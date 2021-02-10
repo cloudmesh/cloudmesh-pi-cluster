@@ -1,3 +1,5 @@
+# flake8: ignore=E127
+
 import textwrap
 
 from cloudmesh.bridge.Bridge import Bridge
@@ -15,8 +17,7 @@ class BridgeCommand(PluginCommand):
     def do_bridge(self, args, arguments):
         """
           Usage:
-            bridge create [--interface=INTERFACE]
-                                   [--ip=IP]
+            bridge create [--interface=INTERFACE] [--ip=IP]
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
@@ -24,7 +25,8 @@ class BridgeCommand(PluginCommand):
                                      to bridge through WIFI on the manager
                                      eth0 requires a USB to WIFI adapter
 
-             --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
+             --ip=IP  The ip address to assign on the eth0 interface,
+                      ie. the listening interface [default: 10.1.1.1]
 
           Description:
 
