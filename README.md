@@ -406,6 +406,7 @@ Description:
 
 
 
+
 ### Bridge Command
 
 <!--MANUAL-BRIDGE-->
@@ -414,7 +415,7 @@ Description:
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
                            You can also specify wlan0 if you wnat
-                           to bridge through WIFI on the master
+                           to bridge through WIFI on the manager
                            eth0 requires a USB to WIFI adapter
 
    --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
@@ -422,7 +423,7 @@ Options:
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
-  trough the master PI.
+  trough the manager PI.
 
   bridge create [--interface=INTERFACE] [--ip=IP]
       creates the bridge on the current device.
@@ -430,6 +431,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
