@@ -59,7 +59,7 @@ class Bridge:
         cls.dryrun = dryrun
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
-        cls.nameserver = dns
+        cls.nameserver = ' '.join(dns.split(',')) # dhcpcd conf required nameserver IPs be separated by space
 
         # Master configuration
         StopWatch.start('Manager Configuration')
