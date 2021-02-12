@@ -61,7 +61,7 @@ class Bridge:
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
 
-        # Master configuration
+        # manager configuration
         StopWatch.start('Manager Configuration')
 
         # Configure dhcpcd.conf of manager. No restart
