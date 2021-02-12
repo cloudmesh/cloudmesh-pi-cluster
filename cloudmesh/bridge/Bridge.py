@@ -61,7 +61,7 @@ class Bridge:
         cls.priv_interface = priv_interface
         cls.nameserver = ' '.join(dns.split(',')) # dhcpcd conf required nameserver IPs be separated by space
 
-        # Master configuration
+        # manager configuration
         StopWatch.start('Manager Configuration')
 
         # Configure dhcpcd.conf of manager. No restart

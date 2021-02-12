@@ -33,8 +33,8 @@ requirements:
 
 readme:
 	cms man readme -p --toc
-	cms man readme -p --tag="MANUAL-PI" pi
-	cms man readme -p --tag="MANUAL-BRIDGE" bridge
+	cms man readme -p --tag="MANUAL-PI" --command=pi
+	cms man readme -p --tag="MANUAL-BRIDGE" --command=bridge
 
 test:
 	pytest -v --html=.report.html
