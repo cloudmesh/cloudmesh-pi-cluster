@@ -6,7 +6,6 @@ import textwrap
 import time
 from pathlib import Path
 
-# from cloudmesh.bridge.utils import *
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
