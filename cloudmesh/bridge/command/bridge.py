@@ -9,6 +9,16 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 
+"""
+Note on deprecated commands.
+
+Previously cms bridge would install dnsmasq and configure a dhcp server for
+connected machines. This has been changed. Bridge will now simply enable
+ipv4 forwarding accross the specified interface and configure the proper
+iptable rules. As such, several commands are now outdated (as indicated
+with print statements below). Cleanup is due for this.
+"""
+
 
 class BridgeCommand(PluginCommand):
 
@@ -18,6 +28,7 @@ class BridgeCommand(PluginCommand):
         """
           Usage:
             bridge create [--interface=INTERFACE] [--ip=IP]
+            [--dns=NAMESERVER]
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
@@ -28,12 +39,15 @@ class BridgeCommand(PluginCommand):
              --ip=IP  The ip address to assign on the eth0 interface,
                       ie. the listening interface [default: 10.1.1.1]
 
+            --dns=NAMESERVER  The ip address of a nameserver to set statically
+                     For example, --dns=8.8.8.8,8.8.4.4 will use google nameservers
+
           Description:
 
             Command used to set up a bride so that all nodes route the traffic
             trough the manager PI.
 
-            bridge create [--interface=INTERFACE] [--ip=IP]
+            bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
                 creates the bridge on the current device.
                 A reboot is required.
         """
@@ -44,7 +58,8 @@ class BridgeCommand(PluginCommand):
                        'range',
                        'workers',
                        'purge',
-                       'nohup')
+                       'nohup',
+                       'dns')
 
         if arguments.set:
             # StopWatch.start('Static IP assignment')
@@ -80,7 +95,8 @@ class BridgeCommand(PluginCommand):
 
             Bridge.create(managerIP=arguments.ip,
                           priv_interface='eth0',
-                          ext_interface=arguments.interface)
+                          ext_interface=arguments.interface,
+                          dns=arguments.dns)
 
             StopWatch.stop('Bridge Creation')
             StopWatch.status('Bridge Creation', True)
@@ -112,10 +128,12 @@ class BridgeCommand(PluginCommand):
             # if background:
             #     if nohup:
             #         os.system(
-            #             'nohup cms bridge restart --nohup > bridge_restart.log 2>&1 &')
+            #             'nohup cms bridge restart --nohup >
+            # bridge_restart.log 2>&1 &')
             #     else:
             #         os.system(
-            #             'nohup cms bridge restart > brige_restart.log 2>&1 &')
+            #             'nohup cms bridge restart >
+            # brige_restart.log 2>&1 &')
 
             # else:
             #     StopWatch.start('Network Service Restart')

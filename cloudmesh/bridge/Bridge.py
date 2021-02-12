@@ -6,7 +6,6 @@ import textwrap
 import time
 from pathlib import Path
 
-# from cloudmesh.bridge.utils import *
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
@@ -40,7 +39,7 @@ class Bridge:
     def create(cls, managerIP='10.1.1.1', ip_range=['10.1.1.2', '10.1.1.122'],
                manager=None, workers=None,
                priv_interface='eth0', ext_interface='eth1', purge=False,
-               dryrun=False):
+               dryrun=False, dns='8.8.8.8'):
         """
         if worker(s) is missing the manager is set up only
 
@@ -60,6 +59,7 @@ class Bridge:
         cls.dryrun = dryrun
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
+        cls.nameserver = dns
 
         # manager configuration
         StopWatch.start('Manager Configuration')
@@ -583,8 +583,12 @@ class Bridge:
             banner("\n\nWriting to dhcpcd.conf. Setting static IP "
                    f"of manager to {cls.managerIP} on {cls.priv_interface}\n\n")
 
+            if cls.nameserver:
+                banner(f"\nConfiguring to use nameserver {cls.nameserver}\n")
+
             iface = f'interface {cls.priv_interface}'
             static_ip = f'static ip_address={cls.managerIP}/24'
+            static_dns = f'static domain_name_servers={cls.nameserver}'
 
             curr_config = sudo_readfile('/etc/dhcpcd.conf')
             if iface in curr_config:
@@ -596,16 +600,22 @@ class Bridge:
                         Console.warning(
                             "Missing static ip_address assignment. Overwriting line")
                     curr_config[index + 1] = static_ip
-
                 except IndexError:
-                    Console.error('/etc/dhcpcd.conf ends abruptly. Aborting')
-                    sys.exit(1)
-
+                    curr_config.append(static_ip)
+                if cls.nameserver:
+                    try:
+                        if 'static domain_name_servers' not in curr_config[index + 2]:
+                            Console.warning("Missing static domain_name_servers. Overwriting line")
+                        curr_config[index + 2] = static_dns
+                    except IndexError:
+                        curr_config.append(static_dns)
             else:
                 curr_config.append(iface)
                 curr_config.append(static_ip)
+                if cls.nameserver:
+                    curr_config.append(static_dns)
 
-            sudo_writefile('/etc/dhcpcd.conf', '\n'.join(curr_config))
+            sudo_writefile('/etc/dhcpcd.conf', '\n'.join(curr_config) + '\n')
             Console.ok('Successfully wrote to /etc/dhcpcd.conf')
 
     @classmethod
