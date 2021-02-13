@@ -28,8 +28,7 @@ class Wifi:
             Console.error("SSID or password not set")
         if dryrun:
             password = "********"
-        config = Wifi.template.format(**locals()) \
-            .replace("BEGIN", "{").replace("END", "}")
+        config = Wifi.template.format(**locals())
         if dryrun:
             print(location)
             print(config)
