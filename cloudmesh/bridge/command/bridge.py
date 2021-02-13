@@ -40,7 +40,8 @@ class BridgeCommand(PluginCommand):
                       ie. the listening interface [default: 10.1.1.1]
 
             --dns=NAMESERVER  The ip address of a nameserver to set statically
-                     For example, --dns=8.8.8.8,8.8.4.4 will use google nameservers
+                     For example, --dns=8.8.8.8,8.8.4.4 will use google
+                     nameservers
 
           Description:
 
