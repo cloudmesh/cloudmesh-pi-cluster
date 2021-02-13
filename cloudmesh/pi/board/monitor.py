@@ -195,7 +195,7 @@ class Monitor:
         try:
 
             print()
-            print("To exit close the anmimation window")
+            print("To exit close the animation window")
 
             ani = FuncAnimation(plt.gcf(), animate, int(rate * 1000))  # noqa: F841
 

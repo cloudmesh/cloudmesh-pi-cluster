@@ -263,7 +263,7 @@ class Bridge:
                 # I believe this is a sufficient check
                 if status != 0:
                     message = textwrap.dedent(f"""
-                    Could not ping {host} successfuly.
+                    Could not ping {host} successfully.
                     
                     Rebooting {host} may fix the problem.
 
@@ -272,7 +272,7 @@ class Bridge:
                     Console.warning(message)
                 else:
                     count += 1
-                    Console.ok(f"Successfuly pinged {host}")
+                    Console.ok(f"Successfully pinged {host}")
 
         Console.ok(
             f'Completed checks. {count} out of {hosts_to_check} checks succeeded.')
@@ -304,18 +304,18 @@ class Bridge:
             time.sleep(2)
             if not cls._dhcpcd_active(iface=priv_iface):
                 Console.error(
-                    'Timeout: Could not boot dhcpcd in the allotted amont of time. '
+                    'Timeout: Could not boot dhcpcd in the allotted amohnt of time. '
                     'Use `sudo service dhcpcd status` for more info.')
                 sys.exit(1)
 
-            Console.ok("Verified dhcpcd status successfuly")
+            Console.ok("Verified dhcpcd status successfully")
 
         Console.info("Restarting dnsmasq please wait...")
         status = cls._system('sudo service dnsmasq restart', exitcode=True)
         if status != 0:
             Console.error('Did not restart manager dnsmasq service correctly')
             sys.exit(1)
-        Console.ok("Restarted dnsmasq successfuly")
+        Console.ok("Restarted dnsmasq successfully")
 
         Console.ok("Restarted bridge service on manager")
 
@@ -418,7 +418,7 @@ class Bridge:
                     'sudo service dhcpcd status | grep Active')
                 return 'running' in status_line
 
-            # Occassionally dhcpcd fails to start when using WiFi.
+            # Occasionally dhcpcd fails to start when using WiFi.
             # Unresolved bug as it works after a few restarts
             elif code != 0:
                 if restartCount >= 5:
@@ -473,7 +473,7 @@ class Bridge:
         """)
 
         banner(f"""
-        Successfuly configured an internet bridge on this pi. Please reboot
+        Successfully configured an internet bridge on this pi. Please reboot
         for changes to take effect.
         
         Details:

@@ -14,7 +14,7 @@ Note on deprecated commands.
 
 Previously cms bridge would install dnsmasq and configure a dhcp server for
 connected machines. This has been changed. Bridge will now simply enable
-ipv4 forwarding accross the specified interface and configure the proper
+ipv4 forwarding across the specified interface and configure the proper
 iptable rules. As such, several commands are now outdated (as indicated
 with print statements below). Cleanup is due for this.
 """
@@ -32,7 +32,7 @@ class BridgeCommand(PluginCommand):
 
           Options:
               --interface=INTERFACE  The interface name [default: eth1]
-                                     You can also specify wlan0 if you wnat
+                                     You can also specify wlan0 if you want
                                      to bridge through WIFI on the manager
                                      eth0 requires a USB to WIFI adapter
 
@@ -69,7 +69,7 @@ class BridgeCommand(PluginCommand):
             # hosts = Parameter.expand(arguments.HOSTS)
             # Bridge.set(workers=hosts, addresses=addresses)
             # banner(f"""
-            # You have successfuly set static ip(s) for
+            # You have successfully set static ip(s) for
             # {arguments.HOSTS} with ips {arguments.ADDRESSES}
 
             # To see changes on server, run:
@@ -134,7 +134,7 @@ class BridgeCommand(PluginCommand):
             #     else:
             #         os.system(
             #             'nohup cms bridge restart >
-            # brige_restart.log 2>&1 &')
+            # bridge_restart.log 2>&1 &')
 
             # else:
             #     StopWatch.start('Network Service Restart')

@@ -48,10 +48,10 @@ class PiCommand(PluginCommand):
 
           Description:
 
-            This command switches on and off the LEDs of the specified PIs. If
-            the hostname is ommitted. IT is assumed that the code is executed on
-            a PI and its LED are set. To list the PIs LED status you can use the
-            list command
+            This command switches on and off the LEDs of the specified
+            PIs. If the hostname is omitted. It is assumed that the
+            code is executed on a PI and its LED are set. To list the
+            PIs LED status you can use the list command
 
             Examples:
 
@@ -73,8 +73,8 @@ class PiCommand(PluginCommand):
 
                 cms pi led red sequence  "red,red[01-03]"
 
-                    goes in sequential order and switches on and off the led of
-                    the given PIs
+                    goes in sequential order and switches on and off
+                    the led of the given PIs
 
         """
 
