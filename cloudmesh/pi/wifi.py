@@ -2,6 +2,7 @@ import textwrap
 
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import writefile
+from cloudmesh.common.util import sudo_writefile
 
 
 class Wifi:
@@ -20,7 +21,9 @@ class Wifi:
     """)  # noqa: W293
 
     @staticmethod
-    def set(ssid, password, dryrun=False):
+    def set(ssid, password, location=None, sudo=False, dryrun=False):
+        location = location or Wifi.location
+
         if ssid is None or password is None:
             Console.error("SSID or password not set")
         if dryrun:
@@ -28,10 +31,14 @@ class Wifi:
         config = Wifi.template.format(**locals()) \
             .replace("BEGIN", "{").replace("END", "}")
         if dryrun:
-            print(Wifi.location)
+            print(location)
             print(config)
         else:
             try:
-                writefile(Wifi.location, config)
+                if sudo:
+                    sudo_writefile(location, config)
+                else:
+                    writefile(location, config)
+
             except FileNotFoundError as e:  # noqa: F841
-                Console.error(f"The file does not exist: {Wifi.location}")
+                Console.error(f"The file does not exist: {location}")
