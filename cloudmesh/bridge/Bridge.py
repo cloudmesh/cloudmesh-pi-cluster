@@ -609,6 +609,13 @@ class Bridge:
                         curr_config[index + 2] = static_dns
                     except IndexError:
                         curr_config.append(static_dns)
+                else: # Remove nameserver if it exists
+                    try:
+                        if 'static domain_name_servers' in curr_config[index + 2]:
+                            Console.warning("Found static domain_name_servers, but --dns is not set. Removing line.")
+                        curr_config[index + 2] = ""
+                    except IndexError:
+                        pass
             else:
                 curr_config.append(iface)
                 curr_config.append(static_ip)
