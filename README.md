@@ -361,10 +361,10 @@ Options:
 
 Description:
 
-  This command switches on and off the LEDs of the specified PIs. If
-  the hostname is ommitted. IT is assumed that the code is executed on
-  a PI and its LED are set. To list the PIs LED status you can use the
-  list command
+  This command switches on and off the LEDs of the specified
+  PIs. If the hostname is omitted. It is assumed that the
+  code is executed on a PI and its LED are set. To list the
+  PIs LED status you can use the list command
 
   Examples:
 
@@ -386,8 +386,8 @@ Description:
 
       cms pi led red sequence  "red,red[01-03]"
 
-          goes in sequential order and switches on and off the led of
-          the given PIs
+          goes in sequential order and switches on and off
+          the led of the given PIs
 
 
 ```
@@ -407,30 +407,38 @@ Description:
 
 
 
+
 ### Bridge Command
 
 <!--MANUAL-BRIDGE-->
 ```
+  bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
 
 Options:
-    --interface=INTERFACE  The interface name [default: eth1]
-                           You can also specify wlan0 if you wnat
-                           to bridge through WIFI on the manager
-                           eth0 requires a USB to WIFI adapter
+  --interface=INTERFACE  The interface name [default: eth1]
+                         You can also specify wlan0 if you want
+                         to bridge through WIFI on the manager
+                         eth0 requires a USB to WIFI adapter
 
-   --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
+  --ip=IP  The ip address to assign on the eth0 interface,
+           ie. the listening interface [default: 10.1.1.1]
+
+  --dns=NAMESERVER  The ip address of a nameserver to set
+                    statically. For example, --dns=8.8.8.8,8.8.4.4
+                    will use the google nameservers
 
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
   trough the manager PI.
 
-  bridge create [--interface=INTERFACE] [--ip=IP]
+  bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
       creates the bridge on the current device.
       A reboot is required.
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -472,7 +480,3 @@ Description:
 
 * mongo: distributed deployment of mongo. This branch is essentially
   empty. We may delete it due to inactivity.
-
-
-
-

@@ -26,31 +26,32 @@ class BridgeCommand(PluginCommand):
     @command
     def do_bridge(self, args, arguments):
         """
-          Usage:
-            bridge create [--interface=INTERFACE] [--ip=IP]
-            [--dns=NAMESERVER]
+        ::
 
-          Options:
+            Usage:
+              bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
+
+            Options:
               --interface=INTERFACE  The interface name [default: eth1]
                                      You can also specify wlan0 if you want
                                      to bridge through WIFI on the manager
                                      eth0 requires a USB to WIFI adapter
 
-             --ip=IP  The ip address to assign on the eth0 interface,
-                      ie. the listening interface [default: 10.1.1.1]
+              --ip=IP  The ip address to assign on the eth0 interface,
+                       ie. the listening interface [default: 10.1.1.1]
 
-            --dns=NAMESERVER  The ip address of a nameserver to set statically
-                     For example, --dns=8.8.8.8,8.8.4.4 will use google
-                     nameservers
+              --dns=NAMESERVER  The ip address of a nameserver to set
+                                statically. For example, --dns=8.8.8.8,8.8.4.4
+                                will use the google nameservers
 
-          Description:
+            Description:
 
-            Command used to set up a bride so that all nodes route the traffic
-            trough the manager PI.
+              Command used to set up a bride so that all nodes route the traffic
+              trough the manager PI.
 
-            bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
-                creates the bridge on the current device.
-                A reboot is required.
+              bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
+                  creates the bridge on the current device.
+                  A reboot is required.
         """
 
         map_parameters(arguments,
