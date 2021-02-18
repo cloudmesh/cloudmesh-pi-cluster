@@ -59,7 +59,8 @@ class Bridge:
         cls.dryrun = dryrun
         cls.ext_interface = ext_interface
         cls.priv_interface = priv_interface
-        cls.nameserver = None if dns is None else ' '.join(dns.split(',')) # dhcpcd conf required nameserver IPs be separated by space
+        cls.nameserver = None if dns is None else ' '.join(dns.split(','))
+        # dhcpcd conf required nameserver IPs be separated by space
 
         # manager configuration
         StopWatch.start('Manager Configuration')
@@ -609,7 +610,7 @@ class Bridge:
                         curr_config[index + 2] = static_dns
                     except IndexError:
                         curr_config.append(static_dns)
-                else: # Remove nameserver if it exists
+                else:  # Remove nameserver if it exists
                     try:
                         if 'static domain_name_servers' in curr_config[index + 2]:
                             Console.warning("Found static domain_name_servers, but --dns is not set. Removing line.")
