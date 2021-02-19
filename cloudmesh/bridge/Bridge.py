@@ -10,9 +10,9 @@ from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import readfile
-from cloudmesh.common.util import sudo_readfile, sudo_writefile
+from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import writefile
-
+from cloudmesh.common.sudo import Sudo
 
 #
 # These methods are not parallel but just work in one processor
@@ -193,7 +193,7 @@ class Bridge:
 
                 conf += to_add
 
-                sudo_writefile('/etc/dnsmasq.conf', '\n'.join(conf) + '\n')
+                Sudo.writefile('/etc/dnsmasq.conf', '\n'.join(conf) + '\n')
                 Console.ok("Added IP's to dnsmasq")
 
     @classmethod
@@ -289,7 +289,7 @@ class Bridge:
         # Clear lease log
         if Path('/var/lib/misc/dnsmasq.leases').is_file():
             Console.info("Clearing leases file...")
-            sudo_writefile('/var/lib/misc/dnsmasq.leases', "\n")
+            Sudo.writefile('/var/lib/misc/dnsmasq.leases', "\n")
 
         # If nohup is true, do not restart dhcpcd
         if not nohup:
@@ -365,7 +365,7 @@ class Bridge:
             curr_leases = "\n"
 
         toWrite = '\n'.join(info) + curr_leases
-        sudo_writefile('~/.cloudmesh/bridge/info', toWrite)
+        Sudo.writefile('~/.cloudmesh/bridge/info', toWrite)
 
         banner(toWrite, color='CYAN')
 
@@ -484,7 +484,7 @@ class Bridge:
         """, color='CYAN')  # noqa: W293
 
         cls._system('sudo mkdir -p ~/.cloudmesh/bridge')
-        sudo_writefile('~/.cloudmesh/bridge/info', info)
+        Sudo.writefile('~/.cloudmesh/bridge/info', info)
 
     @classmethod
     def _config_dnsmasq(cls):
@@ -512,7 +512,7 @@ class Bridge:
             """)
 
             Console.info("Rewriting /etc/dnsmasq.conf")
-            sudo_writefile('/etc/dnsmasq.conf', config)
+            Sudo.writefile('/etc/dnsmasq.conf', config)
 
             # Also add sleep 10 to /etc/init.d/dnsmasq so that it waits for dhcp to start
 
@@ -523,7 +523,7 @@ class Bridge:
                 # The first line in initFile is #!/bin/sh
                 # Move it to index 0 of temp
                 temp[0], temp[1] = temp[1], temp[0]
-                sudo_writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
+                Sudo.writefile('/etc/init.d/dnsmasq', '\n'.join(temp) + '\n')
 
     @classmethod
     def _install_dnsmasq(cls):
@@ -623,7 +623,7 @@ class Bridge:
                 if cls.nameserver:
                     curr_config.append(static_dns)
 
-            sudo_writefile('/etc/dhcpcd.conf', '\n'.join(curr_config) + '\n')
+            Sudo.writefile('/etc/dhcpcd.conf', '\n'.join(curr_config) + '\n')
             Console.ok('Successfully wrote to /etc/dhcpcd.conf')
 
     @classmethod
@@ -658,7 +658,7 @@ class Bridge:
                     Console.error(
                         "Could not set iPv4 forwarding. Unknown error occurred")
                 finally:
-                    sudo_writefile('/etc/sysctl.conf', '\n'.join(old_conf))
+                    Sudo.writefile('/etc/sysctl.conf', '\n'.join(old_conf))
             else:
                 Console.info("iPv4 forwarding already set. Skipping iPv4 setup")
 
@@ -711,7 +711,7 @@ class Bridge:
                 old_conf.append(restore_command)
                 old_conf[-1], old_conf[-2] = old_conf[-2], old_conf[
                     -1]  # Places 'exit 0' below our restore_command
-                sudo_writefile('/etc/rc.local', '\n'.join(old_conf) + '\n')
+                Sudo.writefile('/etc/rc.local', '\n'.join(old_conf) + '\n')
 
             else:
                 Console.warning("iptables restoration already in rc.local")
