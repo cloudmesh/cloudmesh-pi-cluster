@@ -18,6 +18,7 @@ from cloudmesh.common.sudo import Sudo
 # These methods are not parallel but just work in one processor
 #
 
+
 class Bridge:
     """
     A simple Bridge to connect workers to the internet through a port on the
