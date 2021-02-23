@@ -32,28 +32,54 @@ class PiCommand(PluginCommand):
             pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
             pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
             pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+            pi wifi SSID [PASSWORD] [--dryrun]
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
-            pi wifi SSID [PASSWORD] [--dryrun]
 
-          This command does some useful things.
 
           Arguments:
-              FILE   a file name
+              NAME        Name or ip of the machine to log in
+              list        Lists the machines that are registered and
+                          the commands to login to them
+              PARAMETERS  Register te resource and add the given
+                          parameters to the ssh config file.  if the
+                          resource exists, it will be overwritten. The
+                          information will be written in /.ssh/config
 
-          Options:
-              -f      specify the file
-
+            Options:
+               -v                verbose mode
+               --output=OUTPUT   the format in which this list is given
+                                 formats includes cat, table, json, yaml,
+                                 dict. If cat is used, it is just print
 
           Description:
 
-            This command switches on and off the LEDs of the specified
-            PIs. If the hostname is omitted. It is assumed that the
-            code is executed on a PI and its LED are set. To list the
-            PIs LED status you can use the list command
+                This command allows to set the leds on the PI board and return
+                information about the PIs such as temperature, memory space and
+                load. It also allows to set the wifi for the PI.
+
+                The most important part of this command is that it executes it not
+                only on ome pi but multiple. The hostnames are defined by a parameterized
+                notation. red0[1-2] results in red01 and red02.
+
+                The script command are not yet completed and is under development
+
+                The script commands can be used as an alternative to shell scripts.
+                They are predefined scripts that can be run easily vai the command
+                The script commands are listing details. This is useful as they are
+                distributed with the cloudmesh shell. Thus no additional files are
+                needed.
+
+                At this time we do not define any predefined scripts.
+
 
             Examples:
+
+                This command switches on and off the LEDs of the specified
+                PIs. If the hostname is omitted. It is assumed that the
+                code is executed on a PI and its LED are set. To list the
+                PIs LED status you can use the list command
 
                 cms pi led list  "red,red[01-03]"
 
@@ -75,6 +101,24 @@ class PiCommand(PluginCommand):
 
                     goes in sequential order and switches on and off
                     the led of the given PIs
+
+                To showcase information about temperature free space an load
+                you can ues
+
+                    pi temp "red,red[01-03]"
+                    pi free "red,red[01-03]"
+                    pi load "red,red[01-03]"
+
+                To set the WIFI use (where SSID is your ssid). The command
+                requires a reboot to activate the WIfi.
+
+                    pi wifi SSID
+
+                The script commands are not yet implemented
+
+                    pi script list SERVICE [--details]
+                    pi script list SERVICE NAMES
+                    pi script list
 
         """
 
