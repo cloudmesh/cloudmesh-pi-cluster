@@ -50,8 +50,7 @@ class PiCommand(PluginCommand):
                                 formats includes cat, table, json, yaml,
                                 dict. If cat is used, it is just print
                --user=USER      the user name
-               --user=SECONDS   repeats the quere given by the rate in seconds
-
+               --rate=SECONDS   repeats the quere given by the rate in seconds
 
           Description:
 

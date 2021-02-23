@@ -57,10 +57,6 @@ class BridgeCommand(PluginCommand):
         map_parameters(arguments,
                        'interface',
                        'ip',
-                       'range',
-                       'workers',
-                       'purge',
-                       'nohup',
                        'dns')
 
         if arguments.set:
