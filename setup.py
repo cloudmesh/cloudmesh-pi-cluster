@@ -33,6 +33,7 @@ cloudmesh-cmd5
 cloudmesh-sys
 cloudmesh-inventory
 cloudmesh-configuration
+cloudmesh-ssh
 cloudmesh-pi-burn
 pygal
 matplotlib
