@@ -29,29 +29,29 @@ class PiCommand(PluginCommand):
             pi led list NAMES [--user=USER]
             pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
             pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
-            pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-            pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-            pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+            pi temp NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
+            pi free NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
+            pi load NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi wifi SSID [PASSWORD] [--dryrun]
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
 
-
           Arguments:
-              NAME        Name or ip of the machine to log in
-              list        Lists the machines that are registered and
-                          the commands to login to them
-              PARAMETERS  Register te resource and add the given
-                          parameters to the ssh config file.  if the
-                          resource exists, it will be overwritten. The
-                          information will be written in /.ssh/config
+              NAMES       The hostnames in parameterized form
+              VALUE       The Values are on, off, 0, 1
+              USER        The user name for a login
+              SSID        The ssid of your WIfi
+              PASSWORD    The assword for the WIFI
 
             Options:
-               -v                verbose mode
-               --output=OUTPUT   the format in which this list is given
-                                 formats includes cat, table, json, yaml,
-                                 dict. If cat is used, it is just print
+               -v               verbose mode
+               --output=OUTPUT  the format in which this list is given
+                                formats includes cat, table, json, yaml,
+                                dict. If cat is used, it is just print
+               --user=USER      the user name
+               --user=SECONDS   repeats the quere given by the rate in seconds
+
 
           Description:
 
