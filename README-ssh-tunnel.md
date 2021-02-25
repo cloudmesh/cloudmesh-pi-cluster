@@ -116,7 +116,7 @@ you@laptop:~ $ ssh red001
 
 ### Can ProxyJump be used for arbitary services?
 
-I don't know yet. Based on a quick glance at this article, the answer is **no**, but it can be useful if you need to tunnel through multiple hosts.
+I don't know yet. Based on a quick glance at this article, the answer is **no**, but it can be useful if you need to tunnel through multiple hosts before starting a remote port forward.
 
 <https://medium.com/maverislabs/proxyjump-the-ssh-option-you-probably-never-heard-of-2d7e41d43464>
 
