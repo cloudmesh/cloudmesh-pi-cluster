@@ -80,6 +80,7 @@ Currently the command below will setup a autossh tunnel for ssh access to the wo
 ```
 pi@manger $ cms host tunnel create red00[1-2] [--port]
 ```
+If the wifi IP changes, the above command needs to be run again, but the ssh config on the laptop will not need to be changed unless the user specifies new ports.
 
 
 ### How to use ProxyJump for SSH access to internal node via the manager node
