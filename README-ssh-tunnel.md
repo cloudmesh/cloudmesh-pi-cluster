@@ -34,7 +34,7 @@ Finally we can ssy from the laptop to the worker.
 you@laptop:~ $ ssh red001
 ```
 
-However, this tunnel is not permanent as is. Besides manager or worker restarts, it is also subject to communication failures, such as timeouts, that will cause the tunnel to break. This will force the user to re-run the command to create the tunnel, and in some cases, find and kill a failed but still existing tunnel process. 
+**However, this tunnel is not permanent as is.** Besides manager or worker restarts, it is also subject to communication failures, such as timeouts, that will cause the tunnel to break. This will force the user to re-run the command to create the tunnel, and in some cases, find and kill a failed but still existing tunnel process. 
 
 For additional visualizations and discussion of local and remote port forwarding see <http://dirk-loss.de/ssh-port-forwarding.htm>
 
