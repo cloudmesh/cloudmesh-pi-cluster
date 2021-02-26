@@ -2,7 +2,7 @@
 
 ### How to do a local port forward for internal node SSH access via the manager node
 
-> NOTE: This is actually more than what is needed if all you ant is SSH, see ProxyJump section below
+> NOTE: This is actually more than what is needed if all you want is SSH, see ProxyJump section below
 
 In this image below we setup a ssh tunnel on the manager pi to enable ssh access from the laptop to the worker node Red001. 
 
