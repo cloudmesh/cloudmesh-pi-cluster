@@ -33,6 +33,12 @@ class PiCommand(PluginCommand):
             pi free NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi load NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi wifi SSID [PASSWORD] [--dryrun]
+            pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
+            pi k3 join --master=MASTER --workers=WORKERS
+            pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
+            pi k3 delete [--master=MASTER] [--workers=WORKERS]
+            pi k3 test [--master=MASTER] [--workers=WORKERS]
+            pi k3 view
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
