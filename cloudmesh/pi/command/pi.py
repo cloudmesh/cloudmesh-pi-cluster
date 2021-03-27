@@ -36,6 +36,7 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
+            pi nfs install --hostnames=HOSTNAMES [--manager=MANAGER]
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -118,6 +119,17 @@ class PiCommand(PluginCommand):
                     pi script list SERVICE [--details]
                     pi script list SERVICE NAMES
                     pi script list
+
+                pi nfs install --hostnames=HOSTNAMES [--manager=MANAGER]
+
+                    Installs an NFS server on the pi cluster that
+                    can be accessed from the workers. If manager is not
+                    specified the first host in hostname is supposed to be
+                    the manager. Multiple NFS servers in teh clusyter could exists.
+
+                pi nfs register --hostnames=HOSTNAME --manager=MANAGER
+
+                    registers to the given hostnames the manager
 
         """
 
