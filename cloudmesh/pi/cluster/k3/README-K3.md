@@ -30,6 +30,10 @@ pi k3 view
 
 pi k3 monitor
 
+## Kubernetes/k3 monitoring
+
+TBD
+
 ## Other notes
 
 Inventory name for each cluster. Mechanism to setup multiple clusters, ability to active/deactive the nodes
