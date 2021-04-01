@@ -12,6 +12,7 @@ from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
+from cloudmesh.nfs.Nfs import Nfs
 
 
 class PiCommand(PluginCommand):
@@ -43,7 +44,7 @@ class PiCommand(PluginCommand):
               VALUE       The Values are on, off, 0, 1
               USER        The user name for a login
               SSID        The ssid of your WIfi
-              PASSWORD    The assword for the WIFI
+              PASSWORD    The password for the WIFI
 
             Options:
                -v               verbose mode
@@ -52,6 +53,8 @@ class PiCommand(PluginCommand):
                                 dict. If cat is used, it is just print
                --user=USER      the user name
                --rate=SECONDS   repeats the quere given by the rate in seconds
+               --hostnames=HOSTNAMES  hostnames for clients and optionally the server
+               --manager=MANAGER  hostname for the server
 
           Description:
 
@@ -182,5 +185,12 @@ class PiCommand(PluginCommand):
 
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
+        elif arguments.nfs:
+
+            nfs = Nfs()
+            nfs.info()
+
+            
+
 
         return ""

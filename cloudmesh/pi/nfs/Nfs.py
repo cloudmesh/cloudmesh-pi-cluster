@@ -7,7 +7,14 @@ class Nfs:
         raise NotImplementedError
 
     def install(self):
-        raise NotImplementedError
+        print("Testing")
+        '''sudo apt-get install nfs-kernel-server
+        sudo mkdir /mnt/nfs
+        sudo chown -R pi:pi /mnt/nfs 
+        sudo mount /dev/sda1 /mnt/nfs '''
 
     def uninstall(self):
-        rasie NotImplementedError
+        raise NotImplementedError
+
+    def info(self):
+        print("Is the nfs server running")
