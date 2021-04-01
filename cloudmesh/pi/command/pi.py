@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from getpass import getpass
 
 from cloudmesh.pi.cluster.Installer import Script
@@ -36,6 +38,10 @@ class PiCommand(PluginCommand):
             pi script list SERVICE NAMES
             pi script list
             pi nfs install --hostnames=HOSTNAMES [--manager=MANAGER]
+            pi nfs uninstall --hostnames=HOSTNAMES[--manager=MANAGER]
+            pi nfs share --path=PATH
+            pi nfs df
+            pi nfs dh
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -51,8 +57,8 @@ class PiCommand(PluginCommand):
                                 dict. If cat is used, it is just print
                --user=USER      the user name
                --rate=SECONDS   repeats the quere given by the rate in seconds
-               --hostnames=HOSTNAMES   hostnames for clients and optionally the server
-               --manager=MANAGER       hostname for the server
+               --hostnames=HOSTNAMES  hostnames for clients and optionally the server
+               --manager=MANAGER  hostname for the server
 
           Description:
 
@@ -184,10 +190,17 @@ class PiCommand(PluginCommand):
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
 
-        elif arguments.nfs:
-
+        elif arguments.nfs and arguments.info:
             nfs = Nfs()
             nfs.info()
+
+        elif arguments.nfs and arguments.install:
+            nfs = Nfs()
+            nfs.install()
+
+        elif arguments.nfs and arguments.share:
+            nfs = Nfs()
+            nfs.share(path=arguments.PATH, hostnames=arguments.HOSTNAMES)
 
 
         return ""
