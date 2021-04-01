@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from getpass import getpass
 
 from cloudmesh.pi.cluster.Installer import Script
@@ -12,7 +10,7 @@ from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.nfs.Nfs import Nfs
+from cloudmesh.pi.nfs.Nfs import Nfs
 
 
 class PiCommand(PluginCommand):
@@ -53,8 +51,8 @@ class PiCommand(PluginCommand):
                                 dict. If cat is used, it is just print
                --user=USER      the user name
                --rate=SECONDS   repeats the quere given by the rate in seconds
-               --hostnames=HOSTNAMES  hostnames for clients and optionally the server
-               --manager=MANAGER  hostname for the server
+               --hostnames=HOSTNAMES   hostnames for clients and optionally the server
+               --manager=MANAGER       hostname for the server
 
           Description:
 
@@ -185,12 +183,11 @@ class PiCommand(PluginCommand):
 
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
+
         elif arguments.nfs:
 
             nfs = Nfs()
             nfs.info()
-
-            
 
 
         return ""
