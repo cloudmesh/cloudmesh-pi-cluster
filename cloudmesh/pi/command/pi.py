@@ -12,7 +12,7 @@ from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-
+from cloudmesh.pi.cluster.k3.k3 import Installer, K3
 
 class PiCommand(PluginCommand):
 
@@ -176,5 +176,9 @@ class PiCommand(PluginCommand):
 
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
+
+        elif arguments.k3:
+            k3 = K3()
+            k3.execute(arguments)
 
         return ""
