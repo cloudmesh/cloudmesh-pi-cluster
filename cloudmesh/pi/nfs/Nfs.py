@@ -1,5 +1,6 @@
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.Shell import Shell
+from cloudmesh.common.Host import Host
 
 class Nfs:
 
@@ -23,7 +24,7 @@ class Nfs:
     def share(self,paths,hostnames=None):
         mounting, mountingTo = paths.split(',')
         print('Check Mounts',mounting,mountingTo)
-        
+
         #create and bind paths on manager
         Sudo.execute(f'''mkdir -p {mountingTo} && 
                         chown -R pi:pi {mountingTo} && 
@@ -35,7 +36,7 @@ class Nfs:
         #SHARE EXPORT PATH WITH WORKERS
 
         #get manager IP
-        managerIP = Shell.run('hostname -I').strip()
+        managerIP = Shell.run('hostname -I').split(' ')[1]
 
         try:
             workers = hostnames.split(',')
@@ -46,10 +47,16 @@ class Nfs:
                 Sudo.writefile('/etc/exports',f'{mountingTo} {worker}(rw,no_root_squash,sync,no_subtree_check)',append=True)
                 
                 #ssh into workers, mount directory
-                Sudo.execute(f'''ssh {worker} &&
-                                mkdir {mountingTo} &&
-                                chown -R pi:pi {mountingTo} &&
-                                mount {managerIP}:{mountingTo} {mountingTo}''')
+                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mkdir -p {mountingTo}")
+                print(r)
+                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo chown -R pi:pi {mountingTo}")
+                print(r)
+                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount pi@{managerIP}:{mountingTo} {mountingTo}")
+                print(r)
+                # Sudo.execute(f'''ssh pi@{worker} &&
+                #                 mkdir {mountingTo} &&
+                #                 chown -R pi:pi {mountingTo} &&
+                #                 mount {managerIP}:{mountingTo} {mountingTo}''')
         
         except AttributeError as e:
             print("No hostnames provided")
