@@ -11,6 +11,7 @@ import subprocess
 import socket
 import fcntl
 import struct
+from pprint import pprint
 
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
@@ -23,7 +24,9 @@ import sys
 from cloudmesh.common.util import banner
 from pprint import pprint
 import textwrap
-from cloudmesh.common.Tabulate import Printer
+#from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.Host import Host
+from cloudmesh.common.Printer import Printer
 
 
 class Installer:
@@ -75,6 +78,7 @@ class K3(Installer):
         pi k3 delete --workers=WORKERS
         pi k3 test [--manager=MANAGER] [--workers=WORKERS]
         pi k3 view
+        pi k3 add_c_groups NAMES
         :param arguments:
         :return:
         """
@@ -116,6 +120,10 @@ class K3(Installer):
 
         if arguments.view:
             self.view()
+
+        if arguments.add_c_groups:
+            self.add_c_groups(arguments.NAMES)
+
 
     def enable_containers(self, filename="/boot/cmdline.txt", hosts=None):
         line = "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
@@ -341,3 +349,84 @@ class K3(Installer):
     def view(self):
         os.system("sudo kubectl get node -o wide")
         # TODO - What other information about the chuster can I present
+
+    def _print(self,results):
+        print(Printer.write(results,
+                            order=['host', 'success', 'stdout'],
+                            output='table'))
+
+    def add_c_groups(self, names):
+        names = Parameter.expand(names)
+        Console.info(f'Enabling cgroups for {names}')
+        cgroups = 'cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
+        command = f"""if test -f /boot/firmware/cmdline.txt
+                then
+                  FILE=/boot/firmware/cmdline.txt
+                elif test -f /boot/cmdline.txt
+                then
+                  FILE=/boot/cmdline.txt    
+                fi              
+                if grep -q "{cgroups}" $FILE
+                then
+                  true
+                else
+                  sudo sed -i "$ s/$/ cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory/" $FILE
+                fi"""
+
+        results = Host.ssh(
+            hosts=names,
+            command=command
+        )
+        print(Printer.write(results,
+                            order=['host', 'success', 'stdout'],
+                            output='table'))
+
+        manager, workers = Host.get_hostnames(names)
+
+        command = 'sudo reboot'
+        if workers:
+            Console.info(f'Executing `{command}` for {workers}')
+            Host.ssh(hosts=workers, command=command)
+
+        if manager:
+            Console.info(f'Executing `{command}` for {manager}')
+            Host.ssh(hosts=manager, command=command)
+
+        # JOBSET VERSION WILL DELETE after confirm this is not preferred
+        """        
+        jobSet = JobSet("kubernetes_enable_containers",
+                        executor=JobSet.ssh)
+        for host in names:
+            jobSet.add({"name": host, "host": host, "command": command})
+        jobSet.run()
+        #jobSet.Print()
+
+        d = dict(jobSet.job)
+        for host,v in d.items():
+           if d[host]["returncode"] == 0 and d[host]["stdout"] == b"":
+                print(f'Host: {host} SUCCESS')
+           else:
+                print(f'Host: {host} FAIL')
+                pprint(d[host])
+
+        Console.info(f"Rebooting {names}")
+
+        manager, workers = Host.get_hostnames(names)
+
+        command = 'sudo shutdown -h now'
+
+        if workers:
+            jobSet = JobSet("kubernetes_reboot",
+                            executor=JobSet.ssh)
+            for host in workers:
+                jobSet.add({"name": host, "host": host, "command": command})
+            jobSet.run()
+
+        if manager:
+            jobSet = JobSet("kubernetes_reboot",
+                            executor=JobSet.ssh)
+            jobSet.add({"name": manager, "host": manager, "command": command})
+            jobSet.run()
+        """
+
+

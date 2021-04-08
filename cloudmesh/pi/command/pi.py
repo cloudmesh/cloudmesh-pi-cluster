@@ -39,6 +39,7 @@ class PiCommand(PluginCommand):
             pi k3 delete [--manager=MANAGER] [--workers=WORKERS]
             pi k3 test [--manager=MANAGER] [--workers=WORKERS]
             pi k3 view
+            pi k3 add_c_groups NAMES
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
