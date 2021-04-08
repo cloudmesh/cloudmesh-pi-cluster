@@ -34,7 +34,7 @@ class PiCommand(PluginCommand):
             pi free NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi load NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi wifi SSID [PASSWORD] [--dryrun]
-            pi k3 add_c_groups NAMES
+            pi k3 enable containers NAMES
             pi k3 install server NAMES
             pi k3 install agent NAMES SERVER
             pi k3 install cluster NAMES

@@ -59,7 +59,7 @@ class K3(Installer):
 
     def execute(self, arguments):
         """
-        pi k3 add_c_groups NAMES
+        pi k3 enable containers NAMES
         pi k3 install server NAMES
         pi k3 install agent NAMES SERVER
         pi k3 install cluster NAMES
@@ -88,12 +88,12 @@ class K3(Installer):
         elif arguments.uninstall and arguments.cluster:
             self.uninstall_cluster(arguments.NAMES)
 
-        elif arguments.add_c_groups:
+        elif arguments.enable and arguments.containers:
             self.add_c_groups(arguments.NAMES)
 
     def add_c_groups(self, names):
         names = Parameter.expand(names)
-        Console.info(f'Enabling cgroups for {names}')
+        Console.info(f'Enabling containers for {names}')
         cgroups = 'cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
         command = f"""if test -f /boot/firmware/cmdline.txt
                 then
