@@ -12,7 +12,8 @@ from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.pi.cluster.k3.k3 import Installer, K3
+from cloudmesh.pi.cluster.k3.k3 import K3
+
 
 class PiCommand(PluginCommand):
 
@@ -33,12 +34,6 @@ class PiCommand(PluginCommand):
             pi free NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi load NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi wifi SSID [PASSWORD] [--dryrun]
-            pi k3 install [--manager=MANAGER] [--workers=WORKERS] [--step=COMMAND]
-            pi k3 join --manager=MANAGER --workers=WORKERS
-            pi k3 uninstall [--manager=MANAGER] [--workers=WORKERS]
-            pi k3 delete [--manager=MANAGER] [--workers=WORKERS]
-            pi k3 test [--manager=MANAGER] [--workers=WORKERS]
-            pi k3 view
             pi k3 add_c_groups NAMES
             pi k3 install server NAMES
             pi k3 install agent NAMES SERVER
