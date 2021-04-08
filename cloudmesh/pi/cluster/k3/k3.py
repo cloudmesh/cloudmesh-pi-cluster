@@ -63,6 +63,46 @@ class Installer:
             struct.pack('256s', ifname[:15].encode('utf-8'))
         )[20:24])
 
+    @staticmethod
+    def _get_server_ip(server):
+        if os.uname()[1] == server or server == 'localhost':
+            # if server is local host, get eth interface ip
+            ip = Shell.run("hostname -I | awk '{print $1}'").strip()
+        else:
+            #else get eth IP from server remotely
+            command = "hostname -I | awk '{print $1}'"
+            results = Host.ssh(
+                hosts=server,
+                command=command
+            )
+            print(Printer.write(results,
+                                order=['host', 'success', 'stdout'],
+                                output='table'))
+
+        if ip == "" or ip is None:
+            ip = None
+            Console.error("Could not determine SERVER IP")
+        else:
+            Console.info(f'Server IP is {ip}')
+
+        return(ip)
+
+    @staticmethod
+    def _get_server_token(server):
+        Console.info("Fetching the server token")
+
+        command = "sudo cat /var/lib/rancher/k3s/server/node-token"
+        results = Host.ssh(
+            hosts=server,
+            command=command
+        )
+        token = results[0]['stdout'].strip()
+
+        if token == "" or "::server:" not in token:
+            Console.error("Could not determine SERVER token")
+            token = None
+        #Console.info(f'token is {token}')
+        return(token)
 
 class K3(Installer):
 
@@ -79,6 +119,12 @@ class K3(Installer):
         pi k3 test [--manager=MANAGER] [--workers=WORKERS]
         pi k3 view
         pi k3 add_c_groups NAMES
+        pi k3 install server NAMES
+        pi k3 install agent NAMES SERVER
+        pi k3 install cluster NAMES
+        pi k3 uninstall server NAMES
+        pi k3 uninstall agent NAMES
+        pi k3 uninstall cluster NAMES
         :param arguments:
         :return:
         """
@@ -103,25 +149,40 @@ class K3(Installer):
         #    Console.error("You need to specify a manager")
         #    return ""
 
-        if arguments.install:
-            self.install(manager, hosts, step)
+        if arguments.install and arguments.server:
+            self.install_server(arguments.NAMES)
 
-        if arguments.join:
+        elif arguments.install and arguments.agent:
+            self.install_agent(arguments.NAMES, arguments.SERVER)
+
+        elif arguments.install and arguments.cluster:
+            self.install_cluster(arguments.NAMES)
+
+        elif arguments.uninstall and arguments.server:
+            self.uninstall_server(arguments.NAMES)
+
+        elif arguments.uninstall and arguments.agent:
+            self.uninstall_agent(arguments.NAMES)
+
+        elif arguments.uninstall and arguments.cluster:
+            self.uninstall_cluster(arguments.NAMES)
+
+        elif arguments.join:
             self.join(manager, hosts)
 
-        if arguments.uninstall:
+        elif arguments.uninstall:
             self.uninstall(manager, hosts)
 
-        if arguments.delete:
+        elif arguments.delete:
             self.delete(manager, hosts)
 
-        if arguments.test:
+        elif arguments.test:
             self.test(manager, hosts)
 
-        if arguments.view:
+        elif arguments.view:
             self.view()
 
-        if arguments.add_c_groups:
+        elif arguments.add_c_groups:
             self.add_c_groups(arguments.NAMES)
 
 
@@ -428,5 +489,95 @@ class K3(Installer):
             jobSet.add({"name": manager, "host": manager, "command": command})
             jobSet.run()
         """
+    def install_server(self,names):
+        names = Parameter.expand(names)
+        Console.info(f'Installing K3s as stand-alone server on {names}')
+        command = f"curl -sfL https://get.k3s.io | sh -"
+
+        results = Host.ssh(
+            hosts=names,
+            command=command
+        )
+        print(Printer.write(results,
+                            order=['host', 'success', 'stdout'],
+                            output='table'))
+
+    def install_agent(self,names,server):
+        Console.info(f'Installing K3s on {names} as agent of {server}')
+
+        names = Parameter.expand(names)
+        #ip = self._get_server_ip(server)
+        #if ip is None:
+        #    return ""
+        token = self._get_server_token(server)
+        if token is None:
+            return ""
+
+        command = f"curl -sfL https://get.k3s.io | K3S_URL=https://{server}:6443 " \
+                  f"K3S_TOKEN={token} sh -"
+
+        results = Host.ssh(
+            hosts=names,
+            command=command
+        )
+        print(Printer.write(results,
+                            order=['host', 'success', 'stdout'],
+                            output='table'))
+
+    def install_cluster(self,names):
+        names = Parameter.expand(names)
+        manager, workers = Host.get_hostnames(names)
+
+        if manager is None:
+            Console.error("A manager is required, if trying to install a "
+                          "stand-alone cluster on a worker, use `cms pi k3 "
+                          "install server``")
+            return
+
+        self.install_server(manager)
+        self.install_agent(manager,manager)
+        if workers:
+            self.install_agent(workers,manager)
+
+    def uninstall_server(self, names):
+        Console.info(f'Uninstalling server install of K3s on {names}')
+
+        names = Parameter.expand(names)
+        command = "/usr/local/bin/k3s-uninstall.sh"
+
+        results = Host.ssh(
+            hosts=names,
+            command=command
+        )
+        print(Printer.write(results,
+                            order=['host', 'success', 'stdout'],
+                            output='table'))
+
+    def uninstall_agent(self,names):
+        Console.info(f'Uninstalling agent install of K3s on {names}')
+
+        names = Parameter.expand(names)
+
+        command = "/usr/local/bin/k3s-agent-uninstall.sh"
+        results = Host.ssh(
+            hosts=names,
+            command=command
+        )
+        print(Printer.write(results,
+                            order=['host', 'success', 'stdout'],
+                            output='table'))
+
+    def uninstall_cluster(self, names):
+        names = Parameter.expand(names)
+        manager, workers = Host.get_hostnames(names)
+
+        self.uninstall_agent(names)
+        self.uninstall_server(manager)
+
+
+
+
+
+
 
 
