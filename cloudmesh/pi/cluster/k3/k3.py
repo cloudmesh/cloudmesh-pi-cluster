@@ -24,6 +24,24 @@ class Installer:
         return(token)
 
     @staticmethod
+    def _get_server_ip(server, interface):
+        Console.info(f"Fetching the server {interface} IP")
+
+        command = f"ip -4 addr show {interface} | grep inet"
+        results = Host.ssh(
+            hosts=server,
+            command=command
+        )
+        ip_str = results[0]['stdout'].strip()
+        if ip_str == "":
+            Console.error(f"Could not determine SERVER IP for {interface}")
+            ip = None
+        else:
+            ip = ip_str.split(" ")[1].split('/')[0]
+            Console.info(f'Server {interface} IP is {ip}')
+        return(ip)
+
+    @staticmethod
     def _run_and_print(command, names):
         results = Host.ssh(
             hosts=names,
@@ -104,8 +122,19 @@ class K3(Installer):
 
     def install_server(self, names):
         names = Parameter.expand(names)
+        if len(names) > 1:
+            Console.error("This command currently supports only one server")
+            return
         Console.info(f'Installing K3s as stand-alone server on {names}')
-        command = "curl -sfL https://get.k3s.io | sh -"
+        eth_ip = self._get_server_ip(names, 'eth0')
+        wlan_ip = self._get_server_ip(names, 'wlan0')
+        if eth_ip is None or wlan_ip is None:
+            Console.error("Internal and external IP could not be determined, "
+                          "check that both interfaces are up.")
+            return
+        command = 'curl -sfL https://get.k3s.io | ' \
+                  f'INSTALL_K3S_EXEC="--node-ip {eth_ip} ' \
+                  f'--node-external-ip {wlan_ip}" sh -'
         self._run_and_print(command, names)
 
     def install_agent(self, names, server):
