@@ -39,9 +39,8 @@ class PiCommand(PluginCommand):
             pi script list
             pi nfs install --hostnames=HOSTNAMES [--manager=MANAGER]
             pi nfs uninstall --hostnames=HOSTNAMES[--manager=MANAGER]
-            pi nfs share --path=PATH
-            pi nfs df
-            pi nfs dh
+            pi nfs share --paths=PATHS --hostnames=HOSTNAMES
+
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -190,17 +189,19 @@ class PiCommand(PluginCommand):
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
 
-        elif arguments.nfs and arguments.info:
-            nfs = Nfs()
-            nfs.info()
+        elif arguments.nfs:
 
-        elif arguments.nfs and arguments.install:
-            nfs = Nfs()
-            nfs.install()
+            if arguments.info:
+                nfs = Nfs()
+                nfs.info()
 
-        elif arguments.nfs and arguments.share:
-            nfs = Nfs()
-            nfs.share(path=arguments.PATH, hostnames=arguments.HOSTNAMES)
+            if arguments.install:
+                nfs = Nfs()
+                nfs.install()
+
+            if arguments.share:
+                nfs = Nfs()
+                nfs.share(arguments['--paths'],arguments['--hostnames'])
 
 
         return ""
