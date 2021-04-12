@@ -66,6 +66,15 @@ class K3(Installer):
         pi k3 uninstall server NAMES
         pi k3 uninstall agent NAMES
         pi k3 uninstall cluster NAMES
+        pi k3 kill NAMES
+        pi k3 start server NAMES
+        pi k3 start agent NAMES
+        pi k3 start cluster NAMES
+        pi k3 stop server NAMES
+        pi k3 stop agent NAMES
+        pi k3 stop cluster NAMES
+        pi k3 remove node NAMES SERVER
+        pi k3 cluster info SERVER
         :param arguments:
         :return:
         """
@@ -90,6 +99,33 @@ class K3(Installer):
 
         elif arguments.enable and arguments.containers:
             self.add_c_groups(arguments.NAMES)
+
+        elif arguments.start and arguments.server:
+            self.start_server(arguments.NAMES)
+
+        elif arguments.start and arguments.agent:
+            self.start_agent(arguments.NAMES)
+
+        elif arguments.start and arguments.cluster:
+            self.start_cluster(arguments.NAMES)
+
+        elif arguments.stop and arguments.server:
+            self.stop_server(arguments.NAMES)
+
+        elif arguments.stop and arguments.agent:
+            self.stop_agent(arguments.NAMES)
+
+        elif arguments.stop and arguments.cluster:
+            self.stop_cluster(arguments.NAMES)
+
+        elif arguments.remove and arguments.node:
+            self.remove_node(arguments.NAMES, arguments.SERVER)
+
+        elif arguments.cluster and arguments.info:
+            self.cluster_info(arguments.SERVER)
+
+        elif arguments.kill:
+            self.kill_all(arguments.NAMES)
 
     def add_c_groups(self, names):
         names = Parameter.expand(names)
@@ -177,3 +213,106 @@ class K3(Installer):
         manager, workers = Host.get_hostnames(names)
         self.uninstall_agent(names)
         self.uninstall_server(manager)
+
+    def start_server(self,names):
+        Console.info(f'Starting server on {names}')
+        names = Parameter.expand(names)
+        command = "sudo systemctl start k3s"
+        self._run_and_print(command,names)
+
+    def start_agent(self,names):
+        Console.info(f'Starting agent on {names}')
+        names = Parameter.expand(names)
+        command = "sudo systemctl start k3s-agent"
+        self._run_and_print(command,names)
+
+    def start_cluster(self,names):
+        names = Parameter.expand(names)
+        manager, workers = Host.get_hostnames(names)
+        self.start_server(manager)
+        self.start_agent(names)
+
+    def stop_server(self, names):
+        Console.info(f'Stopping server on {names}')
+        names = Parameter.expand(names)
+        command = "sudo systemctl stop k3s"
+        self._run_and_print(command, names)
+
+    def stop_agent(self, names):
+        Console.info(f'Stopping agent on {names}')
+        names = Parameter.expand(names)
+        command = "sudo systemctl stop k3s-agent"
+        self._run_and_print(command, names)
+
+    def stop_cluster(self, names):
+        names = Parameter.expand(names)
+        manager, workers = Host.get_hostnames(names)
+        self.stop_server(manager)
+        self.stop_agent(names)
+
+    def kill_all(self,names):
+        names = Parameter.expand(names)
+        manager, workers = Host.get_hostnames(names)
+        command = "/usr/local/bin/k3s-killall.sh"
+        if workers:
+            Console.info(f'Stopping k3s services and containers on {workers}')
+            self._run_and_print(command, workers)
+        if manager:
+            Console.info(f'Stopping k3s services and containers on {manager}')
+            self._run_and_print(command,manager)
+
+    def remove_node(self,names,server):
+        Console.info(f'Removing agents {names} from server {server}')
+        names = Parameter.expand(names)
+
+        for name in names:
+            Console.info(f'Draining agent {name}')
+            command = f"sudo kubectl drain {name} --ignore-daemonsets " \
+                      f"--delete-emptydir-data"
+            self._run_and_print(command, server)
+
+            Console.info(f'Deleting agents {name}')
+            command = f"sudo kubectl delete node {name}"
+            self._run_and_print(command, server)
+
+    def cluster_info(self,server):
+        Console.info(f'Getting cluster info for {server}')
+        Console.info("sudo kubectl get nodes -o wide")
+        command = "sudo kubectl get nodes -o wide"
+        results = Host.ssh(
+            hosts=server,
+            command=command
+        )
+        output = results[0]['stdout'].strip()
+        print(output)
+
+        nodes = []
+        for line in output.splitlines():
+            node = line.split(" ")[0]
+            if node != "NAME":
+                nodes.append(node)
+
+        Console.info("Server node token")
+        command = "sudo cat cat /var/lib/rancher/k3s/server/node-token"
+
+        results = Host.ssh(
+            hosts=server,
+            command=command
+        )
+        output = results[0]['stdout'].strip()
+        print(output)
+
+        Console.info("Containers running on nodes")
+        command = "sudo crictl ps"
+
+        results = Host.ssh(
+            hosts=nodes,
+            command=command
+        )
+
+        for item in results:
+            print(f"NODE: {item['host']}")
+            print(item['stdout'])
+            print()
+
+

@@ -41,6 +41,15 @@ class PiCommand(PluginCommand):
             pi k3 uninstall server NAMES
             pi k3 uninstall agent NAMES
             pi k3 uninstall cluster NAMES
+            pi k3 kill NAMES
+            pi k3 start server NAMES
+            pi k3 start agent NAMES
+            pi k3 start cluster NAMES
+            pi k3 stop server NAMES
+            pi k3 stop agent NAMES
+            pi k3 stop cluster NAMES
+            pi k3 remove node NAMES SERVER
+            pi k3 cluster info SERVER
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
