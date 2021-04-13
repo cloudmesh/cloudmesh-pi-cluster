@@ -13,6 +13,7 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.pi.cluster.k3.k3 import K3
+from cloudmesh.pi.cluster.microk8s.microk8s import MicroK8s
 
 
 class PiCommand(PluginCommand):
@@ -50,6 +51,17 @@ class PiCommand(PluginCommand):
             pi k3 stop cluster NAMES
             pi k3 remove node NAMES SERVER
             pi k3 cluster info SERVER
+            pi microk8s install snapd NAMES
+            pi microk8s install NAMES
+            pi microk8s uninstall NAMES
+            pi microk8s start NAMES
+            pi microk8s stop NAMES
+            pi microk8s inspect NAMES
+            pi microk8s enable addon ADDONS NAMES
+            pi microk8s cluster info SERVER
+            pi microk8s join NAMES SERVER
+            pi microk8s get node SERVER
+            pi microk8s remove node NAMES
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
@@ -191,5 +203,9 @@ class PiCommand(PluginCommand):
         elif arguments.k3:
             k3 = K3()
             k3.execute(arguments)
+
+        elif arguments.microk8s:
+            microk8s = MicroK8s()
+            microk8s.execute(arguments)
 
         return ""
