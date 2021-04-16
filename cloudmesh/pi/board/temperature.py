@@ -10,7 +10,7 @@ class Temperature(Monitor):
         self.command = \
             'cat' \
             ' /sys/class/thermal/thermal_zone0/temp;' \
-            ' /opt/vc/bin/vcgencmd measure_temp | sed \"s/[^0-9.]//g\"'
+            ' vcgencmd measure_temp | sed \"s/[^0-9.]//g\"'
         self.display = ['cpu', 'gpu']
         self.color = {
             'cpu': 'C0',
