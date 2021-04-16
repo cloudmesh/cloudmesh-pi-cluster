@@ -66,7 +66,7 @@ class Monitor:
     def get(self,
             hosts=None,
             username=None,
-            key="~/.ssh/id_rsa.pub",
+            key="~/.ssh/id_rsa",
             processors=3,
             update=None,
             ):
@@ -74,7 +74,7 @@ class Monitor:
         results = Host.ssh(hosts=hosts,
                            command=self.command,
                            username=username,
-                           key="~/.ssh/id_rsa.pub",
+                           key="~/.ssh/id_rsa",
                            processors=processors,
                            executor=os.system)
 
@@ -86,7 +86,7 @@ class Monitor:
     def watch(self,
               hosts=None,
               username=None,
-              key="~/.ssh/id_rsa.pub",
+              key="~/.ssh/id_rsa",
               rate=3.0,
               processors=3,
               output=None,
@@ -101,7 +101,7 @@ class Monitor:
                 result = self.get(
                     hosts=hosts,
                     username=username,
-                    key="~/.ssh/id_rsa.pub",
+                    key="~/.ssh/id_rsa",
                     processors=3,
                 )
 
@@ -121,7 +121,7 @@ class Monitor:
     def WatchGraph(self,
                    hosts=None,
                    username=None,
-                   key="~/.ssh/id_rsa.pub",
+                   key="~/.ssh/id_rsa",
                    rate=3.0,
                    processors=3,
                    output=None):
@@ -150,7 +150,7 @@ class Monitor:
             results = self.get(
                 hosts=hosts,
                 username=username,
-                key="~/.ssh/id_rsa.pub",
+                key="~/.ssh/id_rsa",
                 processors=3)
 
             plt.cla()
