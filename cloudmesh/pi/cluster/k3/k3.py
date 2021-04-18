@@ -2,6 +2,7 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
+from cloudmesh.pi.cluster.k3.K3SDashboard import K3SDashboard
 
 
 class Installer:
@@ -75,6 +76,9 @@ class K3(Installer):
         pi k3 stop cluster NAMES
         pi k3 remove node NAMES SERVER
         pi k3 cluster info SERVER
+        pi k3 dashboard create SERVER
+        pi k3 dashboard connect SERVER
+        pi k3 dashboard info
         :param arguments:
         :return:
         """
@@ -126,6 +130,16 @@ class K3(Installer):
 
         elif arguments.kill:
             self.kill_all(arguments.NAMES)
+
+        elif arguments.dashboard:
+            # TODO
+            # create to be added into install
+            if arguments.create:
+                K3SDashboard.create(server=arguments.SERVER)
+            elif arguments.info:
+                K3SDashboard.info()
+            elif arguments.connect:
+                K3SDashboard.connect(server=arguments.SERVER)
 
     def add_c_groups(self, names):
         names = Parameter.expand(names)
