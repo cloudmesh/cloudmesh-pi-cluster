@@ -53,6 +53,7 @@ class PiCommand(PluginCommand):
             pi k3 cluster info SERVER
             pi k3 dashboard create SERVER
             pi k3 dashboard connect SERVER
+            pi k3 dashboard disconnect
             pi k3 dashboard info
             pi microk8s install snapd NAMES
             pi microk8s install NAMES

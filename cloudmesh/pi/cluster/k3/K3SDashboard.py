@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 import requests
@@ -79,6 +80,7 @@ class K3SDashboard():
                     but no dashboard is running on {server}:{cls.REMOTE_PORT}.
                     """))
 
+        # Should always just be of length 1
         return entries
 
     @classmethod
@@ -91,9 +93,28 @@ class K3SDashboard():
     @classmethod
     def connect(cls, server=None):
         """
-        Start an ssh tunnel from the local mmachine to server on dashboard port
+        Start a port forwarding connection between local machine and server to access dashboard
         """
-        print("Connect")
+        if server is None:
+            raise Exception('Server arg is None')
+        Console.info("Establishing connection to server dashboard...")
+        ec = os.system(cls.TUNNEL_CMD.format(
+            local_port=cls.LOCAL_PORT, remote_port=cls.REMOTE_PORT, host_name=server))
+        if ec == 0:
+            Console.ok('Connection created. Try "cms pi k3 dashboard info" to verify connection.')
+        else:
+            Console.error(f'Failed to create connection. Non-zero exit code with ssh: {ec}')
+
+    @classmethod
+    def disconnect(cls):
+        """
+        Kill the PID started by cls.connect
+        """
+        info = cls.info(verbose=False)
+        for entry in info:
+            Console.info(f"Disconnecting from {entry['Server Access Point']}...")
+            os.system(f"kill {entry['PID']}")
+            Console.ok("Verify with 'cms pi k3 dashboard info'")
 
     @classmethod
     def get_admin_token(cls, server=None):

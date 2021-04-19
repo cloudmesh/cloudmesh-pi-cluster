@@ -78,6 +78,7 @@ class K3(Installer):
         pi k3 cluster info SERVER
         pi k3 dashboard create SERVER
         pi k3 dashboard connect SERVER
+        pi k3 dashboard disconnect
         pi k3 dashboard info
         :param arguments:
         :return:
@@ -140,6 +141,8 @@ class K3(Installer):
                 K3SDashboard.info()
             elif arguments.connect:
                 K3SDashboard.connect(server=arguments.SERVER)
+            elif arguments.disconnect:
+                K3SDashboard.disconnect()
 
     def add_c_groups(self, names):
         names = Parameter.expand(names)
