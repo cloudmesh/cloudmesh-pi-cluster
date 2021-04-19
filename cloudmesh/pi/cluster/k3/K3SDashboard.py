@@ -9,12 +9,21 @@ from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
 
 class K3SDashboard():
+    # Remote Port: Port the dashboard is running on on the cluster itself
+    # Local Port: Port on local machine to use to tunnel to remote port
     REMOTE_PORT = 8001
     LOCAL_PORT = 8001
-    TUNNEL_CMD = "ssh -f -L {local_port}:127.0.0.1:{remote_port} -N {host_name}"
-    DASHBOARD_LINK = "http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/"
 
-    DEBUG = False
+    # Accesssing Dashboard
+    TUNNEL_CMD = "ssh -f -L {local_port}:127.0.0.1:{remote_port} -N {host_name}"
+    DASHBOARD_LINK = \
+        "http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/"
+
+    # Creating Dashboard
+    VERSIONS_URL = "https://github.com/kubernetes/dashboard/releases"
+    DASHBOARD_DOWNLOAD = \
+        "https://raw.githubusercontent.com/kubernetes/dashboard/{VERSION}/aio/deploy/recommended.yaml"
+
 
     @classmethod
     def info(cls, verbose=True):
@@ -86,9 +95,93 @@ class K3SDashboard():
     @classmethod
     def create(cls, server=None):
         """
-        Create a dashboard with K3SDashboard.ADMIN_USER as the default user on server
+        Create a dashboard with a default user on the specified server
         """
-        print("Create")
+        if server is None:
+            raise Exception('No server supplied for dashboard creation')
+
+        statuses = []
+
+        # Note the usage of double brackets around "url_effective". This is because the intended full command is:
+        # curl -w '%{url_effective}' ....
+        # The double brackets are used to escape formatting that is done when passed into Host.ssh
+        version_fetch_cmd = \
+            "curl -w '%{{url_effective}}' -I -L -s -S {VERSION_URL}/latest -o /dev/null | sed -e 's|.*/||'"
+
+        Console.info(f"Attempting to communicate with {server}")
+
+        res = Host.ssh(
+            hosts=server,
+            command=version_fetch_cmd,
+            VERSION_URL=cls.VERSIONS_URL)
+
+        version = res[0]['stdout']
+        statuses.append({
+            "step": "Version Fetch",
+            "success": res[0]['success'],
+            "stdout": version,
+            "stderr": res[0]['stderr']
+        })
+
+        Console.info(f"Downloading dashboard on {server}")
+        download_cmd = f"sudo k3s kubectl create -f {cls.DASHBOARD_DOWNLOAD.format(VERSION=version)}"
+        res = Host.ssh(
+            hosts=server,
+            command = download_cmd
+        )
+        statuses.append({
+            "step": "Create Dashboard",
+            "success": res[0]['success'],
+            "stdout": res[0]['stdout'],
+            "stderr": res[0]['stderr']
+        })
+
+        cmds = cls.create_admin_user_cmd()
+        res = Host.ssh(
+            hosts=server,
+            command=cmds[0])
+        statuses.append({
+            "step": "Create Admin Role",
+            "success": res[0]['success'],
+            "stdout": res[0]['stdout'],
+            "stderr": res[0]['stderr']
+        })
+
+        res = Host.ssh(
+            hosts=server,
+            command=cmds[1])
+        statuses.append({
+            "step": "Create Admin User",
+            "success": res[0]['success'],
+            "stdout": res[0]['stdout'],
+            "stderr": res[0]['stderr']
+        })
+
+        res = Host.ssh(
+            hosts=server,
+            command=cmds[2]
+        )
+        statuses.append({
+            "step": "Deploy Admin Config",
+            "success": res[0]['success'],
+            "stdout": res[0]['stdout'],
+            "stderr": res[0]['stderr']
+        })
+
+        Console.info(f"Starting dashboard on {server}")
+        res = Host.ssh(
+            hosts=server,
+            command="nohup sudo k3s kubectl proxy >~/.cloudmesh/k3sdashboard.log 2>&1"
+        )
+        statuses.append({
+            "step": "Start Dashboard",
+            "success": res[0]['success'],
+            "stdout": res[0]['stdout'],
+            "stderr": res[0]['stderr']
+        })
+
+        print(Printer.write(statuses, order=["step", "success", "stdout", "stderr"], header=["Step", "Success", "stdout", "stderr"]))
+
 
     @classmethod
     def connect(cls, server=None):
@@ -106,15 +199,16 @@ class K3SDashboard():
             Console.error(f'Failed to create connection. Non-zero exit code with ssh: {ec}')
 
     @classmethod
-    def disconnect(cls):
+    def disconnect(cls, server=None):
         """
         Kill the PID started by cls.connect
         """
         info = cls.info(verbose=False)
         for entry in info:
-            Console.info(f"Disconnecting from {entry['Server Access Point']}...")
-            os.system(f"kill {entry['PID']}")
-            Console.ok("Verify with 'cms pi k3 dashboard info'")
+            if server is None or server == entry['Server Access Point']:
+                Console.info(f"Disconnecting from {entry['Server Access Point']}...")
+                os.system(f"kill {entry['PID']}")
+                Console.ok("Verify with 'cms pi k3 dashboard info'")
 
     @classmethod
     def get_admin_token(cls, server=None):
@@ -122,7 +216,8 @@ class K3SDashboard():
             raise Exception('Server arg supplied is None')
 
         try:
-            result = Host.ssh(hosts=server, command="sudo k3s kubectl -n kubernetes-dashboard describe secret admin-user-token | grep '^token'")
+            cmd = "sudo k3s kubectl -n kubernetes-dashboard describe secret admin-user-token | grep '^token'"
+            result = Host.ssh(hosts=server, command=cmd)
             entry = result[0]
             token = entry['stdout']
             token = token.split()[1]
@@ -136,3 +231,40 @@ class K3SDashboard():
         except Exception as e:
             Console.error("Error communicating with server. Full output:")
             print(e.message)
+
+    @classmethod
+    def create_admin_user_cmd(cls):
+        cmds = [
+            textwrap.dedent(
+            """
+            cat << EOF >> dashboard.admin-user-role.yml
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+                name: admin-user
+            roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+                name: cluster-admin
+            subjects:
+            -  kind: ServiceAccount
+                name: admin-user
+                namespace: kubernetes-dashboard
+            EOF
+            """
+            ),
+            textwrap.dedent(
+            """
+            cat << EOF >> dashboard.admin-user.yml
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+                name: admin-user
+                namespace: kubernetes-dashboard
+            EOF
+            """
+            ),
+            "sudo k3s kubectl create -f dashboard.admin-user.yml -f dashboard.admin-user-role.yml"
+        ]
+        return cmds
+
