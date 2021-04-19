@@ -100,6 +100,7 @@ class K3SDashboard():
         if server is None:
             raise Exception('No server supplied for dashboard creation')
 
+        Console.info("Installing Dashboard")
         statuses = []
 
         # Note the usage of double brackets around "url_effective". This is because the intended full command is:
@@ -169,9 +170,10 @@ class K3SDashboard():
         })
 
         Console.info(f"Starting dashboard on {server}")
+        start_cmd = "nohup sudo k3s kubectl proxy >/home/pi/k3sdashboard.log 2>&1 &"
         res = Host.ssh(
             hosts=server,
-            command="nohup sudo k3s kubectl proxy >~/.cloudmesh/k3sdashboard.log 2>&1"
+            command=start_cmd
         )
         statuses.append({
             "step": "Start Dashboard",
@@ -180,8 +182,19 @@ class K3SDashboard():
             "stderr": res[0]['stderr']
         })
 
-        print(Printer.write(statuses, order=["step", "success", "stdout", "stderr"], header=["Step", "Success", "stdout", "stderr"]))
+        res = Host.ssh(
+            hosts=server,
+            # Use grep -qxF to match whole line (check if already present to prevent duplicate)
+            command=f"grep -qxF '{start_cmd}' /etc/rc.local || sudo sed -i '$i {start_cmd}' /etc/rc.local"
+        )
+        statuses.append({
+            "step": "Enable Persistence",
+            "success": res[0]['success'],
+            "stdout": res[0]['stdout'],
+            "stderr": res[0]['stderr']
+        })
 
+        print(Printer.write(statuses, order=["step", "success", "stdout", "stderr"], header=["Step", "Success", "stdout", "stderr"]))
 
     @classmethod
     def connect(cls, server=None):
@@ -248,8 +261,8 @@ class K3SDashboard():
                 name: cluster-admin
             subjects:
             -  kind: ServiceAccount
-                name: admin-user
-                namespace: kubernetes-dashboard
+               name: admin-user
+               namespace: kubernetes-dashboard
             EOF
             """
             ),
