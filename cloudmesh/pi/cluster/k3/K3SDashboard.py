@@ -59,6 +59,8 @@ class K3SDashboard():
             r = requests.get(cls.DASHBOARD_LINK, timeout=5)
             if r.status_code == 200:
                 active = "Active"
+            else:
+                active = "Up but not ready"
         except:
             active = "Not Active"
 
@@ -87,6 +89,7 @@ class K3SDashboard():
                     f"""
                     You appear to have set up a connection to your server,
                     but no dashboard is running on {server}:{cls.REMOTE_PORT}.
+                    Please wait a moment and try again.
                     """))
 
         # Should always just be of length 1
