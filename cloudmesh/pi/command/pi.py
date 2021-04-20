@@ -36,6 +36,8 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
+            pi mpi install [NAMES]
+            pi mpirun [--hosts=HOSTS] --parameters=PARAMETERS] COMMAND
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -170,5 +172,13 @@ class PiCommand(PluginCommand):
 
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
+
+        elif arguments.mpi:
+
+            print ("MPI command")
+
+        elif arguments.mpirun:
+
+            print("MPI run command")
 
         return ""
