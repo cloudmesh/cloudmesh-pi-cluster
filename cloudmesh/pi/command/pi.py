@@ -12,7 +12,7 @@ from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-
+from cloudmesh.pi.cluster.mpi.Mpi import Mpi
 
 class PiCommand(PluginCommand):
 
@@ -36,8 +36,9 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
-            pi mpi install [NAMES]
-            pi mpirun [--hosts=HOSTS] [--parameters=PARAMETERS] COMMAND
+            pi mpi create --hosts=HOSTS
+            pi mpi install --hosts=HOSTS
+            pi mpirun --hosts=HOSTS [--parameters=PARAMETERS] COMMAND
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -172,5 +173,27 @@ class PiCommand(PluginCommand):
 
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
+
+        elif arguments.mpi and arguments.create:
+            # pi mpi install [NAMES]
+
+            mpi = Mpi()
+            mpi.create_hosts(names=arguments.hosts)
+
+        elif arguments.mpi:
+            # pi mpi install [NAMES]
+
+            mpi = Mpi()
+            mpi.install(names=arguments.hosts)
+
+        elif arguments.mpirun:
+
+            # pi mpirun --hosts=HOSTS [--parameters=PARAMETERS] COMMAND
+
+            mpi = Mpi()
+            mpi.run(names=arguments.hosts,
+                    paramerters=arguments.parameters,
+                    command=command)
+
 
         return ""
