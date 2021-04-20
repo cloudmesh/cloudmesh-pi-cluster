@@ -171,12 +171,4 @@ class PiCommand(PluginCommand):
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
 
-        elif arguments.mpi:
-
-            print ("MPI command")
-
-        elif arguments.mpirun:
-
-            print("MPI run command")
-
         return ""
