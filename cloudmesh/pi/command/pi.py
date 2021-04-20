@@ -36,6 +36,8 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
+            pi mpi install [NAMES]
+            pi mpirun [--hosts=HOSTS] [--parameters=PARAMETERS] COMMAND
 
           Arguments:
               NAMES       The hostnames in parameterized form
