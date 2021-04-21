@@ -80,6 +80,7 @@ class K3(Installer):
         pi k3 dashboard connect SERVER
         pi k3 dashboard disconnect [SERVER]
         pi k3 dashboard info
+        pi k3 dashboard
         :param arguments:
         :return:
         """
@@ -141,6 +142,8 @@ class K3(Installer):
                 K3SDashboard.connect(server=arguments.SERVER)
             elif arguments.disconnect:
                 K3SDashboard.disconnect(server=arguments.SERVER)
+            else:
+                K3SDashboard.browser()
 
     def add_c_groups(self, names):
         names = Parameter.expand(names)

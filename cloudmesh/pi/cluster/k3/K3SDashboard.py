@@ -7,6 +7,7 @@ import textwrap
 from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
+from cloudmesh.common.Shell import Shell
 
 class K3SDashboard():
     # Remote Port: Port the dashboard is running on on the cluster itself
@@ -225,6 +226,12 @@ class K3SDashboard():
                 Console.info(f"Disconnecting from {entry['Server Access Point']}...")
                 os.system(f"kill {entry['PID']}")
                 Console.ok("Verify with 'cms pi k3 dashboard info'")
+
+    @classmethod
+    def browser(cls):
+        Console.ok("Opening dashboard...")
+        Shell.browser(cls.DASHBOARD_LINK)
+        return
 
     @classmethod
     def get_admin_token(cls, server=None):
