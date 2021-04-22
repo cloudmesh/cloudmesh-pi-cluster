@@ -3,6 +3,7 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
+from cloudmesh.common.StopWatch import StopWatch
 
 class MicroK8s(Installer):
 
@@ -31,9 +32,17 @@ class MicroK8s(Installer):
         if arguments.install and arguments.snapd:
             self.install_snapd(names)
         elif arguments.install:
+            StopWatch.start("install")
             self.install(names)
+            StopWatch.stop("install")
+            StopWatch.status("install", True)
+            StopWatch.print("install", "install")
         elif arguments.uninstall:
+            StopWatch.start("uninstall")
             self.uninstall(names)
+            StopWatch.stop("uninstall")
+            StopWatch.status("uninstall", True)
+            StopWatch.print("uninstall", "uninstall")
         elif arguments.start:
             self.start(names)
         elif arguments.stop:
@@ -45,9 +54,17 @@ class MicroK8s(Installer):
         elif arguments.cluster and arguments.info:
             self.cluster_info(arguments.SERVER)
         elif arguments.join:
+            StopWatch.start("join")
             self.join_node(names, arguments.SERVER)
+            StopWatch.stop("join")
+            StopWatch.status("join", True)
+            StopWatch.print("join", "join")
         elif arguments.remove and arguments.node:
+            StopWatch.start("remove node")
             self.remove_node(names)
+            StopWatch.stop("remove node")
+            StopWatch.status("remove node", True)
+            StopWatch.print("remove node", "remove node")
         elif arguments.get and arguments.node:
             # make sure this is last in the elif chain
             self.get_node(arguments.SERVER)

@@ -3,6 +3,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Printer import Printer
 from cloudmesh.pi.cluster.k3.K3SDashboard import K3SDashboard
+from cloudmesh.common.StopWatch import StopWatch
 
 
 class Installer:
@@ -86,22 +87,46 @@ class K3(Installer):
         """
 
         if arguments.install and arguments.server:
+            StopWatch.start("install server")
             self.install_server(arguments.NAMES)
+            StopWatch.stop("install server")
+            StopWatch.status("install server", True)
+            StopWatch.print("install server", "install server")
 
         elif arguments.install and arguments.agent:
+            StopWatch.start("install agent")
             self.install_agent(arguments.NAMES, arguments.SERVER)
+            StopWatch.stop("install agent")
+            StopWatch.status("install agent", True)
+            StopWatch.print("install agent", "install agent")
 
         elif arguments.install and arguments.cluster:
+            StopWatch.start("install cluster")
             self.install_cluster(arguments.NAMES)
+            StopWatch.stop("install cluster")
+            StopWatch.status("install cluster", True)
+            StopWatch.print("install cluster", "install cluster")
 
         elif arguments.uninstall and arguments.server:
+            StopWatch.start("uninstall server")
             self.uninstall_server(arguments.NAMES)
+            StopWatch.stop("uninstall server")
+            StopWatch.status("uninstall server", True)
+            StopWatch.print("uninstall server", "uninstall server")
 
         elif arguments.uninstall and arguments.agent:
+            StopWatch.start("uninstall agent")
             self.uninstall_agent(arguments.NAMES)
+            StopWatch.stop("uninstall agent")
+            StopWatch.status("uninstall agent", True)
+            StopWatch.print("uninstall agent", "uninstall agent")
 
         elif arguments.uninstall and arguments.cluster:
+            StopWatch.start("uninstall cluster")
             self.uninstall_cluster(arguments.NAMES)
+            StopWatch.stop("uninstall cluster")
+            StopWatch.status("uninstall cluster", True)
+            StopWatch.print("uninstall cluster", "uninstall cluster")
 
         elif arguments.enable and arguments.containers:
             self.add_c_groups(arguments.NAMES)
@@ -125,7 +150,11 @@ class K3(Installer):
             self.stop_cluster(arguments.NAMES)
 
         elif arguments.remove and arguments.node:
+            StopWatch.start("remove node")
             self.remove_node(arguments.NAMES, arguments.SERVER)
+            StopWatch.stop("remove node")
+            StopWatch.status("remove node", True)
+            StopWatch.print("remove node", "remove node")
 
         elif arguments.cluster and arguments.info:
             self.cluster_info(arguments.SERVER)
