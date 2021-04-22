@@ -28,7 +28,7 @@ class Nfs:
         #create and bind paths on manager
         Sudo.execute(f'''mkdir -p {mountingTo} && 
                         chown -R pi:pi {mountingTo} && 
-                        mount --bind {mounting} {mountingTo}''')
+                        mount --bind {mounting} {mountingTo}''', debug = True)
 
         #preserve binding after reboot
         Sudo.writefile('/etc/fstab',f'{mounting}\t{mountingTo}\tnone\tbind\t0\t0',append=True)
