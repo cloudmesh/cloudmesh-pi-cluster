@@ -58,10 +58,10 @@ class Nfs:
         #         #                 chown -R pi:pi {mountingTo} &&
         #         #                 mount {managerIP}:{mountingTo} {mountingTo}''')
         
-        except AttributeError as e:
-            print("No hostnames provided")
-        except IndexError as e:
-            pass
+        # except AttributeError as e:
+        #     print("No hostnames provided")
+        # except IndexError as e:
+        #     pass
 
     #def unshare(self,paths=None, hostnames=None, force = False):
         
