@@ -12,7 +12,7 @@ class Nfs:
 
     def install(self,hostnames=None, manager=None):
         print("Testing")
-        Sudo.execute('apt-get install nfs-kernel-server')
+        Sudo.execute('apt-get install nfs-kernel-server', decode = False)
 
 
     def uninstall(self):
