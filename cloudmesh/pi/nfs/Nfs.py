@@ -51,7 +51,7 @@ class Nfs:
                 print(r)
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo chown -R pi:pi {mountingTo}")
                 print(r)
-                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount pi@{managerIP}:{mountingTo} {mountingTo}")
+                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount {managerIP}:{mountingTo} {mountingTo}")
                 print(r)
                 # Sudo.execute(f'''ssh pi@{worker} &&
                 #                 mkdir {mountingTo} &&
