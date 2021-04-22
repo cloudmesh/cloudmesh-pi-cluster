@@ -63,7 +63,7 @@ class Nfs:
         except IndexError as e:
             pass
 
-    def unshare(self,paths=None, hostnames=None, force = False):
+    # def unshare(self,paths=None, hostnames=None, force = False):
         
 
         
