@@ -35,28 +35,28 @@ class Nfs:
         
         #SHARE EXPORT PATH WITH WORKERS
 
-        #get manager IP
-        managerIP = Shell.run('hostname -I').split(' ')[1]
+        # #get manager IP
+        # managerIP = Shell.run('hostname -I').split(' ')[1]
 
-        try:
-            workers = hostnames.split(',')
-            #iterate through worker hostnames
-            for i in range(1,len(workers)):
-                worker = workers[i]
-                #add each hostname into manager exports file
-                Sudo.writefile('/etc/exports',f'{mountingTo} {worker}(rw,no_root_squash,sync,no_subtree_check)',append=True)
+        # try:
+        #     workers = hostnames.split(',')
+        #     #iterate through worker hostnames
+        #     for i in range(1,len(workers)):
+        #         worker = workers[i]
+        #         #add each hostname into manager exports file
+        #         Sudo.writefile('/etc/exports',f'{mountingTo} {worker}(rw,no_root_squash,sync,no_subtree_check)',append=True)
                 
-                #ssh into workers, mount directory
-                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mkdir -p {mountingTo}")
-                print(r)
-                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo chown -R pi:pi {mountingTo}")
-                print(r)
-                r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount -vvvv {managerIP}:{mountingTo} {mountingTo}")
-                print(r)
-                # Sudo.execute(f'''ssh pi@{worker} &&
-                #                 mkdir {mountingTo} &&
-                #                 chown -R pi:pi {mountingTo} &&
-                #                 mount {managerIP}:{mountingTo} {mountingTo}''')
+        #         #ssh into workers, mount directory
+        #         r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mkdir -p {mountingTo}")
+        #         print(r)
+        #         r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo chown -R pi:pi {mountingTo}")
+        #         print(r)
+        #         r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount -vvvv {managerIP}:{mountingTo} {mountingTo}")
+        #         print(r)
+        #         # Sudo.execute(f'''ssh pi@{worker} &&
+        #         #                 mkdir {mountingTo} &&
+        #         #                 chown -R pi:pi {mountingTo} &&
+        #         #                 mount {managerIP}:{mountingTo} {mountingTo}''')
         
         except AttributeError as e:
             print("No hostnames provided")
