@@ -76,7 +76,11 @@ class Nfs:
 
             if path in Sudo.readfile('/etc/fstab'):
                 print('found')
-                Sudo.writefile("/etc/fstab",Shell.remove_line_with(Sudo.readfile("/etc/fstab").splitlines(),f'{path}'))
+                lines = Sudo.readfile("/etc/fstab").splitlines()
+                print(lines)
+                new_lines = Shell.remove_line_with(Sudo.readfile("/etc/fstab").splitlines(),f'{path}')
+                print(new_lines)
+                Sudo.writefile("/etc/fstab",new_lines)
 
                 # Sudo.writefile('/etc/fstab',Shell.remove_line_with(Sudo.readfile('/etc/fstab').splitlines(),f'{path}'))
 
