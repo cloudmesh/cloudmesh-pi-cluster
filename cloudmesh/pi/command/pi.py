@@ -40,6 +40,7 @@ class PiCommand(PluginCommand):
             pi nfs install --hostnames=HOSTNAMES [--manager=MANAGER]
             pi nfs uninstall --hostnames=HOSTNAMES[--manager=MANAGER]
             pi nfs share --paths=PATHS --hostnames=HOSTNAMES
+            pi nfs unshare --path=PATH --hostnames=HOSTNAMES
 
 
           Arguments:
@@ -190,18 +191,18 @@ class PiCommand(PluginCommand):
                      dryrun=arguments["--dryrun"])
 
         elif arguments.nfs:
+            nfs = Nfs()
 
             if arguments.info:
-                nfs = Nfs()
                 nfs.info()
 
             if arguments.install:
-                nfs = Nfs()
                 nfs.install()
 
             if arguments.share:
-                nfs = Nfs()
                 nfs.share(arguments['--paths'],arguments['--hostnames'])
 
+            if arguments.unshare:
+                nfs.unshare(arguments['--path'],arguments['--hostnames'])
 
         return ""

@@ -21,21 +21,21 @@ class Nfs:
     def info(self):
         print("Is the nfs server running")
 
-    def share(self,paths,hostnames=None):
+    def share(self,paths,hostnames):
         mounting, mountingTo = paths.split(',')
         print('Check Mounts',mounting,mountingTo)
 
         #create and bind paths on manager
-        Sudo.execute('mkdir -p {mountingTo}')
-        Sudo.execute('chown -R pi:pi {mountingTo}')
-        Sudo.execute('mount --bind {mounting} {mountingTo}', debug = True)
+        Sudo.execute(f'mkdir -p {mountingTo}', debug = True)
+        Sudo.execute(f'chown -R pi:pi {mountingTo}')
+        Sudo.execute(f'mount --bind {mounting} {mountingTo}', debug = True)
 
         #preserve binding after reboot
         Sudo.writefile('/etc/fstab',f'{mounting}\t{mountingTo}\tnone\tbind\t0\t0',append=True)
         
         #SHARE EXPORT PATH WITH WORKERS
 
-        # #get manager IP
+        #get manager IP
         managerIP = Shell.run('hostname -I').split(' ')[1]
 
         try:
@@ -63,10 +63,30 @@ class Nfs:
         except IndexError as e:
             pass
 
-    # def unshare(self,paths=None, hostnames=None, force = False):
-        
+    def unshare(self,path, hostnames):
+        #get manager hostname
+        managerHN = Shell.run('hostname').strip()
+        pis = hostnames.split(',')
+        firstPi = pis[0]
 
-        
+        #if manager is included in hostnames, then we will be unsharing its drive with all workers
+        if firstPi == managerHN:
+            # Sudo.execute(f'sudo umount -l {path}')
+            pis.remove(firstPi)
 
+            if path in Sudo.readfile('/etc/fstab'):
+                print('found')
+                Sudo.writefile("/etc/fstab",Shell.remove_line_with(Sudo.readfile("/etc/fstab").splitlines(),f'{path}'))
 
-        
+                # Sudo.writefile('/etc/fstab',Shell.remove_line_with(Sudo.readfile('/etc/fstab').splitlines(),f'{path}'))
+
+        # #Remove permissions for workers in /etc/exports file
+        # exportsFileText = readfile('/etc/exports').splitlines()
+        # for worker in pis:
+        #     exportsFileText = (Shell.remove_line_with(exportsFileText,f'{pi}'))
+
+        # writefile('/etc/exports',exportsFileText)
+
+        # #unmount the shared drives in the workers
+        # for worker in pis:
+        #     Host.ssh(hosts=f"pi@{worker}",command = f"sudo umount -l {path}")
