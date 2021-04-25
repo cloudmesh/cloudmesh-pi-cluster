@@ -21,41 +21,44 @@ class Nfs:
     #mount manager directory to a shared directory, share that directory with workers (shared directory will be created on each pi)
     def share(self,paths,hostnames):
         mounting, mountingTo = paths.split(',')
-        print('Check Mounts',mounting,mountingTo)
+        print('Mounting',mounting,'to',mountingTo)
 
         #create and bind directory paths on manager
         Sudo.execute(f'mkdir -p {mountingTo}', debug = True)
         Sudo.execute(f'chown -R pi:pi {mountingTo}')
         Sudo.execute(f'mount --bind {mounting} {mountingTo}', debug = True)
+        print("Manager directories binded")
 
         #preserve binding after reboot on manager
         Sudo.writefile('/etc/fstab',f'{mounting}\t{mountingTo}\tnone\tbind\t0\t0',append=True)
-        
-        #SHARE EXPORT PATH WITH WORKERS
+        print("Binding preserved for reboot")
 
         #get manager IP
         managerIP = Shell.run('hostname -I').split(' ')[1]
 
         try:
-            workers = hostnames.split(',')
-            #iterate through worker hostnames
-            for i in range(1,len(workers)):
-                worker = workers[i]
-                #add each hostname into manager exports file
-                print(f"setting up {worker}")
+            pis = hostnames.split(',')
+            manager = pis[0]
+            workers = pis[1:]
+
+            #add each worker hostname into manager exports file
+            for worker in workers:
+                print(f"Adding {worker} to manager exports")
                 Sudo.writefile('/etc/exports',f'{mountingTo} {worker}(rw,no_root_squash,sync,no_subtree_check)',append=True)
-                
-                #ssh into workers, mount directory
+            Sudo.execute('sudo exportfs -r')
+
+            #ssh into workers, mount directory
+            for worker in workers:
+                print(f'Setting up {worker}')
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mkdir -p {mountingTo}")
                 print(r)
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo chown -R pi:pi {mountingTo}")
                 print(r)
-                print('*****ATTEMPTING MOUNT')
+                print('*****ATTEMPTING MOUNT******')
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount -vvvv {managerIP}:{mountingTo} {mountingTo}")
                 print(r)
                 addToFSTAB = f"{managerIP}:{mountingTo}\t{mountingTo}\tnfs\tauto\t0\t0"
-                print('test sudo tee')
-                r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{addToFSTAB}\" | sudo tee --append  /etc/fstab.test5")
+                r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{addToFSTAB}\" | sudo tee --append  /etc/fstab")
                 print(r)
         
         except AttributeError as e:
@@ -113,4 +116,4 @@ class Nfs:
             lines = lines.splitlines()
             lines = Shell.remove_line_with(lines,path)
             new_lines = "\n".join(lines)
-            r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{new_lines}\" | sudo tee /etc/fstab.test")
+            r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{new_lines}\" | sudo tee /etc/fstab")
