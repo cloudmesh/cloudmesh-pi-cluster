@@ -6,6 +6,12 @@ Worker pis must wait for network connection on reboot. Enable this by entering `
 
 The root user on the worker pi will have the authority to access files on the manager pi as root. Please consider the security implications of this before proceeding.
 
+Tutorials referenced while creating this command:
+
+<https://www.raspberrypi.org/documentation/configuration/nfs.md>
+
+<https://suzannejmatthews.github.io/2017/06/14/pi-cluster/>
+
 ## Install
 
 This command will install the necessary package to perform network file sharing onto your manager pi:
