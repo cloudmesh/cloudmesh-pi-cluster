@@ -1,61 +1,52 @@
-# Cloudmesh Kubernetes
+# Cloudmesh NFS
+
+## Prerequisites/Notes
+
+Worker pis must connect wait for network connection on reboot. Enable this by entering ```worker$ sudo raspi-config``` , selecting ```System Options``` , scrolling to and selecting ```Network at Boot``` , and enabling waiting for network connection on boot.
+
+The root user on the worker pi will have the authority to access files on the manager pi as root. Please consider the security implications before proceeding
 
 ## Install
 
-You must first set up your workers to connect to the internet through
-your manager. This is done by using the command ```cms bridge```. You can
-find the documentation here to set it up:
-
-* <https://github.com/cloudmesh/cloudmesh-pi-cluster/README.md>
-
-This command will install Kubernetes to the manager and workers you provide, 
-and will join the workers to your manager's cluster.
+This command will install the necessary package to perform network file sharing onto your manager pi:
 
 ```
-manager$ cms pi k3 install [--master=MASTER] [--workers=WORKERS]
+pi@red$ cms pi nfs install
 ```
+## Share Directory
 
-**Note**: If you have never enabled containers on your raspberry pis
-*before, please look at the first option listed below
-
-## Other options for install
-
-Enabling Containers: For Kubernetes to work, you must enable containers.
-To do this, append the following command to the install command above to
-enable containers on the manager and workers you list.
+Share a directory on your manager pi to your worker pis using the following command:
 
 ```
-manager$ cms pi k3 install [--master=MASTER] [--workers=WORKERS] --step=enable_containers
+pi@red$ cms pi nfs share --paths=PATHS --hostnames=HOSTNAMES
 ```
 
-## Other Available Commands
-
-Join a worker to the manager's cluster if Kubernetes is already installed on the node 
+Example:
 
 ```
-manager$ cms pi k3 join --workers=WORKERS
+pi@red$ cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02"
 ```
 
-Uninstall Kubernetes on either the manager or any worker
+The ```--paths``` argument takes first the path to the master directory you wish to share and second the path to the shared directory. The command will create the shared directory on your manager and worker pis. We recommend naming this directory ```/mnt/nfs``` 
+
+The ```--hostnames``` command takes first the manager hostname and next the hostnames of the workers you wish to share to.
+
+## Unshare Directory
 
 ```
-manager$ cms pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
+pi@red$ cms pi nfs unshare --path=PATH --hostnames=HOSTNAMES
 ```
 
-Delete a node(s) from your manager's cluster
+Example, unsharing to a specific worker:
 
 ```
-manager$ cms pi k3 delete [--master=MASTER] [--workers=WORKERS]
+pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red01"
 ```
 
-Run a test on your setup cluster **(Not yet implemented)**
+Example, unsharing to all workers (taking down NFS share from manager):
 
 ```
-manager$ cms pi k3 test [--master=MASTER] [--workers=WORKERS]
+pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01,red02"
 ```
 
-View details about your cluster:
-
-```
-manager$ cms pi k3 view
-```
+The ```--path``` argument takes the path to the shared directory. The ```hostnames``` argument takes the names of the pis to unshare the manager's directory to. If the names of only worker pis are included, then those specific worker pis will lose access to the shared directory. If the manager is included along with all worker pis, then the entire NFS sharing functionality will be taken down. 
