@@ -4,7 +4,7 @@
 
 Worker pis must wait for network connection on reboot. Enable this by entering ```worker$ sudo raspi-config``` , selecting ```System Options``` , scrolling to and selecting ```Network at Boot``` , and enabling waiting for network connection on boot.
 
-The root user on the worker pi will have the authority to access files on the manager pi as root. Please consider the security implications before proceeding
+The root user on the worker pi will have the authority to access files on the manager pi as root. Please consider the security implications of this before proceeding.
 
 ## Install
 
