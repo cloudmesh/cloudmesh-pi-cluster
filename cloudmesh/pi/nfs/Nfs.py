@@ -51,15 +51,11 @@ class Nfs:
             for worker in workers:
                 print(f'Setting up {worker}')
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mkdir -p {mountingTo}")
-                print(r)
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo chown -R pi:pi {mountingTo}")
-                print(r)
                 print('*****ATTEMPTING MOUNT******')
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount -vvvv {managerIP}:{mountingTo} {mountingTo}")
-                print(r)
                 addToFSTAB = f"{managerIP}:{mountingTo}\t{mountingTo}\tnfs\tauto\t0\t0"
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{addToFSTAB}\" | sudo tee --append  /etc/fstab")
-                print(r)
         
         except AttributeError as e:
             print("No hostnames provided")
