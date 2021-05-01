@@ -32,7 +32,7 @@ This tutorial walks through how to share a volume between a manager pi and its w
 
 ## Introduction
 
-NFS Protocol allows remote access to files across networks. Users on client machines can access filesystems on servers in the same way they would if the filesystem was local storage. 
+NFS Protocol allows remote access to files across networks. Users on client machines can access filesystems on servers in the same way they would if the filesystem was on local storage. 
 
 ## Install
 
