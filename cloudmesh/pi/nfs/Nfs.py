@@ -33,13 +33,13 @@ class Nfs:
 
             #create and bind directory paths on manager
             print("mkdir /mnt/nfs manager")
-            r = Host.ssh(hosts=f"pi@{manager}", command = f"mkdir -p {mountingTo}")
+            r = Host.ssh(hosts=f"pi@{manager}", command = f" sudo mkdir -p {mountingTo}")
             print(r)
             print("chown /mnt/nfs manager")
-            r = Host.ssh(hosts=f"pi@{manager}", command = f"chown -R pi:pi {mountingTo}")
+            r = Host.ssh(hosts=f"pi@{manager}", command = f"sudo chown -R pi:pi {mountingTo}")
             print(r)
             print("mount bind /mnt/nfs manager")
-            r = Host.ssh(hosts=f"pi@{manager}", command = f"mount --bind {mounting} {mountingTo}")
+            r = Host.ssh(hosts=f"pi@{manager}", command = f"sudo mount --bind {mounting} {mountingTo}")
             print(r)
             print("Manager directories binded")
 
