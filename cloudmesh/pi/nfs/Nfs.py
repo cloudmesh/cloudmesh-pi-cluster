@@ -54,7 +54,7 @@ class Nfs:
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo chown -R pi:pi {mountingTo}")
                 print('*****ATTEMPTING MOUNT******')
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"sudo mount -vvvv {managerIP}:{mountingTo} {mountingTo}")
-                addToFSTAB = f"{managerIP}:{mountingTo}\t{mountingTo}\tnfs\tauto\t0\t0"
+                addToFSTAB = f"{managerIP}:{mountingTo}\t{mountingTo}\tnfs\tx-systemd.automount\t0\t0"
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{addToFSTAB}\" | sudo tee --append  /etc/fstab")
         
         except AttributeError as e:
@@ -113,3 +113,6 @@ class Nfs:
             lines = Shell.remove_line_with(lines,path)
             new_lines = "\n".join(lines)
             r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{new_lines}\" | sudo tee /etc/fstab")
+
+
+# Look into mount timeouts
