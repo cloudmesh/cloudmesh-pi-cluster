@@ -20,32 +20,43 @@ class Nfs:
 
     #mount manager directory to a shared directory, share that directory with workers (shared directory will be created on each pi)
     def share(self,paths,hostnames):
-        mounting, mountingTo = paths.split(',')
-        print('Mounting',mounting,'to',mountingTo)
-
-        #create and bind directory paths on manager
-        Sudo.execute(f'mkdir -p {mountingTo}', debug = True)
-        Sudo.execute(f'chown -R pi:pi {mountingTo}')
-        Sudo.execute(f'mount --bind {mounting} {mountingTo}', debug = True)
-        print("Manager directories binded")
-
-        #preserve binding after reboot on manager
-        Sudo.writefile('/etc/fstab',f'{mounting}\t{mountingTo}\tnone\tbind\t0\t0',append=True)
-        print("Binding preserved for reboot")
-
         #get manager IP
         managerIP = Shell.run('hostname -I').split(' ')[1]
 
         try:
+            mounting, mountingTo = paths.split(',')
+            print('Mounting',mounting,'to',mountingTo)
+
             pis = hostnames.split(',')
             manager = pis[0]
             workers = pis[1:]
 
+            #create and bind directory paths on manager
+            print("mkdir /mnt/nfs manager")
+            r = Host.ssh(hosts=f"pi@{manager}", command = f"mkdir -p {mountingTo}")
+            print(r)
+            print("chown /mnt/nfs manager")
+            r = Host.ssh(hosts=f"pi@{manager}", command = f"chown -R pi:pi {mountingTo}")
+            print(r)
+            print("mount bind /mnt/nfs manager")
+            r = Host.ssh(hosts=f"pi@{manager}", command = f"mount --bind {mounting} {mountingTo}")
+            print(r)
+            print("Manager directories binded")
+
+            #preserve binding after reboot on manager
+            print("edit fstab manager")
+            addToFSTAB = f"{mounting}\t{mountingTo}\tnone\tbind\t0\t0"
+            r = Host.ssh(hosts=f"pi@{manager}", command = f"echo \"{addToFSTAB}\" | sudo tee --append /etc/fstab")
+            print(r)
+            print("Binding preserved for reboot")
+
             #add each worker hostname into manager exports file
             for worker in workers:
                 print(f"Adding {worker} to manager exports")
-                Sudo.writefile('/etc/exports',f'{mountingTo} {worker}(rw,no_root_squash,sync,no_subtree_check)',append=True)
-            Sudo.execute('sudo exportfs -r')
+                addToExports = f"{mountingTo} {worker}(rw,no_root_squash,sync,no_subtree_check)"
+                r = Host.ssh(hosts = f"pi@{manager}", command = f"echo \"{addToExports}\" | sudo tee --append /etc/exports")
+                print(r)
+            Host.ssh(hosts = f"pi@{manager}", command = "sudo exportfs -r")
 
             #ssh into workers, mount directory
             for worker in workers:
@@ -58,9 +69,11 @@ class Nfs:
                 r = Host.ssh(hosts=f"pi@{worker}",command = f"echo \"{addToFSTAB}\" | sudo tee --append  /etc/fstab")
         
         except AttributeError as e:
-            print("No hostnames provided")
+            print("Error: Not enough hostnames")
+            raise
         except ValueError  as  e:
-            print("2 directory paths must be provided")
+            print("Error: 2 filesystem paths must be provided")
+            raise
         except IndexError as e:
             pass
 
