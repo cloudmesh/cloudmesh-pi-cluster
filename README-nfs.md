@@ -2,11 +2,13 @@
 
 {{% pageinfo %}}
 
-Please describe what this tutorial is about.
+This tutorial walks through how to share a volume between a manager pi and its workers in a RaspberryOS cluster. A tutorial on creating a Raspberry OS cluster can be found here:
+
+<https://cloudmesh.github.io/pi/tutorial/raspberry-burn/>
 
 Learning Objectives
 
-Learn how to ...
+Learn how to use ```cms pi nfs``` to create an NFS share for a RaspberryOS cluster
 Topics covered
 
 {{% table_of_contents %}}
@@ -15,7 +17,11 @@ Topics covered
 
 ## Introduction  
 
-This tutorial walks through how to share a volume between a manager pi and its workers. Before proceeding, please 
+
+
+
+
+
 
 Worker pis must wait for network connection on reboot. Enable this by entering ```worker$ sudo raspi-config``` , selecting ```System Options``` , scrolling to and selecting ```Network at Boot``` , and enabling waiting for network connection on boot.
 
