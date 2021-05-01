@@ -1,16 +1,38 @@
-# Cloudmesh NFS
+---
+date: 2021-04-30
+title: "Introduction to NFS"
+linkTitle: "Introduction to NFS"
+description: "This post will cover setting up NFS on a RaspberryOS Cluster"
+draft: True
+author: Gregor von Laszewski ([laszewski@gmail.com](mailto:laszewski@gmail.com)) [laszewski.github.io](https://laszewski.github.io)
+resources:
+- src: "**.{png,jpg}"
+  title: "Image #:counter"
+---
 
-## Prerequisites/Notes
+{{< imgproc image Fill "600x300" >}}
+TODO: Caption for the image
+{{< /imgproc >}}
 
-Worker pis must wait for network connection on reboot. Enable this by entering ```worker$ sudo raspi-config``` , selecting ```System Options``` , scrolling to and selecting ```Network at Boot``` , and enabling waiting for network connection on boot.
+{{% pageinfo %}}
 
-The root user on the worker pi will have the authority to access files on the manager pi as root. Please consider the security implications of this before proceeding.
+This tutorial walks through how to share a volume between a manager pi and its workers in a RaspberryOS cluster. A tutorial on creating a RaspberryOS cluster can be found here:
 
-Tutorials referenced while creating this command:
+<https://cloudmesh.github.io/pi/tutorial/raspberry-burn/>
 
-<https://www.raspberrypi.org/documentation/configuration/nfs.md>
+**Learning Objectives**
 
-<https://suzannejmatthews.github.io/2017/06/14/pi-cluster/>
+* Learn how to use ```cms pi nfs``` to create an NFS share for a RaspberryOS cluster
+  
+**Topics covered**
+
+{{% table_of_contents %}}
+
+{{% /pageinfo %}}
+
+## Introduction
+
+NFS Protocol allows remote access to files across networks. Users on client machines can access filesystems on servers in the same way they would if the filesystem was on local storage. 
 
 ## Install
 
