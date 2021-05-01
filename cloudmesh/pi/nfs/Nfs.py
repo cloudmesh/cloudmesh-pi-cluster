@@ -105,7 +105,7 @@ class Nfs:
             print("editing manager fstab for terminate")
             #remove mount binding on manager pi
             # lines = Sudo.readfile("/etc/fstab")
-            lines = Hosts.ssh(hosts=f"pi@{manager}",command = "cat /etc/fstab")[0]['stdout']
+            lines = Host.ssh(hosts=f"pi@{manager}",command = "cat /etc/fstab")[0]['stdout']
             print(lines)
             lines = lines.splitlines()
             new_lines = Shell.remove_line_with(lines,path)
@@ -117,14 +117,14 @@ class Nfs:
 
         #For each worker pi entered, we remove permissions for workers from the MANAGER'S /etc/exports file
         print("removing permissions for workers in /etc/exports")
-        exportsFileText = Hosts.ssh(hosts= f"pi@{manager}", command = f"cat /etc/exports")[0]['stdout']
+        exportsFileText = Host.ssh(hosts= f"pi@{manager}", command = f"cat /etc/exports")[0]['stdout']
         lines = exportsFileText.splitlines()
 
         for worker in workers:
             lines = Shell.remove_line_with(lines,worker)
 
         new_lines = "\n".join(lines)
-        r = Hosts.ssh(f"pi@{manager}", command  = f"echo \"{new_lines}\" | sudo tee /etc/exports")
+        r = Host.ssh(f"pi@{manager}", command  = f"echo \"{new_lines}\" | sudo tee /etc/exports")
         print(r)
 
         #For each worker, we unmount its shared drive, remove shared drive, and remove mounting instructions from /etc/fstab files
