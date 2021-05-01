@@ -1,6 +1,21 @@
-# Cloudmesh NFS
+{{< imgproc image Fill "600x300" >}} TODO: Caption for the image {{< /imgproc >}}
 
-## Prerequisites/Notes
+{{% pageinfo %}}
+
+Please describe what this tutorial is about.
+
+Learning Objectives
+
+Learn how to ...
+Topics covered
+
+{{% table_of_contents %}}
+
+{{% /pageinfo %}}
+
+## Introduction  
+
+This tutorial walks through how to share a volume between a manager pi and its workers. Before proceeding, please 
 
 Worker pis must wait for network connection on reboot. Enable this by entering ```worker$ sudo raspi-config``` , selecting ```System Options``` , scrolling to and selecting ```Network at Boot``` , and enabling waiting for network connection on boot.
 
