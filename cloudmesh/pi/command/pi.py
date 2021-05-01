@@ -204,7 +204,7 @@ class PiCommand(PluginCommand):
 
             if arguments.unshare:
                 if arguments.terminate:
-                    nfs.unshare(arguments['--path'],arguments['--hostnames'],arguments['--terminate'])
+                    nfs.unshare(arguments['--path'],arguments['--hostnames'],terminate = arguments['--terminate'])
                 else:
                     nfs.unshare(arguments['--path'],arguments['--hostnames'])
                 

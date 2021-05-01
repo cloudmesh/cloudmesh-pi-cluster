@@ -93,7 +93,7 @@ class Nfs:
         #if manager is included in hostnames, then we will be unmounting its shared drive 
         #(We dont want it shared with anyone, so no need to keep it mounted)
         if terminate:
-            print("manager hostname found")
+            print("taking down manager share")
             #unmount shared directory
             print("umount manager /mnt/nfs")
             r = Host.ssh(hosts=f"pi@{manager}", command = f"sudo umount -l {path}")
