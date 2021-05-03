@@ -82,6 +82,7 @@ class K3(Installer):
         pi k3 dashboard disconnect [SERVER]
         pi k3 dashboard info
         pi k3 dashboard
+        pi k3 import image NAMES SOURCE DESTINATION
         :param arguments:
         :return:
         """
@@ -173,6 +174,11 @@ class K3(Installer):
                 K3SDashboard.disconnect(server=arguments.SERVER)
             else:
                 K3SDashboard.browser()
+
+        elif arguments["import"] and arguments.image:
+            self.import_image(arguments.NAMES, arguments.SOURCE,
+                              arguments.DESTINATION)
+
 
     def add_c_groups(self, names):
         names = Parameter.expand(names)
@@ -363,4 +369,33 @@ class K3(Installer):
             print(item['stdout'])
             print()
 
+    def import_image(self,names, source ,destination):
+        names = Parameter.expand(names)
 
+        Console.info(f"Copying image to {names} using source: {source} and "
+                     f"destination: {destination}")
+        Console.info("This may take a few minutes depending on the file size "
+                     "and number of destinations")
+        results = Host.put(
+            hosts=names,
+            source=source,
+            destination=destination
+        )
+
+        print(Printer.write(results,
+                            order=['host', 'success', 'stdout'],
+                            output='table'))
+
+        filepath = ""
+        if not destination.endswith(source):
+            if not destination[-1] == "/":
+                filepath = f"{destination}/{source}"
+            else:
+                filepath = f"{destination}{source}"
+        else:
+            filepath = destination
+
+        Console.info(f"Import image on {names} using filepath:{filepath}")
+
+        command = f"sudo k3s ctr images import {filepath}"
+        self._run_and_print(command, names)

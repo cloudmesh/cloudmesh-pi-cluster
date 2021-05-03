@@ -56,6 +56,7 @@ class PiCommand(PluginCommand):
             pi k3 dashboard disconnect [SERVER]
             pi k3 dashboard info
             pi k3 dashboard
+            pi k3 import image NAMES SOURCE DESTINATION
             pi microk8s install snapd NAMES
             pi microk8s install NAMES
             pi microk8s uninstall NAMES
