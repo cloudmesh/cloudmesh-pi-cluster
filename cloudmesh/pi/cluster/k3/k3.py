@@ -419,7 +419,7 @@ class K3(Installer):
 
         command = f"mkdir -p ~/.cloudmesh/k3s/"
         results = Host.ssh(hosts=server, command=command)
-        if results[0]['success'] == 'False':
+        if results[0]['success'] == False:
             Console.error(f"Creation of  ~/.cloudmesh/k3s result: "
                          f"{results[0]['success']}")
             return
@@ -432,7 +432,7 @@ class K3(Installer):
             destination="~/.cloudmesh/k3s/"
         )
 
-        if results[0]['success'] == 'False':
+        if results[0]['success'] == False:
             Console.error(f"Copy of {yaml} to ~/.cloudmesh/k3s result: "
                      f"{results[0]['success']}")
             return
@@ -443,7 +443,7 @@ class K3(Installer):
             destination="~/.cloudmesh/k3s/"
         )
 
-        if results[0]['success'] == 'False':
+        if results[0]['success'] == False:
             Console.error(f"Copy of {pyhthon} to ~/.cloudmesh/k3s result: "
                      f"{results[0]['success']}")
             return
@@ -503,7 +503,7 @@ class K3(Installer):
                 source=pod_filename,
                 destination="~/.cloudmesh/k3s/")
 
-            if results[0]['success'] == 'False':
+            if results[0]['success'] == False:
                 Console.error(f"Copy of {pod_filename} to ~/.cloudmesh/k3s result: "
                               f"{results[0]['success']}")
                 Console.info("Skipping to next port deployment")
@@ -515,7 +515,7 @@ class K3(Installer):
                 destination="~/.cloudmesh/k3s/"
             )
 
-            if results[0]['success'] == 'False':
+            if results[0]['success'] == False:
                 Console.error(f"Copy of {lb_service_filename} to ~/.cloudmesh/k3s result: "
                               f"{results[0]['success']}")
                 Console.info("Skipping to next port deployment")
@@ -531,19 +531,19 @@ class K3(Installer):
                       f"--from-file=/home/ubuntu/.cloudmesh/k3s/{yaml} " \
                       f"--from-file=/home/ubuntu/.cloudmesh/k3s/{python}"
             results = Host.ssh(hosts=server, command=command)
-            if results[0]['success'] == 'False':
+            if results[0]['success'] == False:
                 Console.warning(f"{command}\n result: {results[0]['success']}")
 
             command = "sudo kubectl apply -f " \
                       f"/home/ubuntu/.cloudmesh/k3s/{pod_filename}"
             results = Host.ssh(hosts=server, command=command)
-            if results[0]['success'] == 'False':
+            if results[0]['success'] == False:
                 Console.warning(f"{command}\n result: {results[0]['success']}")
 
             command = "sudo kubectl apply -f " \
                       f"/home/ubuntu/.cloudmesh/k3s/{lb_service_filename}"
             results = Host.ssh(hosts=server, command=command)
-            if results[0]['success'] == 'False':
+            if results[0]['success'] == False:
                 Console.warning(f"{command}\n result: {results[0]['success']}")
 
             command = f'sudo kubectl exec cloudmesh-openapi-' \
@@ -551,7 +551,7 @@ class K3(Installer):
                       f'server start /etc/config/{yaml} --host=0.0.0.0 ' \
                       f'--port={port} > /dev/null 2>/dev/null &"'
             results = Host.ssh(hosts=server, command=command)
-            if results[0]['success'] == 'False':
+            if results[0]['success'] == False:
                 Console.warning(f"{command}\n result: {results[0]['success']}")
 
         Console.info("Services are available at:")
