@@ -1,3 +1,6 @@
+import textwrap
+import os
+
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
@@ -83,6 +86,7 @@ class K3(Installer):
         pi k3 dashboard info
         pi k3 dashboard
         pi k3 import image NAMES SOURCE DESTINATION
+        pi k3 api deploy SERVER PORTS YAML PYTHON
         :param arguments:
         :return:
         """
@@ -178,6 +182,10 @@ class K3(Installer):
         elif arguments["import"] and arguments.image:
             self.import_image(arguments.NAMES, arguments.SOURCE,
                               arguments.DESTINATION)
+
+        elif arguments.api and arguments.deploy:
+            self.api_deploy(arguments.SERVER, arguments.PORTS,
+                            arguments.YAML, arguments.PYTHON)
 
 
     def add_c_groups(self, names):
@@ -399,3 +407,144 @@ class K3(Installer):
 
         command = f"sudo k3s ctr images import {filepath}"
         self._run_and_print(command, names)
+
+    def api_deploy(self,server,ports,yaml,python):
+        ports = Parameter.expand(ports)
+        Console.info(f"Deploying cloudmesh openapi service based on yaml:"
+                     f"{yaml} python file: {python} to ports: {ports} on "
+                     f"server {server}")
+
+        yaml_name = yaml.replace(".yaml", "")
+        yaml_name = yaml_name.replace("_", "-")
+
+        for port in ports:
+            pod_template = textwrap.dedent(f'''
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: cloudmesh-openapi-{yaml_name}-port-{port}-pod
+              labels:
+                app: cloudmesh-openapi-{yaml_name}-port-{port}-pod
+            spec:
+              containers:
+              - name: cloudmesh-openapi
+                image: cloudmesh-openapi:latest
+                imagePullPolicy: Never
+                command: [ "/bin/bash", "-c", "--" ]
+                args: [ "while true; do sleep 30; done;" ]
+                volumeMounts:
+                - name: config-volume
+                  mountPath: /etc/config
+              volumes:
+                - name: config-volume
+                  configMap:
+                    name: cloudmesh-openapi-{yaml_name}-port-{port}-configmap
+            ''').strip()
+
+            lb_service_template = textwrap.dedent(f'''
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: cloudmesh-openapi-{yaml_name}-port-{port}-lb-service
+            spec:
+              selector:
+                app: cloudmesh-openapi-{yaml_name}-port-{port}-pod
+              ports:
+                - protocol: TCP
+                  port: {port}
+                  targetPort: {port}
+              type: LoadBalancer
+            ''').strip()
+
+            print(pod_template)
+            print()
+            print(lb_service_template)
+
+            pod_filename = f"cloudmesh-openapi-{yaml_name}-port-{port}-pod.yaml"
+            lb_service_filename = f"cloudmesh-openapi-{yaml_name}-port-" \
+                                  f"{port}-lb-service.yaml"
+
+            with open(pod_filename,"w+") as f:
+                f.writelines(pod_template)
+
+            with open(lb_service_filename,"w+") as f:
+                f.writelines(lb_service_template)
+
+            command = f"mkdir -p ~/.cloudmesh/k3s/"
+            self._run_and_print(command, server)
+
+
+            results = Host.put(
+                hosts=server,
+                source=pod_filename,
+                destination="~/.cloudmesh/k3s/"
+            )
+
+            print(Printer.write(results,
+                                order=['host', 'success', 'stdout'],
+                                output='table'))
+
+            results = Host.put(
+                hosts=server,
+                source=lb_service_filename,
+                destination="~/.cloudmesh/k3s/"
+            )
+
+            ## todo make work with filepath and filename
+
+            print(Printer.write(results,
+                                order=['host', 'success', 'stdout'],
+                                output='table'))
+
+            results = Host.put(
+                hosts=server,
+                source=yaml,
+                destination="~/.cloudmesh/k3s/"
+            )
+
+            print(Printer.write(results,
+                                order=['host', 'success', 'stdout'],
+                                output='table'))
+
+            results = Host.put(
+                hosts=server,
+                source=python,
+                destination="~/.cloudmesh/k3s/"
+            )
+
+            print(Printer.write(results,
+                                order=['host', 'success', 'stdout'],
+                                output='table'))
+
+            os.remove(pod_filename)
+            os.remove(lb_service_filename)
+
+            ## todo all below make work for raspi os
+
+            command = f"sudo kubectl create configmap cloudmesh-openapi-" \
+                      f"{yaml_name}-port-{port}-configmap " \
+                      f"--from-file=/home/ubuntu/.cloudmesh/k3s/{yaml} " \
+                      f"--from-file=/home/ubuntu/.cloudmesh/k3s/{python}"
+            print(command)
+            self._run_and_print(command, server)
+
+            command = "sudo kubectl apply -f " \
+                      f"/home/ubuntu/.cloudmesh/k3s/{pod_filename}"
+            print(command)
+            self._run_and_print(command, server)
+
+            command = "sudo kubectl apply -f " \
+                      f"/home/ubuntu/.cloudmesh/k3s/{lb_service_filename}"
+            print(command)
+            self._run_and_print(command, server)
+
+            command = f'sudo kubectl exec cloudmesh-openapi-' \
+                      f'{yaml_name}-port-{port}-pod -- bash -c "cms openapi ' \
+                      f'server start /etc/config/{yaml} --host=0.0.0.0 ' \
+                      f'--port={port} > /dev/null 2>/dev/null &"'
+            print(command)
+            self._run_and_print(command, server)
+
+
+
+

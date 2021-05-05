@@ -57,6 +57,7 @@ class PiCommand(PluginCommand):
             pi k3 dashboard info
             pi k3 dashboard
             pi k3 import image NAMES SOURCE DESTINATION
+            pi k3 api deploy SERVER PORTS YAML PYTHON
             pi microk8s install snapd NAMES
             pi microk8s install NAMES
             pi microk8s uninstall NAMES
