@@ -417,7 +417,39 @@ class K3(Installer):
         yaml_name = yaml.replace(".yaml", "")
         yaml_name = yaml_name.replace("_", "-")
 
+        command = f"mkdir -p ~/.cloudmesh/k3s/"
+        results = Host.ssh(hosts=server, command=command)
+        if results[0]['success'] == 'False':
+            Console.error(f"Creation of  ~/.cloudmesh/k3s result: "
+                         f"{results[0]['success']}")
+            return
+
+        # todo make work with filepath and filename
+
+        results = Host.put(
+            hosts=server,
+            source=yaml,
+            destination="~/.cloudmesh/k3s/"
+        )
+
+        if results[0]['success'] == 'False':
+            Console.error(f"Copy of {yaml} to ~/.cloudmesh/k3s result: "
+                     f"{results[0]['success']}")
+            return
+
+        results = Host.put(
+            hosts=server,
+            source=python,
+            destination="~/.cloudmesh/k3s/"
+        )
+
+        if results[0]['success'] == 'False':
+            Console.error(f"Copy of {pyhthon} to ~/.cloudmesh/k3s result: "
+                     f"{results[0]['success']}")
+            return
+
         for port in ports:
+            Console.info(f"Deploying service for port: {port}")
             pod_template = textwrap.dedent(f'''
             apiVersion: v1
             kind: Pod
@@ -456,10 +488,6 @@ class K3(Installer):
               type: LoadBalancer
             ''').strip()
 
-            print(pod_template)
-            print()
-            print(lb_service_template)
-
             pod_filename = f"cloudmesh-openapi-{yaml_name}-port-{port}-pod.yaml"
             lb_service_filename = f"cloudmesh-openapi-{yaml_name}-port-" \
                                   f"{port}-lb-service.yaml"
@@ -470,19 +498,16 @@ class K3(Installer):
             with open(lb_service_filename,"w+") as f:
                 f.writelines(lb_service_template)
 
-            command = f"mkdir -p ~/.cloudmesh/k3s/"
-            self._run_and_print(command, server)
-
-
             results = Host.put(
                 hosts=server,
                 source=pod_filename,
-                destination="~/.cloudmesh/k3s/"
-            )
+                destination="~/.cloudmesh/k3s/")
 
-            print(Printer.write(results,
-                                order=['host', 'success', 'stdout'],
-                                output='table'))
+            if results[0]['success'] == 'False':
+                Console.error(f"Copy of {pod_filename} to ~/.cloudmesh/k3s result: "
+                              f"{results[0]['success']}")
+                Console.info("Skipping to next port deployment")
+                continue
 
             results = Host.put(
                 hosts=server,
@@ -490,61 +515,50 @@ class K3(Installer):
                 destination="~/.cloudmesh/k3s/"
             )
 
-            ## todo make work with filepath and filename
-
-            print(Printer.write(results,
-                                order=['host', 'success', 'stdout'],
-                                output='table'))
-
-            results = Host.put(
-                hosts=server,
-                source=yaml,
-                destination="~/.cloudmesh/k3s/"
-            )
-
-            print(Printer.write(results,
-                                order=['host', 'success', 'stdout'],
-                                output='table'))
-
-            results = Host.put(
-                hosts=server,
-                source=python,
-                destination="~/.cloudmesh/k3s/"
-            )
-
-            print(Printer.write(results,
-                                order=['host', 'success', 'stdout'],
-                                output='table'))
+            if results[0]['success'] == 'False':
+                Console.error(f"Copy of {lb_service_filename} to ~/.cloudmesh/k3s result: "
+                              f"{results[0]['success']}")
+                Console.info("Skipping to next port deployment")
+                continue
 
             os.remove(pod_filename)
             os.remove(lb_service_filename)
 
-            ## todo all below make work for raspi os
+            ## todo all below make work for raspi os; ~/.cloudmesh does not work
 
             command = f"sudo kubectl create configmap cloudmesh-openapi-" \
                       f"{yaml_name}-port-{port}-configmap " \
                       f"--from-file=/home/ubuntu/.cloudmesh/k3s/{yaml} " \
                       f"--from-file=/home/ubuntu/.cloudmesh/k3s/{python}"
-            print(command)
-            self._run_and_print(command, server)
+            results = Host.ssh(hosts=server, command=command)
+            if results[0]['success'] == 'False':
+                Console.warning(f"{command}\n result: {results[0]['success']}")
 
             command = "sudo kubectl apply -f " \
                       f"/home/ubuntu/.cloudmesh/k3s/{pod_filename}"
-            print(command)
-            self._run_and_print(command, server)
+            results = Host.ssh(hosts=server, command=command)
+            if results[0]['success'] == 'False':
+                Console.warning(f"{command}\n result: {results[0]['success']}")
 
             command = "sudo kubectl apply -f " \
                       f"/home/ubuntu/.cloudmesh/k3s/{lb_service_filename}"
-            print(command)
-            self._run_and_print(command, server)
+            results = Host.ssh(hosts=server, command=command)
+            if results[0]['success'] == 'False':
+                Console.warning(f"{command}\n result: {results[0]['success']}")
 
             command = f'sudo kubectl exec cloudmesh-openapi-' \
                       f'{yaml_name}-port-{port}-pod -- bash -c "cms openapi ' \
                       f'server start /etc/config/{yaml} --host=0.0.0.0 ' \
                       f'--port={port} > /dev/null 2>/dev/null &"'
-            print(command)
-            self._run_and_print(command, server)
+            results = Host.ssh(hosts=server, command=command)
+            if results[0]['success'] == 'False':
+                Console.warning(f"{command}\n result: {results[0]['success']}")
 
-
-
+        Console.info("Services are available at:")
+        command = f'sudo kubectl get service '
+        results = Host.ssh(hosts=server, command=command)
+        if results[0]['success'] == True:
+            print(results[0]['stdout'])
+        else:
+            Console.warning(f"{command}\n result: {results[0]['success']}")
 
