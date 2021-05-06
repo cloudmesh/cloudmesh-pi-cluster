@@ -263,7 +263,6 @@ class K3(Installer):
         self.install_agent(manager, manager)
         if workers:
             self.install_agent(workers, manager)
-        K3SDashboard.create(server=manager)
 
     def uninstall_server(self, names):
         Console.info(f'Uninstalling server install of K3s on {names}')
