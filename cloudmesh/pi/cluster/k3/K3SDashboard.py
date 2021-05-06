@@ -85,21 +85,31 @@ class K3SDashboard():
                 print(cls.DASHBOARD_LINK)
                 Console.info("Fetching authentication token...")
                 print(cls.get_admin_token(server=server))
-            else:
+            elif active == "Up but not ready":
                 Console.info(textwrap.dedent(
                     f"""
-                    You appear to have set up a connection to your server,
-                    but no dashboard is running on {server}:{cls.REMOTE_PORT}.
+                    You appear to have set up a connection to your server's API endpoints,
+                    but no dashboard is ready on {server}:{cls.REMOTE_PORT}.
                     Please wait a moment and try again.
                     """))
+            elif active == "Not Active":
+                Console.info(textwrap.dedent(
+                    f"""
+                    No server API detected. The proxy on the server may not be running. Try:
 
-        # Should always just be of length 1
+                    $ cms pi k3 dashboard start {server}
+                    """
+                ))
+
+        # Should always just be of length 1 or 0
         return entries
 
     @classmethod
-    def create(cls, server=None):
+    def create(cls, server=None, ubuntu=False):
         """
         Create a dashboard with a default user on the specified server
+
+        ubuntu is true if the server is running ubuntu over raspberry os
         """
         if server is None:
             raise Exception('No server supplied for dashboard creation')
@@ -174,7 +184,7 @@ class K3SDashboard():
         })
 
         Console.info(f"Starting dashboard on {server}")
-        start_cmd = "nohup sudo k3s kubectl proxy >/home/pi/k3sdashboard.log 2>&1 &"
+        start_cmd = "nohup sudo k3s kubectl proxy >k3sdashboard.log 2>&1 &"
         res = Host.ssh(
             hosts=server,
             command=start_cmd
@@ -186,18 +196,42 @@ class K3SDashboard():
             "stderr": res[0]['stderr']
         })
 
+        if not ubuntu:
+            res = Host.ssh(
+                hosts=server,
+                # Use grep -qxF to match whole line (check if already present to prevent duplicate)
+                command=f"grep -qxF '{start_cmd}' /etc/rc.local || sudo sed -i '$i {start_cmd}' /etc/rc.local"
+            )
+            statuses.append({
+                "step": "Enable Persistence",
+                "success": res[0]['success'],
+                "stdout": res[0]['stdout'],
+                "stderr": res[0]['stderr']
+            })
+
+        print(Printer.write(statuses, order=["step", "success", "stdout", "stderr"], header=["Step", "Success", "stdout", "stderr"]))
+
+    @classmethod
+    def start(cls, server=None):
+        """
+        Start the dashboard on the remote server
+        """
+        if server is None:
+            raise Exception('Server arg is None')
+
+        Console.info(f'Attempting to start dashboard on {server}')
+        statuses = []
+        start_cmd = "nohup sudo k3s kubectl proxy >k3sdashboard.log 2>&1 &"
         res = Host.ssh(
             hosts=server,
-            # Use grep -qxF to match whole line (check if already present to prevent duplicate)
-            command=f"grep -qxF '{start_cmd}' /etc/rc.local || sudo sed -i '$i {start_cmd}' /etc/rc.local"
+            command=start_cmd
         )
         statuses.append({
-            "step": "Enable Persistence",
+            "step": "Start Dashboard",
             "success": res[0]['success'],
             "stdout": res[0]['stdout'],
             "stderr": res[0]['stderr']
         })
-
         print(Printer.write(statuses, order=["step", "success", "stdout", "stderr"], header=["Step", "Success", "stdout", "stderr"]))
 
     @classmethod

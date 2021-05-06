@@ -80,7 +80,8 @@ class K3(Installer):
         pi k3 stop cluster NAMES
         pi k3 remove node NAMES SERVER
         pi k3 cluster info SERVER
-        pi k3 dashboard create SERVER
+        pi k3 dashboard create SERVER [--ubuntu]
+        pi k3 dashboard start SERVER
         pi k3 dashboard connect SERVER
         pi k3 dashboard disconnect [SERVER]
         pi k3 dashboard info
@@ -169,13 +170,19 @@ class K3(Installer):
 
         elif arguments.dashboard:
             if arguments.create:
-                K3SDashboard.create(server=arguments.SERVER)
+                if arguments['--ubuntu']:
+                    ubuntu=True
+                else:
+                    ubuntu=False
+                K3SDashboard.create(server=arguments.SERVER, ubuntu=ubuntu)
             elif arguments.info:
                 K3SDashboard.info()
             elif arguments.connect:
                 K3SDashboard.connect(server=arguments.SERVER)
             elif arguments.disconnect:
                 K3SDashboard.disconnect(server=arguments.SERVER)
+            elif arguments.start:
+                K3SDashboard.start(server=arguments.SERVER)
             else:
                 K3SDashboard.browser()
 

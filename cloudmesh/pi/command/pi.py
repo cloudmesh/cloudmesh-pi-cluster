@@ -51,7 +51,8 @@ class PiCommand(PluginCommand):
             pi k3 stop cluster NAMES
             pi k3 remove node NAMES SERVER
             pi k3 cluster info SERVER
-            pi k3 dashboard create SERVER
+            pi k3 dashboard create SERVER [--ubuntu]
+            pi k3 dashboard start SERVER
             pi k3 dashboard connect SERVER
             pi k3 dashboard disconnect [SERVER]
             pi k3 dashboard info
