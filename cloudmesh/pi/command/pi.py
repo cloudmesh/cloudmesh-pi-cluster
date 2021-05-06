@@ -42,7 +42,6 @@ class PiCommand(PluginCommand):
             pi nfs share --paths=PATHS --hostnames=HOSTNAMES
             pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate]
 
-
           Arguments:
               NAMES       The hostnames in parameterized form
               VALUE       The Values are on, off, 0, 1
@@ -146,7 +145,8 @@ class PiCommand(PluginCommand):
                        'workers',
                        'output',
                        'user',
-                       'rate')
+                       'rate',
+                       'terminate')
 
         arguments.output = arguments.output or 'table'
 

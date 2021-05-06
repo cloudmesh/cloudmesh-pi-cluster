@@ -4,6 +4,13 @@ from cloudmesh.common.Host import Host
 
 
 class Nfs:
+    verbose = True
+
+    @classmethod
+    def debug(cls,str):
+        if Nfs.verbose:
+            print(str)
+
     def __init__(self):
         pass
 
@@ -91,6 +98,8 @@ class Nfs:
         pis = hostnames.split(',')
         manager = pis[0]
         workers = pis[1:]
+        r = None
+        result = []
 
         # if manager is included in hostnames, then we will be unmounting its shared drive
         # (We do not want it shared with anyone, so no need to keep it mounted)
@@ -98,35 +107,47 @@ class Nfs:
             print("taking down manager share")
             # unmount shared directory
             print("umount manager /mnt/nfs")
-            r = Host.ssh(hosts=f"pi@{manager}", command=f"sudo umount -l {path}")
+            command=f"sudo umount -l {path}"
+            print(f"pi@{manager}", command)
+            r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            result.append(r)
             print(r)
-            print("remove manager /mnt/nfs")
-            r = Host.ssh(hosts=f"pi@{manager}", command=f'sudo rm -r {path}')
+            command = f'sudo rm -r {path}'
+            print(f"pi@{manager}", command)
+            r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            result.append(r)
             print(r)
 
-            print("editing manager fstab for terminate")
             # remove mount binding on manager pi
-            # lines = Sudo.readfile("/etc/fstab")
-            lines = Host.ssh(hosts=f"pi@{manager}", command="cat /etc/fstab")[0]['stdout']
+            command = "cat /etc/fstab"
+            print(f"pi@{manager}", command)
+            lines = Host.ssh(hosts=f"pi@{manager}", command=command)[0]['stdout']
             print(lines)
             lines = lines.splitlines()
             new_lines = Shell.remove_line_with(lines, path)
             lines = "\n".join(new_lines)
-            # Sudo.writefile("/etc/fstab",lines)
             print("rewrite fstab manager")
-            r = Host.ssh(hosts=f"pi@{manager}", command=f"echo \"{lines}\" | sudo tee /etc/fstab")
+            command = f"echo \"{lines}\" | sudo tee /etc/fstab"
+            print(f"pi@{manager}", command)
+            r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            result.append(r)
             print(r)
 
         # For each worker pi entered, we remove permissions for workers from the MANAGER'S /etc/exports file
         print("removing permissions for workers in /etc/exports")
-        exports_file_text = Host.ssh(hosts=f"pi@{manager}", command=f"cat /etc/exports")[0]['stdout']
+        command = f"cat /etc/exports"
+        print(f"pi@{manager}", command)
+        exports_file_text = Host.ssh(hosts=f"pi@{manager}", command=command)[0]['stdout']
         lines = exports_file_text.splitlines()
 
         for worker in workers:
             lines = Shell.remove_line_with(lines, worker)
 
         new_lines = "\n".join(lines)
-        r = Host.ssh(f"pi@{manager}", command=f"echo \"{new_lines}\" | sudo tee /etc/exports")
+        command = f"echo \"{new_lines}\" | sudo tee /etc/exports"
+        print(f"pi@{manager}", command)
+        r = Host.ssh(f"pi@{manager}", command=command)
+        result.append(r)
         print(r)
 
         # For each worker, we unmount its shared drive, remove shared drive
@@ -134,15 +155,31 @@ class Nfs:
         for worker in workers:
             # unmount shared directory, remove shared directory
             print(f"unmounting {worker}")
-            Host.ssh(hosts=f"pi@{worker}", command=f"sudo umount -l {path}")
-            Host.ssh(hosts=f"pi@{worker}", command=f"sudo rm -r {path}")
+            command = f"sudo umount -l {path}"
+            print(f"pi@{worker}", command)
+            Host.ssh(hosts=f"pi@{worker}", command=command)
+            result.append(r)
+
+            command = f"sudo rm -r {path}"
+            print(f"pi@{worker}", command)
+            Host.ssh(hosts=f"pi@{worker}", command=command)
+            result.append(r)
 
             # remove mounting instructions
-            print('edit worker fstab')
-            lines = Host.ssh(hosts=f"pi@{worker}", command=f"cat /etc/fstab")[0]['stdout']
+            command = f"cat /etc/fstab"
+            print(f"pi@{worker}", command)
+            lines = Host.ssh(hosts=f"pi@{worker}", command=command)[0]['stdout']
             lines = lines.splitlines()
             lines = Shell.remove_line_with(lines, path)
             new_lines = "\n".join(lines)
-            r = Host.ssh(hosts=f"pi@{worker}", command=f"echo \"{new_lines}\" | sudo tee /etc/fstab")
+            command = f"echo \"{new_lines}\" | sudo tee /etc/fstab"
+            print(f"pi@{worker}", command)
+            r = Host.ssh(hosts=f"pi@{worker}", command=command)
+            result.append(r)
             print(r)
+
+        print('GGGG')
+        return result
+
+            
 # Look into mount timeouts
