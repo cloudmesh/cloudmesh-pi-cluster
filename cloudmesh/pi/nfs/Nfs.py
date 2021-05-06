@@ -91,47 +91,34 @@ class Nfs:
         except IndexError as e:
             pass
 
-    def unshare(self, path, hostnames, terminate=False):
-        # get manager hostname
-        # manager_hn = Shell.run('hostname').strip()
+    def unshare(self, path, hostnames, terminate=True):
 
-        pis = hostnames.split(',')
-        manager = pis[0]
-        workers = pis[1:]
-        r = None
-        result = []
-
-        # if manager is included in hostnames, then we will be unmounting its shared drive
-        # (We do not want it shared with anyone, so no need to keep it mounted)
-        if terminate:
-            print("taking down manager share")
-            # unmount shared directory
-            print("umount manager /mnt/nfs")
+        def _unshare(host,path):
             command=f"sudo umount -l {path}"
-            print(f"pi@{manager}", command)
-            r = Host.ssh(hosts=f"pi@{manager}", command=command)
-            result.append(r)
-            print(r)
-            command = f'sudo rm -r {path}'
-            print(f"pi@{manager}", command)
-            r = Host.ssh(hosts=f"pi@{manager}", command=command)
-            result.append(r)
-            print(r)
+            print(f"pi@{host}", command)
+            r = Host.ssh(hosts=f"pi@{host}", command=command)
 
-            # remove mount binding on manager pi
             command = "cat /etc/fstab"
-            print(f"pi@{manager}", command)
-            lines = Host.ssh(hosts=f"pi@{manager}", command=command)[0]['stdout']
+            print(f"pi@{host}", command)
+            lines = Host.ssh(hosts=f"pi@{host}", command=command)[0]['stdout']
             print(lines)
             lines = lines.splitlines()
             new_lines = Shell.remove_line_with(lines, path)
             lines = "\n".join(new_lines)
             print("rewrite fstab manager")
             command = f"echo \"{lines}\" | sudo tee /etc/fstab"
-            print(f"pi@{manager}", command)
-            r = Host.ssh(hosts=f"pi@{manager}", command=command)
-            result.append(r)
+            print(f"pi@{host}", command)
+            r = Host.ssh(hosts=f"pi@{host}", command=command)
+            # result.append(r)
             print(r)
+        
+        pis = hostnames.split(',')
+        manager = pis[0]
+        workers = pis[1:]
+        r = None
+
+        for worker in workers:
+            _unshare(worker,path)
 
         # For each worker pi entered, we remove permissions for workers from the MANAGER'S /etc/exports file
         print("removing permissions for workers in /etc/exports")
@@ -147,39 +134,10 @@ class Nfs:
         command = f"echo \"{new_lines}\" | sudo tee /etc/exports"
         print(f"pi@{manager}", command)
         r = Host.ssh(f"pi@{manager}", command=command)
-        result.append(r)
         print(r)
 
-        # For each worker, we unmount its shared drive, remove shared drive
-        # and remove mounting instructions from /etc/fstab files
-        for worker in workers:
-            # unmount shared directory, remove shared directory
-            print(f"unmounting {worker}")
-            command = f"sudo umount -l {path}"
-            print(f"pi@{worker}", command)
-            Host.ssh(hosts=f"pi@{worker}", command=command)
-            result.append(r)
-
-            command = f"sudo rm -r {path}"
-            print(f"pi@{worker}", command)
-            Host.ssh(hosts=f"pi@{worker}", command=command)
-            result.append(r)
-
-            # remove mounting instructions
-            command = f"cat /etc/fstab"
-            print(f"pi@{worker}", command)
-            lines = Host.ssh(hosts=f"pi@{worker}", command=command)[0]['stdout']
-            lines = lines.splitlines()
-            lines = Shell.remove_line_with(lines, path)
-            new_lines = "\n".join(lines)
-            command = f"echo \"{new_lines}\" | sudo tee /etc/fstab"
-            print(f"pi@{worker}", command)
-            r = Host.ssh(hosts=f"pi@{worker}", command=command)
-            result.append(r)
-            print(r)
-
-        print('GGGG')
-        return result
-
-            
-# Look into mount timeouts
+        # if manager is included in hostnames, then we will be unmounting its shared drive
+        # (We do not want it shared with anyone, so no need to keep it mounted)
+        if terminate:
+            _unshare(manager,path)
+        
