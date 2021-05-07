@@ -591,5 +591,3 @@ class K3(Installer):
                     f"{command}\n result: {results[0]['success']}")
             else:
                 Console.info(f"Service on {port} successfully started")
-
-
