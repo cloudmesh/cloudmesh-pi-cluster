@@ -88,6 +88,7 @@ class K3(Installer):
         pi k3 dashboard
         pi k3 import image NAMES SOURCE DESTINATION
         pi k3 api deploy SERVER PORTS YAML PYTHON
+        pi k3 api start SERVER PORTS YAML PYTHON
         :param arguments:
         :return:
         """
@@ -192,6 +193,10 @@ class K3(Installer):
 
         elif arguments.api and arguments.deploy:
             self.api_deploy(arguments.SERVER, arguments.PORTS,
+                            arguments.YAML, arguments.PYTHON)
+
+        elif arguments.api and arguments.start:
+            self.api_start(arguments.SERVER, arguments.PORTS,
                             arguments.YAML, arguments.PYTHON)
 
 
@@ -567,4 +572,24 @@ class K3(Installer):
             print(results[0]['stdout'])
         else:
             Console.warning(f"{command}\n result: {results[0]['success']}")
+
+    def api_start(self,server,ports,yaml,python):
+        ports = Parameter.expand(ports)
+        Console.info(f"Starting services in on ports {ports}")
+
+        yaml_name = yaml.replace(".yaml", "")
+        yaml_name = yaml_name.replace("_", "-")
+
+        for port in ports:
+            command = f'sudo kubectl exec cloudmesh-openapi-' \
+                      f'{yaml_name}-port-{port}-pod -- bash -c "cms openapi ' \
+                      f'server start /etc/config/{yaml} --host=0.0.0.0 ' \
+                      f'--port={port} > /dev/null 2>/dev/null &"'
+            results = Host.ssh(hosts=server, command=command)
+            if results[0]['success'] == False:
+                Console.warning(
+                    f"{command}\n result: {results[0]['success']}")
+            else:
+                Console.info(f"Service on {port} successfully started")
+
 
