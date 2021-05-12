@@ -1,7 +1,7 @@
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Host import Host
-
+from cloudmesh.common.console import Console
 
 class Nfs:
     verbose = True
@@ -16,14 +16,17 @@ class Nfs:
 
     # install necessary dependencies for NFS sharing
     def install(self):
+        # if os in [....]
         Sudo.execute('apt-get install nfs-kernel-server', decode=False)
 
     # uninstall necessary dependencies for NFS sharing
     def uninstall(self):
+        # if os in [....]
         Sudo.execute('apt-get –-purge remove nfs-kernel-server', decode=False)
 
     def info(self):
         print("Is the nfs server running")
+        Console.error("Not yet implemented")
 
     # mount manager directory to a shared directory, share that directory with workers
     # (shared directory will be created on each pi)
@@ -33,60 +36,62 @@ class Nfs:
 
         try:
             mounting, mounting_to = paths.split(',')
-            print('Mounting', mounting, 'to', mounting_to)
+            Console.info(f'Mounting {mounting} to {mounting_to}')
 
             pis = hostnames.split(',')
             manager = pis[0]
             workers = pis[1:]
 
             # create and bind directory paths on manager
-            print("mkdir /mnt/nfs manager")
+            Console.info("mkdir /mnt/nfs manager")
             r = Host.ssh(hosts=f"pi@{manager}", command=f" sudo mkdir -p {mounting_to}")
-            print(r)
-            print("chown /mnt/nfs manager")
+            Console.info(r)
+            Console.info("chown /mnt/nfs manager")
             r = Host.ssh(hosts=f"pi@{manager}", command=f"sudo chown -R pi:pi {mounting_to}")
-            print(r)
-            print("mount bind /mnt/nfs manager")
+            Console.info(r)
+            Console.info("mount bind /mnt/nfs manager")
             r = Host.ssh(hosts=f"pi@{manager}", command=f"sudo mount --bind {mounting} {mounting_to}")
-            print(r)
-            print("Manager directories bound")
+            Console.info(r)
+            Console.info("Manager directories bound")
 
             # preserve binding after reboot on manager
-            print("edit fstab manager")
+            Console.info("edit fstab manager")
             add_to_fstab = f"{mounting}\t{mounting_to}\tnone\tbind\t0\t0"
             r = Host.ssh(hosts=f"pi@{manager}", command=f"echo \"{add_to_fstab}\" | sudo tee --append /etc/fstab")
-            print(r)
-            print("Binding preserved for reboot")
+            Console.info(r)
+            Console.info("Binding preserved for reboot")
 
             # add each worker hostname into manager exports file
             for worker in workers:
-                print(f"Adding {worker} to manager exports")
+                Console.info(f"Adding {worker} to manager exports")
                 add_to_exports = f"{mounting_to} {worker}(rw,no_root_squash,sync,no_subtree_check)"
                 r = Host.ssh(hosts=f"pi@{manager}",
                              command=f"echo \"{add_to_exports}\" | sudo tee --append /etc/exports")
-                print(r)
+                Console.info(r)
             Host.ssh(hosts=f"pi@{manager}", command="sudo exportfs -r")
 
             # ssh into workers, mount directory
             for worker in workers:
-                print(f'Setting up {worker}')
-                print("mkdir /mnt/nfs worker")
+                Console.info(f'Setting up {worker}')
+                Console.info("mkdir /mnt/nfs worker")
                 r = Host.ssh(hosts=f"pi@{worker}", command=f"sudo mkdir -p {mounting_to}")
-                print(r)
+                Console.info(r)
                 r = Host.ssh(hosts=f"pi@{worker}", command=f"sudo chown -R pi:pi {mounting_to}")
-                print('*****ATTEMPTING MOUNT******')
+
+                # The *** is not use in cloudmesh bad style we habve banner to empasize things
+                Console.info('*****ATTEMPTING MOUNT******')
                 r = Host.ssh(hosts=f"pi@{worker}", command=f"sudo mount -vvvv {manager_ip}:{mounting_to} {mounting_to}")
-                print(r)
-                print("edit fstab worker")
+                Console.info(r)
+                Console.info("edit fstab worker")
                 add_to_fstab = f"{manager_ip}:{mounting_to}\t{mounting_to}\tnfs\tx-systemd.automount\t0\t0"
                 r = Host.ssh(hosts=f"pi@{worker}", command=f"echo \"{add_to_fstab}\" | sudo tee --append  /etc/fstab")
-                print(r)
+                Console.info(r)
 
         except AttributeError as e:
-            print("Error: Not enough hostnames")
+            Console.error("Not enough hostnames")
             raise
         except ValueError as e:
-            print("Error: 2 filesystem paths must be provided")
+            Console.error("2 filesystem paths must be provided")
             raise
         except IndexError as e:
             pass
@@ -139,4 +144,4 @@ class Nfs:
             _unshare(manager,path)
         
         for key,value in result.items():
-            print(key,'--->',value)
+            Console.info(f"{key} --> {value}")
