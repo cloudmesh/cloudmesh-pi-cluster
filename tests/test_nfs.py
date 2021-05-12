@@ -22,14 +22,15 @@ def run(command):
 class Test_nfs(object):
     """
     """
-    def test_share(self):
-        command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01"'
-        r = run(command)
-        print(r)
+    # def test_share(self):
+    #     command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01"'
+    #     r = run(command)
+    #     print(r)
         
 
     def test_unshare(self):
         command = 'cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01"'
+        command = 'ls -lisa -h'
         r = run(command)
-        print(r)
+        print(type(r))
         assert True
