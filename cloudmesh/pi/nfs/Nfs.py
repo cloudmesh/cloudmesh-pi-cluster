@@ -92,39 +92,37 @@ class Nfs:
             pass
 
     def unshare(self, path, hostnames, terminate=True):
-
+        result = {}
+        
         def _unshare(host,path):
             command=f"sudo umount -l {path}"
-            print(f"pi@{host}", command)
             r = Host.ssh(hosts=f"pi@{host}", command=command)
+            result[f"pi@{host}: " + command] = r[0]['success']
 
             command = "cat /etc/fstab"
-            print(f"pi@{host}", command)
             lines = Host.ssh(hosts=f"pi@{host}", command=command)[0]['stdout']
-            print(lines)
+            result[f"pi@{host}: " + command] = r[0]['success']
             lines = lines.splitlines()
             new_lines = Shell.remove_line_with(lines, path)
             lines = "\n".join(new_lines)
-            print("rewrite fstab manager")
+
             command = f"echo \"{lines}\" | sudo tee /etc/fstab"
-            print(f"pi@{host}", command)
             r = Host.ssh(hosts=f"pi@{host}", command=command)
-            # result.append(r)
-            print(r)
+            result[f"pi@{host}: " + command] = r[0]['success']
         
         pis = hostnames.split(',')
         manager = pis[0]
         workers = pis[1:]
-        r = None
 
         for worker in workers:
             _unshare(worker,path)
 
         # For each worker pi entered, we remove permissions for workers from the MANAGER'S /etc/exports file
-        print("removing permissions for workers in /etc/exports")
+        # print("removing permissions for workers in /etc/exports")
         command = f"cat /etc/exports"
-        print(f"pi@{manager}", command)
-        exports_file_text = Host.ssh(hosts=f"pi@{manager}", command=command)[0]['stdout']
+        r = Host.ssh(hosts=f"pi@{manager}", command=command)
+        exports_file_text = r[0]['stdout']
+        result[f"pi@{manager}: " + command] = r[0]['success']
         lines = exports_file_text.splitlines()
 
         for worker in workers:
@@ -132,12 +130,13 @@ class Nfs:
 
         new_lines = "\n".join(lines)
         command = f"echo \"{new_lines}\" | sudo tee /etc/exports"
-        print(f"pi@{manager}", command)
         r = Host.ssh(f"pi@{manager}", command=command)
-        print(r)
+        result[f"pi@{manager}: " + command] = r[0]['success']
 
         # if manager is included in hostnames, then we will be unmounting its shared drive
         # (We do not want it shared with anyone, so no need to keep it mounted)
         if terminate:
             _unshare(manager,path)
         
+        for key,value in result.items():
+            print(key,'--->',value)

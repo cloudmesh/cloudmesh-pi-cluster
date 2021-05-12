@@ -18,24 +18,18 @@ def run(command):
     return str(result)
 
 
-
 @pytest.mark.incremental
 class Test_nfs(object):
     """
-
     """
+    def test_share(self):
+        command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01"'
+        r = run(command)
+        print(r)
+        
 
-    def setup(self):
-        pass
-
-    def test_umount(self):
-        HEADING()
+    def test_unshare(self):
         command = 'cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01"'
         r = run(command)
-        ignore, result = r.split('GGGG')
-        print('Ignore: ', ignore)
-        print('Result: ', result)
-        result = eval(result)
-        print(ignore)
-        print('gggg',type(result),result)
-        assert False
+        print(r)
+        assert True
