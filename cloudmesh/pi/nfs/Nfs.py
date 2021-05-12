@@ -17,12 +17,18 @@ class Nfs:
     # install necessary dependencies for NFS sharing
     def install(self):
         # if os in [....]
-        Sudo.execute('apt-get install nfs-kernel-server', decode=False)
+        command = f"apt-get install nfs-kernel-server"
+        r = Host.ssh(hosts=f"pi@{host}",command = command)
+        result = r[0]['success']
+        Console.info(f"pi@{host}: {command} ---> {result}")
 
     # uninstall necessary dependencies for NFS sharing
     def uninstall(self):
         # if os in [....]
-        Sudo.execute('apt-get –-purge remove nfs-kernel-server', decode=False)
+        command = f"'apt-get –-purge remove nfs-kernel-server"
+        r = Host.ssh(hosts=f"pi@{host}",command = command)
+        result = r[0]['success']
+        Console.info(f"pi@{host}: {command} ---> {result}")
 
     def info(self):
         print("Is the nfs server running")
@@ -31,7 +37,6 @@ class Nfs:
     # mount manager directory to a shared directory, share that directory with workers
     # (shared directory will be created on each pi)
     def share(self, paths, hostnames):
-        
         #for debugging
         result = {}
 
@@ -109,7 +114,6 @@ class Nfs:
             pass
 
     def unshare(self, path, hostnames, terminate=True):
-
         #for debugging
         result = {}
         
