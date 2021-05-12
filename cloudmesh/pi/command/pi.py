@@ -13,6 +13,8 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.pi.nfs.Nfs import Nfs
+from cloudmesh.pi.cluster.k3.k3 import K3
+from cloudmesh.pi.cluster.microk8s.microk8s import MicroK8s
 
 
 class PiCommand(PluginCommand):
@@ -34,6 +36,42 @@ class PiCommand(PluginCommand):
             pi free NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi load NAMES [--rate=SECONDS] [--user=USER] [--output=FORMAT]
             pi wifi SSID [PASSWORD] [--dryrun]
+            pi k3 enable containers NAMES
+            pi k3 install server NAMES
+            pi k3 install agent NAMES SERVER
+            pi k3 install cluster NAMES
+            pi k3 uninstall server NAMES
+            pi k3 uninstall agent NAMES
+            pi k3 uninstall cluster NAMES
+            pi k3 kill NAMES
+            pi k3 start server NAMES
+            pi k3 start agent NAMES
+            pi k3 start cluster NAMES
+            pi k3 stop server NAMES
+            pi k3 stop agent NAMES
+            pi k3 stop cluster NAMES
+            pi k3 remove node NAMES SERVER
+            pi k3 cluster info SERVER
+            pi k3 dashboard create SERVER [--ubuntu]
+            pi k3 dashboard start SERVER
+            pi k3 dashboard connect SERVER
+            pi k3 dashboard disconnect [SERVER]
+            pi k3 dashboard info
+            pi k3 dashboard
+            pi k3 import image NAMES SOURCE DESTINATION
+            pi k3 api deploy SERVER PORTS YAML PYTHON
+            pi k3 api start SERVER PORTS YAML PYTHON
+            pi microk8s install snapd NAMES
+            pi microk8s install NAMES
+            pi microk8s uninstall NAMES
+            pi microk8s start NAMES
+            pi microk8s stop NAMES
+            pi microk8s inspect NAMES
+            pi microk8s enable addon ADDONS NAMES
+            pi microk8s cluster info SERVER
+            pi microk8s join NAMES SERVER
+            pi microk8s get node SERVER
+            pi microk8s remove node NAMES
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
@@ -208,4 +246,12 @@ class PiCommand(PluginCommand):
                 else:
                     nfs.unshare(arguments['--path'],arguments['--hostnames'])
                 
+        elif arguments.k3:
+            k3 = K3()
+            k3.execute(arguments)
+
+        elif arguments.microk8s:
+            microk8s = MicroK8s()
+            microk8s.execute(arguments)
+
         return ""
