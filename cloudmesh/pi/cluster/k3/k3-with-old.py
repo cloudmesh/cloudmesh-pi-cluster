@@ -13,6 +13,7 @@ import fcntl
 import struct
 from pprint import pprint
 
+from cloudmesh.common.Shell import Shell
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
@@ -65,7 +66,7 @@ class Installer:
 
     @staticmethod
     def _get_server_ip(server):
-        if os.uname()[1] == server or server == 'localhost':
+        if platform.uname()[1] == server or server == 'localhost':
             # if server is local host, get eth interface ip
             ip = Shell.run("hostname -I | awk '{print $1}'").strip()
         else:
@@ -108,7 +109,7 @@ class K3(Installer):
 
     def __init__(self):
         self.port = 6443
-        self.hostname = os.uname()[1]
+        self.hostname = platform.uname()[1]
 
     def execute(self, arguments):
         """
