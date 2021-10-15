@@ -77,7 +77,7 @@ class PiCommand(PluginCommand):
             pi script list
             pi tensorflow deploy step1 NAMES
             pi tensorflow deploy step2 NAMES
-            pi tensorflow test NAMES
+            pi tensorflow test KIND NAMES
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -85,6 +85,7 @@ class PiCommand(PluginCommand):
               USER        The user name for a login
               SSID        The ssid of your WIfi
               PASSWORD    The assword for the WIFI
+              KIND        kind
 
             Options:
                -v               verbose mode
@@ -217,12 +218,12 @@ class PiCommand(PluginCommand):
             k3 = K3()
             k3.execute(arguments)
 
-        elif arguments.tensorflow:
-            tf = Tensorflow()
-            tf.execute(arguments)
-
         elif arguments.microk8s:
             microk8s = MicroK8s()
             microk8s.execute(arguments)
+
+        elif arguments.tensorflow:
+            tf = Tensorflow()
+            tf.execute(arguments)
 
         return ""

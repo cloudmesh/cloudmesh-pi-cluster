@@ -16,6 +16,11 @@ class Tensorflow:
         pass
 
     def execute(self, arguments):
+        """
+        pi tensorflow deploy step1 NAMES
+        pi tensorflow deploy step2 NAMES
+        pi tensorflow test KIND NAMES
+        """
 
         arguments.NAMES = Parameter.expand_names(arguments.NAMES)
 
@@ -35,7 +40,7 @@ class Tensorflow:
 
         elif arguments.install and arguments.test:
             StopWatch.start("tensorflow test")
-            self.deploy_test(arguments.NAMES)
+            self.deploy_test(arguments.NAMES, arguments.KIND)
             StopWatch.stop("tensorflow test")
             StopWatch.status("tensorflow test", True)
             StopWatch.print("tensorflow test")
@@ -60,6 +65,6 @@ class Tensorflow:
         command = "ls"  # curl .....
         self._run_and_print(command, names)
 
-    def test(self, names):
+    def test(self, names, kind):
         command = "ls"  # curl .....
         self._run_and_print(command, names)
