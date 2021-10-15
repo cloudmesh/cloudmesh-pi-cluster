@@ -13,6 +13,7 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.pi.cluster.k3.k3 import K3
+from cloudmesh.pi.cluster.tensorflow.tensorflow import Tensorflow
 from cloudmesh.pi.cluster.microk8s.microk8s import MicroK8s
 
 
@@ -74,6 +75,9 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
+            pi tensorflow deploy step1 NAMES
+            pi tensorflow deploy step2 NAMES
+            pi tensorflow test NAMES
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -212,6 +216,10 @@ class PiCommand(PluginCommand):
         elif arguments.k3:
             k3 = K3()
             k3.execute(arguments)
+
+        elif arguments.tensorflow:
+            tf = Tensorflow()
+            tf.execute(arguments)
 
         elif arguments.microk8s:
             microk8s = MicroK8s()
