@@ -101,15 +101,17 @@ class Nfs:
                     r2 = Host.ssh(hosts=f"pi@{manager}",command="sudo cat /etc/exports")
                     print(Printer.write(r2))
                     for entry2 in r2:
-                        print(str(entry2['stdout']))
-                        print(type(str(entry2['stdout'])))
+                        string_of_export = str(entry2['stdout'])
+                    fixed_export_list = string_of_export.splitlines()
+                    no_duplicates = [i for n, i in enumerate(fixed_export_list) if i not in fixed_export_list[:n]]
+                    print(no_duplicates)
                     return ""
                     for entry2 in r2:
                         for written_export in str(entry2['stdout']):
                             export_file.append(written_export)
                     print(export_file)
 
-                    fixed_export_file = [i for n, i in enumerate(export_file) if i not in export_file[:n]]
+
                     writefile(filename, "\n".join(fixed_export_file))
                     r = Host.ssh(hosts=f"pi@{manager}", command="sudo cat /etc/exports")
                     print(Printer.write(r))
