@@ -67,12 +67,14 @@ class Nfs:
             #bind on manager an existing filesystem to the share point
             command = f"sudo mount --bind {mounting} {mounting_to}"
             r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            print(Printer.write(r))
             result[f"pi@{manager}: " + command] = r[0]['success']
 
             # preserve binding after reboot on manager
             add_to_fstab = f"{mounting}\t{mounting_to}\tnone\tbind\t0\t0"
             command = f"echo \"{add_to_fstab}\" | sudo tee --append /etc/fstab"
             r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            print(Printer.write(r))
             result[f"pi@{manager}: " + command] = r[0]['success']
 
             # add each worker hostname into manager exports file
@@ -80,11 +82,13 @@ class Nfs:
                 add_to_exports = f"{mounting_to} {worker}(rw,no_root_squash,sync,no_subtree_check)"
                 command = f"echo \"{add_to_exports}\" | sudo tee --append /etc/exports"
                 r = Host.ssh(hosts=f"pi@{manager}",command=command)
+                print(Printer.write(r))
                 result[f"pi@{manager}: " + command] = r[0]['success']
             
             #restart NFS exports 
             command = "sudo exportfs -r"
-            Host.ssh(hosts=f"pi@{manager}", command=command)
+            r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            print(Printer.write(r))
             result[f"pi@{manager}: " + command] = r[0]['success']
 
 
@@ -95,12 +99,14 @@ class Nfs:
                 #mount worker share point to manager share point 
                 command = f"sudo mount {manager_ip}:{mounting_to} {mounting_to}"
                 r = Host.ssh(hosts=f"pi@{worker}", command=command)
+                print(Printer.write(r))
                 result[f"pi@{worker}: " + command] = r[0]['success']
 
                 #preserve mount after reboot on worker
                 add_to_fstab = f"{manager_ip}:{mounting_to}\t{mounting_to}\tnfs\tx-systemd.automount\t0\t0"
                 command = f"echo \"{add_to_fstab}\" | sudo tee --append  /etc/fstab"
                 r = Host.ssh(hosts=f"pi@{worker}", command=command)
+                print(Printer.write(r))
                 result[f"pi@{worker}: " + command] = r[0]['success']
 
             for key,value in result.items():
