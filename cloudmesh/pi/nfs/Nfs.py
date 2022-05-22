@@ -127,7 +127,7 @@ class Nfs:
                 _create_share_system(worker,mounting_to)
 
                 #mount worker share point to manager share point 
-                command = f"sudo mount {manager_ip}:{mounting_to} {mounting_to}"
+                command = f"sudo mount -o v3 {manager_ip}:{mounting_to} {mounting_to}"
                 r = Host.ssh(hosts=f"pi@{worker}", command=command)
                 print(Printer.write(r))
                 result[f"pi@{worker}: " + command] = r[0]['success']
