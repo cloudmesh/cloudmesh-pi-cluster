@@ -4,8 +4,14 @@ from cloudmesh.common.Host import Host
 from cloudmesh.common.console import Console
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import str_bool
+from cloudmesh.common.util import yn_choice
+from cloudmesh.burn.usb import USB
+from cloudmesh.burn.sdcard import SDCard
 
 import subprocess
+import textwrap
+import re
 
 class Nfs:
     verbose = True
@@ -17,6 +23,22 @@ class Nfs:
 
     def __init__(self):
         pass
+
+    @staticmethod
+    def hostexecute(script, name_of_pi):
+        """
+
+        :param script:
+        :type script:
+        :param name_of_pi:
+        :type name_of_pi:
+        :return:
+        :rtype:
+        """
+        for command in script.splitlines():
+            print(command)
+            results = Host.ssh(hosts=name_of_pi, command=command)
+            print(Printer.write(results))
 
     # install necessary dependencies for NFS sharing
     def install(self, host):
@@ -41,11 +63,38 @@ class Nfs:
 
     # mount manager directory to a shared directory, share that directory with workers
     # (shared directory will be created on each pi)
-    def share(self, paths, hostnames):
+    def share(self, paths, hostnames, usb=None):
         #for debugging
         result = {}
+
+        #check to see what the USB parameter is
+        usb = str_bool(usb)
+
         #create new filesystem which will be share point, assign proper owners
         def _create_share_system(host, path):
+            if usb:
+                if not yn_choice(
+                        'Please ensure that the USB storage medium is inserted into the '
+                        'manager pi and type y and press Enter when done'):
+                    Console.error("You pressed no but the script is continuing as normal...")
+                    return ""
+                card = SDCard()
+                card.info()
+                USB.check_for_readers()
+                print('Please enter the device path e.g. "/dev/sda" or enter no input to default to /dev/sda '
+                      '(remember, do not add quotation marks)\n')
+                print('The contents of the device of the path you enter WILL BE FORMATTED AND DELETED and used '
+                      'as cluster file storage for SLURM config: ')
+                device = input()
+                if device == '':
+                    device = '/dev/sda'
+                print(device)
+                script = textwrap.dedent(
+                    f"""
+                    sudo mkfs.ext4 -F {device}
+                    """).strip()
+                Nfs.hostexecute(script, f"pi@{host}")
+
             command = f"sudo mkdir -p {path}"
             r = Host.ssh(hosts=f"pi@{host}", command=command)
             result[f"pi@{host}: " + command] = r[0]['success']
@@ -54,10 +103,38 @@ class Nfs:
             r = Host.ssh(hosts=f"pi@{host}", command=command)
             result[f"pi@{host}: " + command] = r[0]['success']
 
+            if usb:
+                results = Host.ssh(hosts=f"pi@{host}", command=f"sudo blkid {device}")
+                print(Printer.write(results))
+                for entry in results:
+                    print(str(entry["stdout"]))
+                    blkid = str(entry["stdout"])
+                print(blkid)
+                blkid2 = re.findall(r'\S+', blkid)
+                print(blkid2)
+                result2 = [i for i in blkid2 if i.startswith('UUID=')]
+                print(result2)
+                listToStr = ' '.join(map(str, result2))
+                result3 = re.findall(r'"([^"]*)"', listToStr)
+                result3 = " ".join(str(x) for x in result3)
+                print(type(result3))
+                print(result3)
+                script = textwrap.dedent(
+                    f"""
+                                    echo "UUID={result3} {path} ext4 defaults 0 2" | sudo tee /etc/fstab -a
+                                    sudo mount -a
+                                    """).strip()
+                Nfs.hostexecute(script, f"pi@{host}")
+
         try:
             #necessary IPs & hostnames for sharing
             manager_ip = Shell.run('hostname -I').strip().split(' ')[0]
-            mounting, mounting_to = paths.split(',')
+
+            if not usb:
+                mounting, mounting_to = paths.split(',')
+            else:
+                mounting_to = paths
+
             pis = hostnames.split(',')
             manager = pis[0]
             workers = pis[1:]
@@ -66,17 +143,21 @@ class Nfs:
             _create_share_system(manager,mounting_to)
 
             #bind on manager an existing filesystem to the share point
-            command = f"sudo mount --bind {mounting} {mounting_to}"
+            if not usb:
+                command = f"sudo mount --bind {mounting} {mounting_to}"
+            else:
+                command = f"sudo mount -a"
             r = Host.ssh(hosts=f"pi@{manager}", command=command)
             print(Printer.write(r))
             result[f"pi@{manager}: " + command] = r[0]['success']
 
-            # preserve binding after reboot on manager
-            add_to_fstab = f"{mounting}\t{mounting_to}\tnone\tbind\t0\t0"
-            command = f"echo \"{add_to_fstab}\" | sudo tee --append /etc/fstab"
-            r = Host.ssh(hosts=f"pi@{manager}", command=command)
-            print(Printer.write(r))
-            result[f"pi@{manager}: " + command] = r[0]['success']
+            if not usb:
+                # preserve binding after reboot on manager
+                add_to_fstab = f"{mounting}\t{mounting_to}\tnone\tbind\t0\t0"
+                command = f"echo \"{add_to_fstab}\" | sudo tee --append /etc/fstab"
+                r = Host.ssh(hosts=f"pi@{manager}", command=command)
+                print(Printer.write(r))
+                result[f"pi@{manager}: " + command] = r[0]['success']
 
             # add each worker hostname into manager exports file
             for worker in workers:
@@ -119,8 +200,9 @@ class Nfs:
 
             result[f"pi@{manager}: " + command] = r[0]['success']
 
-            r = Host.ssh(hosts=f"pi@{manager}", command=f'chmod +rx {mounting}')
-            print(Printer.write(r))
+            if not usb:
+                r = Host.ssh(hosts=f"pi@{manager}", command=f'chmod +rx {mounting}')
+                print(Printer.write(r))
 
             for worker in workers:
                 #create share point on workers

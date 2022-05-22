@@ -77,7 +77,7 @@ class PiCommand(PluginCommand):
             pi script list
             pi nfs install --hostnames=HOSTNAMES
             pi nfs uninstall
-            pi nfs share --paths=PATHS --hostnames=HOSTNAMES
+            pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no]
             pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate]
 
           Arguments:
@@ -88,14 +88,16 @@ class PiCommand(PluginCommand):
               PASSWORD    The password for the WIFI
 
             Options:
-               -v               verbose mode
-               --output=OUTPUT  the format in which this list is given
-                                formats includes cat, table, json, yaml,
-                                dict. If cat is used, it is just print
-               --user=USER      the user name
-               --rate=SECONDS   repeats the quere given by the rate in seconds
+               -v                     verbose mode
+               --output=OUTPUT        the format in which this list is given
+                                      formats includes cat, table, json, yaml,
+                                      dict. If cat is used, it is just print
+               --user=USER            the user name
+               --rate=SECONDS         repeats the quere given by the rate in seconds
                --hostnames=HOSTNAMES  hostnames for clients and optionally the server
-               --manager=MANAGER  hostname for the server
+               --manager=MANAGER      hostname for the server
+               --USB=no               if set to yes, then the nfs will be created on
+                                      a USB that is inserted into the manager pi [default:no]
 
           Description:
 
@@ -175,6 +177,18 @@ class PiCommand(PluginCommand):
 
                     registers to the given hostnames the manager
 
+                pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02"
+
+                    Creates a shared folder across all Pis whose contents originate from the
+                    manager Pi's folder located at /home/pi/Stuff, and which can be found on
+                    the worker Pis at /mnt/nfs
+
+                pi nfs share --paths="/mnt/nfs" --hostnames="red,red01,red02" --usb=yes
+
+                    Creates a shared folder across all Pis whose contents are stored on a
+                    USB drive inserted into the manager Pi. The folder can be accessed, read
+                    from and written to, at /mnt/nfs
+
         """
 
         map_parameters(arguments,
@@ -185,7 +199,8 @@ class PiCommand(PluginCommand):
                        'user',
                        'rate',
                        'terminate',
-                       'hostnames')
+                       'hostnames',
+                       '--usb')
 
         arguments.output = arguments.output or 'table'
 
@@ -246,7 +261,7 @@ class PiCommand(PluginCommand):
                                   "--hostnames=red,red0[1-3]\nIn this example, red is manager.")
 
             if arguments.share:
-                nfs.share(arguments['--paths'],arguments['--hostnames'])
+                nfs.share(arguments['--paths'],arguments['--hostnames'],arguments['--USB'])
 
             if arguments.unshare:
                 if arguments.terminate:
