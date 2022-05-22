@@ -199,8 +199,7 @@ class PiCommand(PluginCommand):
                        'user',
                        'rate',
                        'terminate',
-                       'hostnames',
-                       '--usb')
+                       'hostnames')
 
         arguments.output = arguments.output or 'table'
 
