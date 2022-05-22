@@ -2,6 +2,9 @@ from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Host import Host
 from cloudmesh.common.console import Console
+from cloudmesh.common.Printer import Printer
+
+import subprocess
 
 class Nfs:
     verbose = True
@@ -15,10 +18,11 @@ class Nfs:
         pass
 
     # install necessary dependencies for NFS sharing
-    def install(self):
+    def install(self, host):
         # if os in [....]
-        command = f"apt-get install nfs-kernel-server"
+        command = f"sudo apt-get install nfs-kernel-server"
         r = Host.ssh(hosts=f"pi@{host}",command = command)
+        print(Printer.write(r))
         result = r[0]['success']
         Console.info(f"pi@{host}: {command} ---> {result}")
 
@@ -39,7 +43,6 @@ class Nfs:
     def share(self, paths, hostnames):
         #for debugging
         result = {}
-
         #create new filesystem which will be share point, assign proper owners
         def _create_share_system(host, path):
             command = f"sudo mkdir -p {path}"
@@ -110,6 +113,8 @@ class Nfs:
         except ValueError as e:
             Console.error("2 filesystem paths must be provided")
             raise
+        except subprocess.CalledProcessError as e:
+            print(e.output)
         except IndexError as e:
             pass
 
