@@ -3,6 +3,9 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Host import Host
 from cloudmesh.common.console import Console
 from cloudmesh.common.Printer import Printer
+from cloudmesh.common.util import writefile
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import path_expand
 
 import subprocess
 
@@ -89,6 +92,17 @@ class Nfs:
             command = "sudo exportfs -r"
             r = Host.ssh(hosts=f"pi@{manager}", command=command)
             print(Printer.write(r))
+            for entry in r:
+
+                if 'duplicated export entries' in str(entry['stderr']):
+                    Console.error("Detected duplicated export entries. Removing...")
+                    filename = path_expand("/etc/exports")
+                    export_file = readfile(filename).splitlines()
+                    fixed_export_file = [i for n, i in enumerate(export_file) if i not in export_file[:n]]
+                    writefile(filename, "\n".join(fixed_export_file))
+                    r = Host.ssh(hosts=f"pi@{manager}", command="sudo cat /etc/exports")
+                    print(Printer.write(r))
+
             result[f"pi@{manager}: " + command] = r[0]['success']
 
 
