@@ -3,8 +3,6 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Host import Host
 from cloudmesh.common.console import Console
 from cloudmesh.common.Printer import Printer
-from cloudmesh.common.util import writefile
-from cloudmesh.common.util import readfile
 from cloudmesh.common.util import path_expand
 
 import subprocess
@@ -105,16 +103,17 @@ class Nfs:
                     fixed_export_list = string_of_export.splitlines()
                     no_duplicates = [i for n, i in enumerate(fixed_export_list) if i not in fixed_export_list[:n]]
                     print(no_duplicates)
-                    return ""
-                    for entry2 in r2:
-                        for written_export in str(entry2['stdout']):
-                            export_file.append(written_export)
-                    print(export_file)
-
-
-                    writefile(filename, "\n".join(fixed_export_file))
+                    home_dir = path_expand("~")
+                    with open(f'{home_dir}/exportfile.txt', 'w') as f:
+                        for item in no_duplicates:
+                            f.write("%s\n" % item)
+                    r2 = Host.ssh(hosts=f"pi@{manager}", command=f"sudo cp {home_dir}/exportfile.txt /etc/exports")
+                    print(Printer.write(r2))
+                    r2 = Host.ssh(hosts=f"pi@{manager}", command=f"sudo rm {home_dir}/exportfile.txt")
+                    print(Printer.write(r2))
                     r = Host.ssh(hosts=f"pi@{manager}", command="sudo cat /etc/exports")
                     print(Printer.write(r))
+                    return ""
 
             result[f"pi@{manager}: " + command] = r[0]['success']
 
