@@ -77,8 +77,8 @@ class PiCommand(PluginCommand):
             pi script list
             pi nfs install --hostnames=HOSTNAMES [--user=USER]
             pi nfs uninstall --hostnames=HOSTNAMES [--user=USER]
-            pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no] [--user=USER]
-            pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate] [--user=USER]
+            pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no] [--username=USERNAME]
+            pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate] [--username=USERNAME]
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -98,7 +98,7 @@ class PiCommand(PluginCommand):
                --manager=MANAGER      hostname for the server
                --usb=no               if set to yes, then the nfs will be created on
                                       a USB that is inserted into the manager pi [default:no]
-               --user=USER            the username on each pi to be used [default:pi]
+               --username=USERNAME    the username on each pi to be used [default:pi]
 
           Description:
 
@@ -255,8 +255,8 @@ class PiCommand(PluginCommand):
                 if arguments['--hostnames']:
                     manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
                     workers = (arguments['--hostnames'].split(",", 1)[1])
-                    if arguments['--user']:
-                        user = arguments['--user']
+                    if arguments['--username']:
+                        user = arguments['--username']
                     else:
                         user = 'pi'
                     nfs.install(manager, user)
@@ -268,8 +268,8 @@ class PiCommand(PluginCommand):
                 if arguments['--hostnames']:
                     manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
                     workers = (arguments['--hostnames'].split(",", 1)[1])
-                    if arguments['--user']:
-                        user = arguments['--user']
+                    if arguments['--username']:
+                        user = arguments['--username']
                     else:
                         user = 'pi'
                     nfs.uninstall(manager, user)
@@ -278,15 +278,15 @@ class PiCommand(PluginCommand):
                                   "--hostnames=red,red0[1-3]\nIn this example, red is manager.")
 
             if arguments.share:
-                if arguments['--user']:
-                    user = arguments['--user']
+                if arguments['--username']:
+                    user = arguments['--username']
                 else:
                     user = 'pi'
                 nfs.share(arguments['--paths'],arguments['--hostnames'],arguments['--usb'],user)
 
             if arguments.unshare:
-                if arguments['--user']:
-                    user = arguments['--user']
+                if arguments['--username']:
+                    user = arguments['--username']
                 else:
                     user = 'pi'
                 if arguments.terminate:
