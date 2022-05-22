@@ -100,11 +100,13 @@ class Nfs:
                     export_file = []
                     r2 = Host.ssh(hosts=f"pi@{manager}",command="sudo cat /etc/exports")
                     print(Printer.write(r2))
+                    print(str(r2['stdout']))
+                    return ""
                     for entry2 in r2:
                         for written_export in str(entry2['stdout']):
                             export_file.append(written_export)
                     print(export_file)
-                    return ""
+
                     fixed_export_file = [i for n, i in enumerate(export_file) if i not in export_file[:n]]
                     writefile(filename, "\n".join(fixed_export_file))
                     r = Host.ssh(hosts=f"pi@{manager}", command="sudo cat /etc/exports")
