@@ -39,6 +39,7 @@ class Nfs:
             print(command)
             results = Host.ssh(hosts=name_of_pi, command=command)
             print(Printer.write(results))
+            return results
 
     # install necessary dependencies for NFS sharing
     def install(self, host):
@@ -115,7 +116,11 @@ class Nfs:
                     f"""
                     sudo mkfs.ext4 -F {device}
                     """).strip()
-                Nfs.hostexecute(script, f"pi@{manager}")
+                results = Nfs.hostexecute(script, f"pi@{manager}")
+                for entry in results:
+                    if "is mounted; will not make a filesystem here" in str(entry["stderr"]):
+                        Console.error("something went wrong")
+                        return ""
                 results = Host.ssh(hosts=f"pi@{manager}", command=f"sudo blkid {device}")
                 print(Printer.write(results))
                 for entry in results:
