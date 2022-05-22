@@ -59,7 +59,21 @@ The ```--paths``` argument takes first the path to the master directory you wish
 
 The ```--hostnames``` command takes first the manager hostname and next the hostnames of the workers you wish to share to.
 
+The user can also choose to share a USB:
+
+Example:
+
+```
+pi@red$ cms pi nfs share --paths="/mnt/nfs" --hostnames="red,red01,red02" --usb=yes
+```
+
+The usb parameter creates an interactive installation that prompts the user to choose from a list of devices connected to the manager Pi.
+Then the chosen device serves as the nfs for the hostnames.
+
 ## Unshare Directory
+
+The shared folders will persist after rebooting the cluster even if the user deletes them. The way to delete the folders for good
+is to use the unshare command, which also halts sharing/broadcasting the nfs to the workers. The command's structure is the following:
 
 ```
 pi@red$ cms pi nfs unshare --path=PATH --hostnames=HOSTNAMES
