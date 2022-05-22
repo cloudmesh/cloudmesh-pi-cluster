@@ -114,11 +114,13 @@ class Nfs:
                     r2 = Host.ssh(hosts=f"pi@{manager}", command="sudo cat /etc/exports")
                     print(Printer.write(r2))
                     command = "sudo exportfs -r"
-                    r2 = Host.ssh(hosts=f"pi@{manager}", command=command)
-                    print(Printer.write(r2))
+                    r = Host.ssh(hosts=f"pi@{manager}", command=command)
+                    print(Printer.write(r))
 
             result[f"pi@{manager}: " + command] = r[0]['success']
 
+            r = Host.ssh(hosts=f"pi@{manager}", command=f'chmod +rx {mounting}')
+            print(Printer.write(r))
 
             for worker in workers:
                 #create share point on workers
