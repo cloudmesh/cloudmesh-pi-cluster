@@ -42,21 +42,22 @@ class Nfs:
             return results
 
     # install necessary dependencies for NFS sharing
-    def install(self, host):
+    def install(self, host, user='pi'):
         # if os in [....]
         command = f"sudo apt-get install nfs-kernel-server"
-        r = Host.ssh(hosts=f"pi@{host}",command = command)
+        r = Host.ssh(hosts=f"{user}@{host}",command = command)
         print(Printer.write(r))
         result = r[0]['success']
-        Console.info(f"pi@{host}: {command} ---> {result}")
+        Console.info(f"{user}@{host}: {command} ---> {result}")
 
     # uninstall necessary dependencies for NFS sharing
-    def uninstall(self):
+    def uninstall(self, host, user='pi'):
         # if os in [....]
         command = f"'apt-get –-purge remove nfs-kernel-server"
-        r = Host.ssh(hosts=f"pi@{host}",command = command)
+        r = Host.ssh(hosts=f"{user}@{host}",command = command)
+        print(Printer.write(r))
         result = r[0]['success']
-        Console.info(f"pi@{host}: {command} ---> {result}")
+        Console.info(f"{user}@{host}: {command} ---> {result}")
 
     def info(self):
         print("Is the nfs server running")
@@ -64,7 +65,7 @@ class Nfs:
 
     # mount manager directory to a shared directory, share that directory with workers
     # (shared directory will be created on each pi)
-    def share(self, paths, hostnames, usb=None):
+    def share(self, paths, hostnames, usb=None, user='pi'):
         #for debugging
         result = {}
 
@@ -72,15 +73,15 @@ class Nfs:
         usb = str_bool(usb)
 
         #create new filesystem which will be share point, assign proper owners
-        def _create_share_system(host, path):
+        def _create_share_system(host, path, username):
 
             command = f"sudo mkdir -p {path}"
-            r = Host.ssh(hosts=f"pi@{host}", command=command)
-            result[f"pi@{host}: " + command] = r[0]['success']
+            r = Host.ssh(hosts=f"{username}@{host}", command=command)
+            result[f"{username}@{host}: " + command] = r[0]['success']
 
-            command = f"sudo chown -R pi:pi {path}"
-            r = Host.ssh(hosts=f"pi@{host}", command=command)
-            result[f"pi@{host}: " + command] = r[0]['success']
+            command = f"sudo chown -R {username}:{username} {path}"
+            r = Host.ssh(hosts=f"{username}@{host}", command=command)
+            result[f"{username}@{host}: " + command] = r[0]['success']
 
         try:
             #necessary IPs & hostnames for sharing
@@ -116,7 +117,7 @@ class Nfs:
                     f"""
                     sudo mkfs.ext4 -F {device}
                     """).strip()
-                results = Nfs.hostexecute(script, f"pi@{manager}")
+                results = Nfs.hostexecute(script, f"{user}@{manager}")
                 for entry in results:
                     if "is mounted; will not make a filesystem here" in str(entry["stderr"]):
                         Console.error("The USB is already mounted. Do you still want to use it as nfs?\n")
@@ -125,7 +126,7 @@ class Nfs:
                             return ""
                         else:
                             Console.ok('Continuing...')
-                results = Host.ssh(hosts=f"pi@{manager}", command=f"sudo blkid {device}")
+                results = Host.ssh(hosts=f"{user}@{manager}", command=f"sudo blkid {device}")
                 print(Printer.write(results))
                 for entry in results:
                     print(str(entry["stdout"]))
@@ -145,40 +146,40 @@ class Nfs:
                     echo "UUID={result3} {mounting_to} ext4 defaults 0 2" | sudo tee /etc/fstab -a
                     sudo mount -a
                     """).strip()
-                Nfs.hostexecute(script, f"pi@{manager}")
+                Nfs.hostexecute(script, f"{user}@{manager}")
 
 
             # create on manager the share point
-            _create_share_system(manager,mounting_to)
+            _create_share_system(manager,mounting_to,user)
 
             #bind on manager an existing filesystem to the share point
             if not usb:
                 command = f"sudo mount --bind {mounting} {mounting_to}"
             else:
                 command = f"sudo mount -a"
-            r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            r = Host.ssh(hosts=f"{user}@{manager}", command=command)
             print(Printer.write(r))
-            result[f"pi@{manager}: " + command] = r[0]['success']
+            result[f"{user}@{manager}: " + command] = r[0]['success']
 
             if not usb:
                 # preserve binding after reboot on manager
                 add_to_fstab = f"{mounting}\t{mounting_to}\tnone\tbind\t0\t0"
                 command = f"echo \"{add_to_fstab}\" | sudo tee --append /etc/fstab"
-                r = Host.ssh(hosts=f"pi@{manager}", command=command)
+                r = Host.ssh(hosts=f"{user}@{manager}", command=command)
                 print(Printer.write(r))
-                result[f"pi@{manager}: " + command] = r[0]['success']
+                result[f"{user}@{manager}: " + command] = r[0]['success']
 
             # add each worker hostname into manager exports file
             for worker in workers:
                 add_to_exports = f"{mounting_to} {worker}(rw,no_root_squash,sync,no_subtree_check)"
                 command = f"echo \"{add_to_exports}\" | sudo tee --append /etc/exports"
-                r = Host.ssh(hosts=f"pi@{manager}",command=command)
+                r = Host.ssh(hosts=f"{user}@{manager}",command=command)
                 print(Printer.write(r))
-                result[f"pi@{manager}: " + command] = r[0]['success']
+                result[f"{user}@{manager}: " + command] = r[0]['success']
             
             #restart NFS exports 
             command = "sudo exportfs -r"
-            r = Host.ssh(hosts=f"pi@{manager}", command=command)
+            r = Host.ssh(hosts=f"{user}@{manager}", command=command)
             print(Printer.write(r))
             for entry in r:
 
@@ -186,7 +187,7 @@ class Nfs:
                     Console.error("Detected duplicated export entries. Removing...")
                     filename = path_expand("/etc/exports")
                     export_file = []
-                    r2 = Host.ssh(hosts=f"pi@{manager}",command="sudo cat /etc/exports")
+                    r2 = Host.ssh(hosts=f"{user}@{manager}",command="sudo cat /etc/exports")
                     print(Printer.write(r2))
                     for entry2 in r2:
                         string_of_export = str(entry2['stdout'])
@@ -197,20 +198,20 @@ class Nfs:
                     with open(f'{home_dir}/exportfile.txt', 'w') as f:
                         for item in no_duplicates:
                             f.write("%s\n" % item)
-                    r2 = Host.ssh(hosts=f"pi@{manager}", command=f"sudo cp {home_dir}/exportfile.txt /etc/exports")
+                    r2 = Host.ssh(hosts=f"{user}@{manager}", command=f"sudo cp {home_dir}/exportfile.txt /etc/exports")
                     print(Printer.write(r2))
-                    r2 = Host.ssh(hosts=f"pi@{manager}", command=f"sudo rm {home_dir}/exportfile.txt")
+                    r2 = Host.ssh(hosts=f"{user}@{manager}", command=f"sudo rm {home_dir}/exportfile.txt")
                     print(Printer.write(r2))
-                    r2 = Host.ssh(hosts=f"pi@{manager}", command="sudo cat /etc/exports")
+                    r2 = Host.ssh(hosts=f"{user}@{manager}", command="sudo cat /etc/exports")
                     print(Printer.write(r2))
                     command = "sudo exportfs -r"
-                    r = Host.ssh(hosts=f"pi@{manager}", command=command)
+                    r = Host.ssh(hosts=f"{user}@{manager}", command=command)
                     print(Printer.write(r))
 
-            result[f"pi@{manager}: " + command] = r[0]['success']
+            result[f"{user}@{manager}: " + command] = r[0]['success']
 
             if not usb:
-                r = Host.ssh(hosts=f"pi@{manager}", command=f'chmod +rx {mounting}')
+                r = Host.ssh(hosts=f"{user}@{manager}", command=f'chmod +rx {mounting}')
                 print(Printer.write(r))
 
             for worker in workers:
@@ -219,16 +220,16 @@ class Nfs:
 
                 #mount worker share point to manager share point 
                 command = f"sudo mount {manager_ip}:{mounting_to} {mounting_to}"
-                r = Host.ssh(hosts=f"pi@{worker}", command=command)
+                r = Host.ssh(hosts=f"{user}@{worker}", command=command)
                 print(Printer.write(r))
-                result[f"pi@{worker}: " + command] = r[0]['success']
+                result[f"{user}@{worker}: " + command] = r[0]['success']
 
                 #preserve mount after reboot on worker
                 add_to_fstab = f"{manager_ip}:{mounting_to}\t{mounting_to}\tnfs\tx-systemd.automount\t0\t0"
                 command = f"echo \"{add_to_fstab}\" | sudo tee --append  /etc/fstab"
-                r = Host.ssh(hosts=f"pi@{worker}", command=command)
+                r = Host.ssh(hosts=f"{user}@{worker}", command=command)
                 print(Printer.write(r))
-                result[f"pi@{worker}: " + command] = r[0]['success']
+                result[f"{user}@{worker}: " + command] = r[0]['success']
 
             for key,value in result.items():
                 Console.info(f"{key} --> {value}")
@@ -245,30 +246,30 @@ class Nfs:
         except IndexError as e:
             pass
 
-    def unshare(self, path, hostnames, terminate=True):
+    def unshare(self, path, hostnames, terminate=True, user='pi'):
         #for debugging
         result = {}
         
         #unmount and delete share point, remove reboot instructions
         def _unshare(host,path):
             command=f"sudo umount -f {path}"
-            r = Host.ssh(hosts=f"pi@{host}", command=command)
-            result[f"pi@{host}: " + command] = r[0]['success']
+            r = Host.ssh(hosts=f"{user}@{host}", command=command)
+            result[f"{user}@{host}: " + command] = r[0]['success']
 
             command = f"sudo rm -r {path}"
-            r = Host.ssh(hosts=f"pi@{host}", command=command)
-            result[f"pi@{host}: " + command] = r[0]['success']
+            r = Host.ssh(hosts=f"{user}@{host}", command=command)
+            result[f"{user}@{host}: " + command] = r[0]['success']
 
             command = "cat /etc/fstab"
-            lines = Host.ssh(hosts=f"pi@{host}", command=command)[0]['stdout']
-            result[f"pi@{host}: " + command] = r[0]['success']
+            lines = Host.ssh(hosts=f"{user}@{host}", command=command)[0]['stdout']
+            result[f"{user}@{host}: " + command] = r[0]['success']
             lines = lines.splitlines()
             new_lines = Shell.remove_line_with(lines, path)
             lines = "\n".join(new_lines)
 
             command = f"echo \"{lines}\" | sudo tee /etc/fstab"
-            r = Host.ssh(hosts=f"pi@{host}", command=command)
-            result[f"pi@{host}: " + command] = r[0]['success']
+            r = Host.ssh(hosts=f"{user}@{host}", command=command)
+            result[f"{user}@{host}: " + command] = r[0]['success']
         
         #necessary hostnames for unsharing
         pis = hostnames.split(',')
@@ -281,8 +282,8 @@ class Nfs:
 
         #remove worker access permissions for manager share point
         command = f"cat /etc/exports"
-        r = Host.ssh(hosts=f"pi@{manager}", command=command)
-        result[f"pi@{manager}: " + command] = r[0]['success']
+        r = Host.ssh(hosts=f"{user}@{manager}", command=command)
+        result[f"{user}@{manager}: " + command] = r[0]['success']
         exports_file_text = r[0]['stdout']
         lines = exports_file_text.splitlines()
 
@@ -291,8 +292,8 @@ class Nfs:
 
         new_lines = "\n".join(lines)
         command = f"echo \"{new_lines}\" | sudo tee /etc/exports"
-        r = Host.ssh(f"pi@{manager}", command=command)
-        result[f"pi@{manager}: " + command] = r[0]['success']
+        r = Host.ssh(f"{user}@{manager}", command=command)
+        result[f"{user}@{manager}: " + command] = r[0]['success']
 
         # unmount and remove manager share point, if specified 
         # otherwise we may want to remove workers but still keep the manager share point open

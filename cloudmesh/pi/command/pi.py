@@ -75,10 +75,10 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
-            pi nfs install --hostnames=HOSTNAMES
-            pi nfs uninstall
-            pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no]
-            pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate]
+            pi nfs install --hostnames=HOSTNAMES [--user=USER]
+            pi nfs uninstall --hostnames=HOSTNAMES [--user=USER]
+            pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no] [--user=USER]
+            pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate] [--user=USER]
 
           Arguments:
               NAMES       The hostnames in parameterized form
@@ -96,8 +96,9 @@ class PiCommand(PluginCommand):
                --rate=SECONDS         repeats the quere given by the rate in seconds
                --hostnames=HOSTNAMES  hostnames for clients and optionally the server
                --manager=MANAGER      hostname for the server
-               --USB=no               if set to yes, then the nfs will be created on
+               --usb=no               if set to yes, then the nfs will be created on
                                       a USB that is inserted into the manager pi [default:no]
+               --user=USER            the username on each pi to be used [default:pi]
 
           Description:
 
@@ -254,19 +255,44 @@ class PiCommand(PluginCommand):
                 if arguments['--hostnames']:
                     manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
                     workers = (arguments['--hostnames'].split(",", 1)[1])
-                    nfs.install(manager)
+                    if arguments['--user']:
+                        user = arguments['--user']
+                    else:
+                        user = 'pi'
+                    nfs.install(manager, user)
+                else:
+                    Console.error("No manager provided. Please provide hostnames of Pis, such as "
+                                  "--hostnames=red,red0[1-3]\nIn this example, red is manager.")
+
+            if arguments.uninstall:
+                if arguments['--hostnames']:
+                    manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
+                    workers = (arguments['--hostnames'].split(",", 1)[1])
+                    if arguments['--user']:
+                        user = arguments['--user']
+                    else:
+                        user = 'pi'
+                    nfs.uninstall(manager, user)
                 else:
                     Console.error("No manager provided. Please provide hostnames of Pis, such as "
                                   "--hostnames=red,red0[1-3]\nIn this example, red is manager.")
 
             if arguments.share:
-                nfs.share(arguments['--paths'],arguments['--hostnames'],arguments['--usb'])
+                if arguments['--user']:
+                    user = arguments['--user']
+                else:
+                    user = 'pi'
+                nfs.share(arguments['--paths'],arguments['--hostnames'],arguments['--usb'],user)
 
             if arguments.unshare:
-                if arguments.terminate:
-                    nfs.unshare(arguments['--path'],arguments['--hostnames'],terminate = True)
+                if arguments['--user']:
+                    user = arguments['--user']
                 else:
-                    nfs.unshare(arguments['--path'],arguments['--hostnames'])
+                    user = 'pi'
+                if arguments.terminate:
+                    nfs.unshare(arguments['--path'],arguments['--hostnames'],user,terminate=True)
+                else:
+                    nfs.unshare(arguments['--path'],arguments['--hostnames'],user)
                 
         elif arguments.k3:
             k3 = K3()
