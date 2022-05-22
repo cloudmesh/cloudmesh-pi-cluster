@@ -72,6 +72,28 @@ class Nfs:
 
         #create new filesystem which will be share point, assign proper owners
         def _create_share_system(host, path):
+
+            command = f"sudo mkdir -p {path}"
+            r = Host.ssh(hosts=f"pi@{host}", command=command)
+            result[f"pi@{host}: " + command] = r[0]['success']
+
+            command = f"sudo chown -R pi:pi {path}"
+            r = Host.ssh(hosts=f"pi@{host}", command=command)
+            result[f"pi@{host}: " + command] = r[0]['success']
+
+        try:
+            #necessary IPs & hostnames for sharing
+            manager_ip = Shell.run('hostname -I').strip().split(' ')[0]
+
+            if not usb:
+                mounting, mounting_to = paths.split(',')
+            else:
+                mounting_to = paths
+
+            pis = hostnames.split(',')
+            manager = pis[0]
+            workers = pis[1:]
+
             if usb:
                 if not yn_choice(
                         'Please ensure that the USB storage medium is inserted into the '
@@ -93,18 +115,8 @@ class Nfs:
                     f"""
                     sudo mkfs.ext4 -F {device}
                     """).strip()
-                Nfs.hostexecute(script, f"pi@{host}")
-
-            command = f"sudo mkdir -p {path}"
-            r = Host.ssh(hosts=f"pi@{host}", command=command)
-            result[f"pi@{host}: " + command] = r[0]['success']
-
-            command = f"sudo chown -R pi:pi {path}"
-            r = Host.ssh(hosts=f"pi@{host}", command=command)
-            result[f"pi@{host}: " + command] = r[0]['success']
-
-            if usb:
-                results = Host.ssh(hosts=f"pi@{host}", command=f"sudo blkid {device}")
+                Nfs.hostexecute(script, f"pi@{manager}")
+                results = Host.ssh(hosts=f"pi@{manager}", command=f"sudo blkid {device}")
                 print(Printer.write(results))
                 for entry in results:
                     print(str(entry["stdout"]))
@@ -121,23 +133,11 @@ class Nfs:
                 print(result3)
                 script = textwrap.dedent(
                     f"""
-                                    echo "UUID={result3} {path} ext4 defaults 0 2" | sudo tee /etc/fstab -a
-                                    sudo mount -a
-                                    """).strip()
-                Nfs.hostexecute(script, f"pi@{host}")
+                    echo "UUID={result3} {mounting_to} ext4 defaults 0 2" | sudo tee /etc/fstab -a
+                    sudo mount -a
+                    """).strip()
+                Nfs.hostexecute(script, f"pi@{manager}")
 
-        try:
-            #necessary IPs & hostnames for sharing
-            manager_ip = Shell.run('hostname -I').strip().split(' ')[0]
-
-            if not usb:
-                mounting, mounting_to = paths.split(',')
-            else:
-                mounting_to = paths
-
-            pis = hostnames.split(',')
-            manager = pis[0]
-            workers = pis[1:]
 
             # create on manager the share point
             _create_share_system(manager,mounting_to)
