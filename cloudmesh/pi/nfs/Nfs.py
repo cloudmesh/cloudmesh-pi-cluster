@@ -56,7 +56,7 @@ class Nfs:
 
         try:
             #necessary IPs & hostnames for sharing
-            manager_ip = Shell.run('hostname -I').split(' ')[0]
+            manager_ip = Shell.run('hostname -I').strip().split(' ')[0]
             mounting, mounting_to = paths.split(',')
             pis = hostnames.split(',')
             manager = pis[0]
