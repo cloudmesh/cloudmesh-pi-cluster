@@ -107,7 +107,7 @@ class Nfs:
                 print('Please enter the device path e.g. "/dev/sda" or enter no input to default to /dev/sda '
                       '(remember, do not add quotation marks)\n')
                 print('The contents of the device of the path you enter WILL BE FORMATTED AND DELETED and used '
-                      'as cluster file storage for SLURM config: ')
+                      'as cluster file storage: ')
                 device = input()
                 if device == '':
                     device = '/dev/sda'
