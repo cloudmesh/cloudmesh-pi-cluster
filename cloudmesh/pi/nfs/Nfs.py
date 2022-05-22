@@ -100,7 +100,9 @@ class Nfs:
                     export_file = []
                     r2 = Host.ssh(hosts=f"pi@{manager}",command="sudo cat /etc/exports")
                     print(Printer.write(r2))
-                    print(str(r2['stdout']))
+                    for entry2 in r2:
+                        print(str(entry2['stdout']))
+                        print(type(str(entry2['stdout'])))
                     return ""
                     for entry2 in r2:
                         for written_export in str(entry2['stdout']):
