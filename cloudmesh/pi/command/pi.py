@@ -260,7 +260,7 @@ class PiCommand(PluginCommand):
                                   "--hostnames=red,red0[1-3]\nIn this example, red is manager.")
 
             if arguments.share:
-                nfs.share(arguments['--paths'],arguments['--hostnames'],arguments['--USB'])
+                nfs.share(arguments['--paths'],arguments['--hostnames'],arguments['--usb'])
 
             if arguments.unshare:
                 if arguments.terminate:
