@@ -119,8 +119,17 @@ class Nfs:
                 results = Nfs.hostexecute(script, f"pi@{manager}")
                 for entry in results:
                     if "is mounted; will not make a filesystem here" in str(entry["stderr"]):
-                        Console.error("something went wrong")
-                        return ""
+                        Console.error("The USB is already mounted. Do you want to unmount it and "
+                                      "format it? This will delete everything on the USB.\n")
+                        if not yn_choice('Delete? Type y and press Enter to delete, or n to stop the program: '):
+                            Console.ok('\nStopping...')
+                            return ""
+                        else:
+                            Console.ok('Deleting...')
+                            results = Host.ssh(hosts=f"pi@{manager}", command=f"sudo umount -fl {device}")
+                            print(Printer.write(results))
+                            results = Host.ssh(hosts=f"pi@{manager}", command=f"sudo mkfs.ext4 -F {device}")
+                            print(Printer.write(results))
                 results = Host.ssh(hosts=f"pi@{manager}", command=f"sudo blkid {device}")
                 print(Printer.write(results))
                 for entry in results:
