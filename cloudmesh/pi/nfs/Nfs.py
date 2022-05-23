@@ -220,7 +220,7 @@ class Nfs:
 
             for worker in workers:
                 #create share point on workers
-                _create_share_system(worker,mounting_to)
+                _create_share_system(worker,mounting_to,user)
 
                 #mount worker share point to manager share point 
                 command = f"sudo mount {manager_ip}:{mounting_to} {mounting_to}"
