@@ -76,8 +76,8 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
-            pi nfs install [--hostnames=HOSTNAMES] [--user=USER]
-            pi nfs uninstall [--hostnames=HOSTNAMES] [--user=USER]
+            pi nfs install [--hostnames=HOSTNAMES] [--username=USERNAME]
+            pi nfs uninstall [--hostnames=HOSTNAMES] [--username=USERNAME]
             pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no] [--username=USERNAME]
             pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate] [--username=USERNAME]
 
