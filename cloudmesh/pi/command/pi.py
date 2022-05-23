@@ -76,8 +76,8 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
-            pi nfs install --hostnames=HOSTNAMES [--user=USER]
-            pi nfs uninstall --hostnames=HOSTNAMES [--user=USER]
+            pi nfs install [--hostnames=HOSTNAMES] [--user=USER]
+            pi nfs uninstall [--hostnames=HOSTNAMES] [--user=USER]
             pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no] [--username=USERNAME]
             pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate] [--username=USERNAME]
 
@@ -267,17 +267,18 @@ class PiCommand(PluginCommand):
                 nfs.install(manager, user)
 
             if arguments.uninstall:
+                if arguments['--username']:
+                    user = arguments['--username']
+                else:
+                    user = 'pi'
                 if arguments['--hostnames']:
                     manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
                     workers = (arguments['--hostnames'].split(",", 1)[1])
-                    if arguments['--username']:
-                        user = arguments['--username']
-                    else:
-                        user = 'pi'
-                    nfs.uninstall(manager, user)
                 else:
-                    Console.error("No manager provided. Please provide hostnames of Pis, such as "
-                                  "--hostnames=red,red0[1-3]\nIn this example, red is manager.")
+                    manager = subprocess.run(['hostname'],
+                                             capture_output=True,
+                                             text=True).stdout.strip()
+                nfs.uninstall(manager, user)
 
             if arguments.share:
                 if arguments['--username']:
