@@ -59,6 +59,12 @@ The ```--paths``` argument takes first the path to the master directory you wish
 
 The ```--hostnames``` command takes first the manager hostname and next the hostnames of the workers you wish to share to.
 
+Example if the Pi has a username that is not "pi":
+
+```
+pi@red$ cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02" --username=myusername
+```
+
 The user can also choose to share a USB:
 
 Example:
