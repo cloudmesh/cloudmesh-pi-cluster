@@ -97,4 +97,10 @@ Example, unsharing to all workers (taking down NFS share from manager):
 pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01,red02"
 ```
 
+Example if the Pi has a username that is not "pi":
+
+```
+pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01,red02" --username=myusername
+```
+
 The ```--path``` argument takes the path to the shared directory. The ```hostnames``` argument takes the names of the pis to unshare the manager's directory to. If the names of only worker pis are included, then those specific worker pis will lose access to the shared directory. If the manager is included along with all worker pis, then the entire NFS sharing functionality will be taken down. 
