@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from getpass import getpass
+import subprocess
 
 from cloudmesh.pi.cluster.Installer import Script
 from cloudmesh.common.console import Console
@@ -252,17 +253,18 @@ class PiCommand(PluginCommand):
                 nfs.info()
 
             if arguments.install:
+                if arguments['--username']:
+                    user = arguments['--username']
+                else:
+                    user = 'pi'
                 if arguments['--hostnames']:
                     manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
                     workers = (arguments['--hostnames'].split(",", 1)[1])
-                    if arguments['--username']:
-                        user = arguments['--username']
-                    else:
-                        user = 'pi'
-                    nfs.install(manager, user)
                 else:
-                    Console.error("No manager provided. Please provide hostnames of Pis, such as "
-                                  "--hostnames=red,red0[1-3]\nIn this example, red is manager.")
+                    manager = subprocess.run(['hostname'],
+                                             capture_output=True,
+                                             text=True).stdout.strip()
+                nfs.install(manager, user)
 
             if arguments.uninstall:
                 if arguments['--hostnames']:
