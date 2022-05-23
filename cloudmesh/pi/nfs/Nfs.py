@@ -217,6 +217,9 @@ class Nfs:
             if not usb:
                 r = Host.ssh(hosts=f"{user}@{manager}", command=f'chmod +rx {mounting}')
                 print(Printer.write(r))
+            else:
+                r = Host.ssh(hosts=f"{user}@{manager}", command=f'chmod +rx {mounting_to}')
+                print(Printer.write(r))
 
             for worker in workers:
                 #create share point on workers
