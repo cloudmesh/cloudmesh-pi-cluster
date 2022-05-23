@@ -159,6 +159,10 @@ class Nfs:
                 command = f"sudo mount -a"
             r = Host.ssh(hosts=f"{user}@{manager}", command=command)
             print(Printer.write(r))
+            for entry in r:
+                if 'does not exist' in str(entry['stderr']):
+                    Console.error(f'Directory {mounting} does not exist!')
+                    return ""
             result[f"{user}@{manager}: " + command] = r[0]['success']
 
             if not usb:
