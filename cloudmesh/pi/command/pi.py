@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from getpass import getpass
+import subprocess
 
 from cloudmesh.pi.cluster.Installer import Script
 from cloudmesh.common.console import Console
@@ -12,6 +13,7 @@ from cloudmesh.pi.wifi import Wifi
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
+from cloudmesh.pi.nfs.Nfs import Nfs
 from cloudmesh.pi.cluster.k3.k3 import K3
 from cloudmesh.pi.cluster.microk8s.microk8s import MicroK8s
 
@@ -74,21 +76,30 @@ class PiCommand(PluginCommand):
             pi script list SERVICE [--details]
             pi script list SERVICE NAMES
             pi script list
+            pi nfs install [--hostnames=HOSTNAMES] [--username=USERNAME]
+            pi nfs uninstall [--hostnames=HOSTNAMES] [--username=USERNAME]
+            pi nfs share --paths=PATHS --hostnames=HOSTNAMES [--usb=no] [--username=USERNAME]
+            pi nfs unshare --path=PATH --hostnames=HOSTNAMES [--terminate] [--username=USERNAME]
 
           Arguments:
               NAMES       The hostnames in parameterized form
               VALUE       The Values are on, off, 0, 1
               USER        The user name for a login
               SSID        The ssid of your WIfi
-              PASSWORD    The assword for the WIFI
+              PASSWORD    The password for the WIFI
 
             Options:
-               -v               verbose mode
-               --output=OUTPUT  the format in which this list is given
-                                formats includes cat, table, json, yaml,
-                                dict. If cat is used, it is just print
-               --user=USER      the user name
-               --rate=SECONDS   repeats the quere given by the rate in seconds
+               -v                     verbose mode
+               --output=OUTPUT        the format in which this list is given
+                                      formats includes cat, table, json, yaml,
+                                      dict. If cat is used, it is just print
+               --user=USER            the user name
+               --rate=SECONDS         repeats the quere given by the rate in seconds
+               --hostnames=HOSTNAMES  hostnames for clients and optionally the server
+               --manager=MANAGER      hostname for the server
+               --usb=no               if set to yes, then the nfs will be created on
+                                      a USB that is inserted into the manager pi [default:no]
+               --username=USERNAME    the username on each pi to be used [default:pi]
 
           Description:
 
@@ -157,6 +168,29 @@ class PiCommand(PluginCommand):
                     pi script list SERVICE NAMES
                     pi script list
 
+                pi nfs install --hostnames=HOSTNAMES [--manager=MANAGER]
+
+                    Installs an NFS server on the pi cluster that
+                    can be accessed from the workers. If manager is not
+                    specified the first host in hostname is supposed to be
+                    the manager. Multiple NFS servers in teh clusyter could exists.
+
+                pi nfs register --hostnames=HOSTNAME --manager=MANAGER
+
+                    registers to the given hostnames the manager
+
+                pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02"
+
+                    Creates a shared folder across all Pis whose contents originate from the
+                    manager Pi's folder located at /home/pi/Stuff, and which can be found on
+                    the worker Pis at /mnt/nfs
+
+                pi nfs share --paths="/mnt/nfs" --hostnames="red,red01,red02" --usb=yes
+
+                    Creates a shared folder across all Pis whose contents are stored on a
+                    USB drive inserted into the manager Pi. The folder can be accessed, read
+                    from and written to, at /mnt/nfs
+
         """
 
         map_parameters(arguments,
@@ -165,7 +199,9 @@ class PiCommand(PluginCommand):
                        'workers',
                        'output',
                        'user',
-                       'rate')
+                       'rate',
+                       'terminate',
+                       'hostnames')
 
         arguments.output = arguments.output or 'table'
 
@@ -209,6 +245,58 @@ class PiCommand(PluginCommand):
             wifi.set(arguments.SSID, arguments.PASSWORD,
                      dryrun=arguments["--dryrun"])
 
+        elif arguments.nfs:
+
+            nfs = Nfs()
+
+            if arguments.info:
+                nfs.info()
+
+            if arguments.install:
+                if arguments['--username']:
+                    user = arguments['--username']
+                else:
+                    user = 'pi'
+                if arguments['--hostnames']:
+                    manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
+                    workers = (arguments['--hostnames'].split(",", 1)[1])
+                else:
+                    manager = subprocess.run(['hostname'],
+                                             capture_output=True,
+                                             text=True).stdout.strip()
+                nfs.install(manager, user)
+
+            if arguments.uninstall:
+                if arguments['--username']:
+                    user = arguments['--username']
+                else:
+                    user = 'pi'
+                if arguments['--hostnames']:
+                    manager = arguments['--hostnames'][:arguments['--hostnames'].index(",")]
+                    workers = (arguments['--hostnames'].split(",", 1)[1])
+                else:
+                    manager = subprocess.run(['hostname'],
+                                             capture_output=True,
+                                             text=True).stdout.strip()
+                nfs.uninstall(manager, user)
+
+            if arguments.share:
+                if arguments['--username']:
+                    user = arguments['--username']
+                else:
+                    user = 'pi'
+                nfs.share(arguments['--paths'],arguments['--hostnames'],arguments['--usb'],user)
+
+            if arguments.unshare:
+                if arguments['--username']:
+                    user = arguments['--username']
+                else:
+                    user = 'pi'
+                if arguments.terminate:
+                    nfs.unshare(arguments['--path'],arguments['--hostnames'],user,terminate=True)
+                else:
+                    nfs.unshare(arguments['--path'],arguments['--hostnames'],user)
+                
         elif arguments.k3:
             k3 = K3()
             k3.execute(arguments)
