@@ -41,6 +41,13 @@ This command will install the necessary package to perform network file sharing 
 ```
 pi@red$ cms pi nfs install
 ```
+
+Example if the Pi has a username that is not "pi":
+
+```
+pi@red$ cms pi nfs install --username=myusername
+```
+
 ## Share Directory
 
 Share a directory on your manager pi to your worker pis using the following command:
