@@ -7,7 +7,6 @@ import getpass
 
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import HEADING
-from cloudmesh.common.parameter import Parameter
 import pytest
 
 
@@ -53,12 +52,11 @@ class Test_nfs(object):
         #fails because nonexistent directory
         assert 'does not exist' in r'''
 
-    def test_share(self, username, hostname):
-        hostname_list = Parameter.expand(hostname)
+    def test_share(self, username, hostnames):
         command = 'mkdir ~/Stuff'
         r = Shell.run(command)
         print(r)
-        command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames={hostname_list} ' \
+        command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames={hostnames} ' \
                   f'--username={username}'
         print(command)
         r = Shell.run(command)
@@ -67,9 +65,8 @@ class Test_nfs(object):
 
 class Rest:
 
-    def test_unshare(self, username, hostname):
-        hostname_list = Parameter.expand(hostname)
-        command = f'cms pi nfs unshare --path="/mnt/nfs" --hostnames={hostname_list} ' \
+    def test_unshare(self, username, hostnames):
+        command = f'cms pi nfs unshare --path="/mnt/nfs" --hostnames={hostnames} ' \
                   f'--username={username}'
         print(command)
         r = Shell.run(command)

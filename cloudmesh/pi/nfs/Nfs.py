@@ -6,6 +6,7 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import str_bool
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.parameter import Parameter
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.sdcard import SDCard
 
@@ -92,7 +93,7 @@ class Nfs:
             else:
                 mounting_to = paths
 
-            pis = hostnames.split(',')
+            pis = Parameter.expand(hostnames)
             manager = pis[0]
             workers = pis[1:]
 
@@ -279,7 +280,7 @@ class Nfs:
             result[f"{user}@{host}: " + command] = r[0]['success']
         
         #necessary hostnames for unsharing
-        pis = hostnames.split(',')
+        pis = Parameter.expand(hostnames)
         manager = pis[0]
         workers = pis[1:]
 
