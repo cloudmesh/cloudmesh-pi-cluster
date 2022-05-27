@@ -39,6 +39,7 @@ class Test_nfs(object):
 
     def test_install(self, username):
         command = f'cms pi nfs install --username={username}'
+        print(command)
         r = Shell.run(command)
         print(r)
         assert True
@@ -59,6 +60,7 @@ class Test_nfs(object):
         print(r)
         command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames={hostname_list} ' \
                   f'--username={username}'
+        print(command)
         r = Shell.run(command)
         print(r)
         assert True
@@ -69,6 +71,7 @@ class Rest:
         hostname_list = Parameter.expand(hostname)
         command = f'cms pi nfs unshare --path="/mnt/nfs" --hostnames={hostname_list} ' \
                   f'--username={username}'
+        print(command)
         r = Shell.run(command)
         print(r)
         assert True
