@@ -43,14 +43,14 @@ class Test_nfs(object):
         print(r)
         assert True
 
-    def test_failed_share(self, username, hostname):
+'''    def test_failed_share(self, username, hostname):
         hostname_list = Parameter.expand(hostname)
         command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" ' \
                   f'--hostnames={hostname_list} --username={username}'
         r = Shell.run(command)
         print(r)
         #fails because nonexistent directory
-        assert 'does not exist' in r
+        assert 'does not exist' in r'''
 
     def test_share(self, username, hostname):
         hostname_list = Parameter.expand(hostname)
