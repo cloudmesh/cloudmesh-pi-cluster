@@ -7,6 +7,7 @@ import getpass
 
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import HEADING
+from cloudmesh.common.parameter import Parameter
 import pytest
 
 
@@ -36,35 +37,40 @@ class Test_nfs(object):
         print(r)
         assert 'nfs' in r
 
-    def test_install(self):
-        command = 'cms pi nfs install'
+    def test_install(self, username):
+        command = f'cms pi nfs install --username={username}'
         r = Shell.run(command)
         print(r)
         assert True
 
-    def test_failed_share(self):
-        command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02,red03"'
+    def test_failed_share(self, username, hostname):
+        hostname_list = Parameter.expand(hostname)
+        command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" ' \
+                  f'--hostnames={hostname_list} --username={username}'
         r = Shell.run(command)
         print(r)
         #fails because nonexistent directory
         assert 'does not exist' in r
 
-    def test_share(self):
+    def test_share(self, username, hostname):
+        hostname_list = Parameter.expand(hostname)
         command = 'mkdir ~/Stuff'
         r = Shell.run(command)
         print(r)
-        command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02,red03"'
+        command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames={hostname_list} ' \
+                  f'--username={username}'
         r = Shell.run(command)
         print(r)
         assert True
 
 class Rest:
 
-    def test_unshare(self):
-        command = 'cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01"'
-        command = 'ls -lisa -h'
-        r = run(command)
-        print(type(r))
+    def test_unshare(self, username, hostname):
+        hostname_list = Parameter.expand(hostname)
+        command = f'cms pi nfs unshare --path="/mnt/nfs" --hostnames={hostname_list} ' \
+                  f'--username={username}'
+        r = Shell.run(command)
+        print(r)
         assert True
 
 
