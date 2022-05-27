@@ -27,7 +27,7 @@ def pytest_generate_tests(metafunc):
     option_value = metafunc.config.option.name
     if 'name' in metafunc.fixturenames and option_value is not None:
         metafunc.parametrize("name", [option_value])
-print(option_value)
+    print(option_value)
 
 @pytest.mark.incremental
 class Test_nfs(object):
