@@ -29,6 +29,13 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("name", [option_value])
     print(option_value)
 '''
+
+def test_print_name(name):
+    print ("Displaying name: %s" % name)
+
+def test_print_user(user):
+    print ("Displaying user: %s" & user)
+
 @pytest.mark.incremental
 class Test_nfs(object):
     """
