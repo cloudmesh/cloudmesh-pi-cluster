@@ -9,5 +9,5 @@ def pytest_generate_tests(metafunc):
     option_value = metafunc.config.option.name
     if 'name' in metafunc.fixturenames and option_value is not None:
         metafunc.parametrize("name", [option_value])
-    if 'user' in metafunc.fixtureusers and option_value is not None:
+    if 'user' in metafunc.fixturenames and option_value is not None:
         metafunc.parametrize("user", [option_value])
