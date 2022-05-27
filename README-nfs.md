@@ -59,7 +59,7 @@ pi@red$ cms pi nfs share --paths=PATHS --hostnames=HOSTNAMES
 Example:
 
 ```
-pi@red$ cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02"
+pi@red$ cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red0[1-3]"
 ```
 
 The ```--paths``` argument takes first the path to the master directory you wish to share and second the path to the shared directory. The command will create the shared directory on your manager and worker pis. We recommend naming this directory ```/mnt/nfs``` 
@@ -69,7 +69,7 @@ The ```--hostnames``` command takes first the manager hostname and next the host
 Example if the Pi has a username that is not "pi":
 
 ```
-pi@red$ cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02" --username=myusername
+pi@red$ cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red0[1-3]" --username=myusername
 ```
 
 The user can also choose to share a USB:
@@ -77,7 +77,7 @@ The user can also choose to share a USB:
 Example:
 
 ```
-pi@red$ cms pi nfs share --paths="/mnt/nfs" --hostnames="red,red01,red02" --usb=yes
+pi@red$ cms pi nfs share --paths="/mnt/nfs" --hostnames="red,red0[1-3]" --usb=yes
 ```
 
 The usb parameter creates an interactive installation that prompts the user to choose from a list of devices connected to the manager Pi.
@@ -101,13 +101,13 @@ pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red01"
 Example, unsharing to all workers (taking down NFS share from manager):
 
 ```
-pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01,red02"
+pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red0[1-3]"
 ```
 
 Example if the Pi has a username that is not "pi":
 
 ```
-pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01,red02" --username=myusername
+pi@red$ cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red0[1-3]" --username=myusername
 ```
 
 The ```--path``` argument takes the path to the shared directory. The ```hostnames``` argument takes the names of the pis to unshare the manager's directory to. If the names of only worker pis are included, then those specific worker pis will lose access to the shared directory. If the manager is included along with all worker pis, then the entire NFS sharing functionality will be taken down. 
