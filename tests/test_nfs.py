@@ -23,7 +23,8 @@ def pytest_addoption(parser):
 def pytest_generate_tests(metafunc):
     # This is called for every test. Only get/set command line arguments
     # if the argument is specified in the list of test "fixturenames".
-    global option_value = metafunc.config.option.name
+    global option_value
+    option_value = metafunc.config.option.name
     if 'name' in metafunc.fixturenames and option_value is not None:
         metafunc.parametrize("name", [option_value])
 print(option_value)
