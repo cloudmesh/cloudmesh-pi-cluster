@@ -17,24 +17,9 @@ def run(command):
     result = Shell.execute(shell_command, args)
     return str(result)
 
-'''def pytest_addoption(parser):
-    parser.addoption("--name", action="store", default="default name")
-
-def pytest_generate_tests(metafunc):
-    # This is called for every test. Only get/set command line arguments
-    # if the argument is specified in the list of test "fixturenames".
-    global option_value
-    option_value = metafunc.config.option.name
-    if 'name' in metafunc.fixturenames and option_value is not None:
-        metafunc.parametrize("name", [option_value])
-    print(option_value)
-'''
-
-def test_print_name(username):
-    print ("Displaying name: %s" % username)
-
-def test_print_user(hostname):
-    print ("Displaying user: %s" % hostname)
+def test_print_name(username, hostname):
+    print ("Displaying username: %s" % username)
+    print("Displaying hostname: %s" % hostname)
 
 @pytest.mark.incremental
 class Test_nfs(object):
