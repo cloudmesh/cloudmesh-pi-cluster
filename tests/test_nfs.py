@@ -52,11 +52,11 @@ class Test_nfs(object):
         #fails because nonexistent directory
         assert 'does not exist' in r'''
 
-    def test_share(self, username, hostnames):
+    def test_share(self, username, hostname):
         command = 'mkdir ~/Stuff'
         r = Shell.run(command)
         print(r)
-        command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames={hostnames} ' \
+        command = f'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames={hostname} ' \
                   f'--username={username}'
         print(command)
         r = Shell.run(command)
@@ -65,8 +65,8 @@ class Test_nfs(object):
 
 class Rest:
 
-    def test_unshare(self, username, hostnames):
-        command = f'cms pi nfs unshare --path="/mnt/nfs" --hostnames={hostnames} ' \
+    def test_unshare(self, username, hostname):
+        command = f'cms pi nfs unshare --path="/mnt/nfs" --hostnames={hostname} ' \
                   f'--username={username}'
         print(command)
         r = Shell.run(command)
