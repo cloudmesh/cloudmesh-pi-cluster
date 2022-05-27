@@ -1,6 +1,6 @@
 # How to run pytest for nfs
 
-To run pytest on nfs, `ssh` into the manager Pi.
+To run pytest for cms pi nfs, `ssh` into the manager Pi.
 Then clone cloudmesh-pi-cluster while standing
 in cm.
 
