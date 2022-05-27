@@ -17,7 +17,7 @@ def run(command):
     result = Shell.execute(shell_command, args)
     return str(result)
 
-def pytest_addoption(parser):
+'''def pytest_addoption(parser):
     parser.addoption("--name", action="store", default="default name")
 
 def pytest_generate_tests(metafunc):
@@ -28,7 +28,7 @@ def pytest_generate_tests(metafunc):
     if 'name' in metafunc.fixturenames and option_value is not None:
         metafunc.parametrize("name", [option_value])
     print(option_value)
-
+'''
 @pytest.mark.incremental
 class Test_nfs(object):
     """
@@ -42,7 +42,6 @@ class Test_nfs(object):
         command = 'cms help pi'
         r = Shell.run(command)
         print(r)
-        print(option_value)
         assert 'nfs' in r
 
     def test_install(self):
