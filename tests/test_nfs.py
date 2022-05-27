@@ -55,7 +55,7 @@ class Test_nfs(object):
         r = Shell.run(command)
         print(r)
         #fails because nonexistent directory
-        assert False
+        assert 'does not exist' in r
 
     def test_share(self):
         command = 'mkdir Stuff'
