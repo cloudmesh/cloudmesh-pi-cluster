@@ -2,8 +2,8 @@ import pytest
 
 
 def pytest_addoption(parser):
-    parser.addoption("--username", action="store", default="default username")
-    parser.addoption("--hostname", action="store", default="default hostname")
+    parser.addoption("--username", action="store", default="pi")
+    parser.addoption("--hostname", action="store", default="red")
 
 
 
