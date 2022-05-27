@@ -58,7 +58,7 @@ class Test_nfs(object):
         assert 'does not exist' in r
 
     def test_share(self):
-        command = 'mkdir Stuff'
+        command = 'mkdir ~/Stuff'
         r = Shell.run(command)
         print(r)
         command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02,red03"'
