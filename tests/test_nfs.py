@@ -38,20 +38,11 @@ class Test_nfs(object):
     #     print(r)
 
     def test_help(self):
-        command = 'cms pi help'
+        command = 'cms help pi'
         r = Shell.run(command)
         print(r)
         print(option_value)
         assert 'nfs' in r
-
-class Rest:
-
-    def test_unshare(self):
-        command = 'cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01"'
-        command = 'ls -lisa -h'
-        r = run(command)
-        print(type(r))
-        assert True
 
     def test_install(self):
         command = 'cms pi nfs install'
@@ -74,3 +65,14 @@ class Rest:
         r = Shell.run(command)
         print(r)
         assert True
+
+class Rest:
+
+    def test_unshare(self):
+        command = 'cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01"'
+        command = 'ls -lisa -h'
+        r = run(command)
+        print(type(r))
+        assert True
+
+
