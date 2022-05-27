@@ -30,11 +30,11 @@ def pytest_generate_tests(metafunc):
     print(option_value)
 '''
 
-def test_print_name(name):
-    print ("Displaying name: %s" % name)
+def test_print_name(username):
+    print ("Displaying name: %s" % username)
 
-def test_print_user(user):
-    print ("Displaying user: %s" & user)
+def test_print_user(hostname):
+    print ("Displaying user: %s" % hostname)
 
 @pytest.mark.incremental
 class Test_nfs(object):
