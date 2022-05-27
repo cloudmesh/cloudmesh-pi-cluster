@@ -1,5 +1,5 @@
 ###############################################################
-# pytest -v --capture=no  tests/test_nfs.py
+# pytest -v --capture=no  tests/test_nfs.py --username=pi --hostname=red,red0[1-3]
 # npytest -v --capture=no  tests/test_nfs.py::Test_nfs.test_umount
 # pytest -v tests/test_nfs.py
 ###############################################################
