@@ -17,6 +17,16 @@ def run(command):
     result = Shell.execute(shell_command, args)
     return str(result)
 
+def pytest_addoption(parser):
+    parser.addoption("--name", action="store", default="default name")
+
+def pytest_generate_tests(metafunc):
+    # This is called for every test. Only get/set command line arguments
+    # if the argument is specified in the list of test "fixturenames".
+    global option_value = metafunc.config.option.name
+    if 'name' in metafunc.fixturenames and option_value is not None:
+        metafunc.parametrize("name", [option_value])
+print(option_value)
 
 @pytest.mark.incremental
 class Test_nfs(object):
@@ -26,11 +36,41 @@ class Test_nfs(object):
     #     command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01"'
     #     r = run(command)
     #     print(r)
-        
+
+    def test_help(self):
+        command = 'cms pi help'
+        r = Shell.run(command)
+        print(r)
+        print(option_value)
+        assert 'nfs' in r
+
+class Rest:
 
     def test_unshare(self):
         command = 'cms pi nfs unshare --path="/mnt/nfs" --hostnames="red,red01"'
         command = 'ls -lisa -h'
         r = run(command)
         print(type(r))
+        assert True
+
+    def test_install(self):
+        command = 'cms pi nfs install'
+        r = Shell.run(command)
+        print(r)
+        assert True
+
+    def test_failed_share(self):
+        command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02,red03"'
+        r = Shell.run(command)
+        print(r)
+        #fails because nonexistent directory
+        assert False
+
+    def test_share(self):
+        command = 'mkdir Stuff'
+        r = Shell.run(command)
+        print(r)
+        command = 'cms pi nfs share --paths="/home/pi/Stuff,/mnt/nfs" --hostnames="red,red01,red02,red03"'
+        r = Shell.run(command)
+        print(r)
         assert True
