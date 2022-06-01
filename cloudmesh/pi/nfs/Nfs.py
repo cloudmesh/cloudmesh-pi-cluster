@@ -85,16 +85,24 @@ class Nfs:
 
         try:
             #necessary IPs & hostnames for sharing
-            manager_ip = Shell.run('hostname -I').strip().split(' ')[0]
+            pis = hostnames.split(',')
+            manager = pis[0]
+            workers = pis[1:]
+
+            script = textwrap.dedent(
+                f"""
+                hostname -I 
+                """).strip()
+            results = Nfs.hostexecute(script, f"{user}@{manager}")
+            for entry in results:
+                manager_ip = (str(entry["stdout"])).strip().split(' ')[0]
+                print(manager_ip)
+            #manager_ip = Shell.run('hostname -I').strip().split(' ')[0]
 
             if not usb:
                 mounting, mounting_to = paths.split(',')
             else:
                 mounting_to = paths
-
-            pis = hostnames.split(',')
-            manager = pis[0]
-            workers = pis[1:]
 
             if usb:
                 if not yn_choice(
